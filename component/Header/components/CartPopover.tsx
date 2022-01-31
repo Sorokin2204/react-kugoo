@@ -107,7 +107,7 @@ const CartButton = styled(Button)(({ theme }) => ({
   flexGrow: '1',
 }));
 
-const currencyFormat = (price: number) =>
+export const currencyFormat = (price: number) =>
   `${price.toFixed(3).replace('.', ' ')} ₽`;
 
 const CartPopover: React.FC<PopoverProps> = (props) => {

@@ -17,10 +17,10 @@ import React, { useEffect, useState } from 'react';
 import styles from './Header.module.scss';
 import clsx from 'clsx';
 import LinkNext from 'next/link';
-import LinkCustom from './components/LinkCustom';
-import SocialLinkCustom from './components/SocialLinkCustom';
-import PhonePopover from './components/PhonePopover';
-import ButtonIcon from '../common/ButtonIcon';
+import LinkCustom from './LinkCustom';
+import SocialLinkCustom from './SocialLinkCustom';
+import PhonePopover from './PhonePopover';
+import ButtonIcon from '../../common/ButtonIcon';
 
 type Props = {};
 
@@ -30,7 +30,7 @@ type TopHeaderData = {
   phone: string;
 };
 
-const topHeaderData: TopHeaderData = {
+export const topHeaderData: TopHeaderData = {
   links: [
     { text: 'Сервис', path: '/service' },
     { text: 'Сотрудничество', path: '/partners' },
@@ -115,7 +115,11 @@ const HeaderTop = (props: Props) => {
           <SocialLinkList container spacing={0}>
             {topHeaderData.socialLinks.map((el, i) => (
               <SocialLinkItem item key={i}>
-                <SocialLinkCustom href={el.url} icon={el.iconUrl} />
+                <SocialLinkCustom
+                  sizeIcon={theme.spacing(6)}
+                  href={el.url}
+                  icon={el.iconUrl}
+                />
               </SocialLinkItem>
             ))}
           </SocialLinkList>

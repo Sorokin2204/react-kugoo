@@ -57,7 +57,7 @@ const SearchSelect = styled(Select)<{ triangle: string }>(
     margin: theme.spacing(2),
     marginRight: theme.spacing(10),
     padding: theme.spacing(0),
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.grey[100],
 
     '& .MuiSelect-outlined': {
       padding: `${theme.spacing(3)} ${theme.spacing(7)}`,

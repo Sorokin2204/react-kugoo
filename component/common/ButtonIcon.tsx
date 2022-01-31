@@ -5,23 +5,30 @@ type ButtonIconStyleProps = {
   icon: string;
   iconW: string;
   iconH: string;
-  padding: string;
+  sizeBtn: string;
+  iconColor?: string;
+  variant?: 'border' | 'fill';
 };
 
 type ButtonIconProps = IconButtonProps & ButtonIconStyleProps;
 
 const ButtonIconStyle = styled(IconButton)<ButtonIconStyleProps>(
-  ({ theme, icon, iconW, iconH, padding }) => ({
-    padding: padding,
+  ({ theme, icon, iconW, iconH, sizeBtn, iconColor, variant }) => ({
+    width: sizeBtn,
+    height: sizeBtn,
     borderRadius: '50%',
     '&::after': {
       display: 'block',
       content: '""',
       width: iconW,
       height: iconH,
-
-      background: `url(${icon}) no-repeat 0 0/contain`,
+      mask: `url(${icon}) no-repeat`,
+      maskSize: 'contain',
+      backgroundColor: iconColor ? iconColor : theme.palette.common.black,
     },
+    ...(variant === 'border' && {
+      border: `1px solid #eaebed`,
+    }),
   }),
 );
 

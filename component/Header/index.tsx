@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, styled } from '@mui/material';
-import HeaderTop from './HeaderTop';
-import HeaderBottom from './HeaderBottom';
+import HeaderTop from './components/HeaderTop';
+import HeaderBottom from './components/HeaderBottom';
 import Nav from './components/Nav';
 type Props = {};
 

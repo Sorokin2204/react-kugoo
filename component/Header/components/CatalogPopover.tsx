@@ -56,7 +56,7 @@ const randomFilterData = () => {
   return filter;
 };
 
-const catalogData: CatalogPopover[] = [
+export const catalogData: CatalogPopover[] = [
   {
     id: 'electric-1',
     name: 'Электросамокаты',

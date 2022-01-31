@@ -1,12 +1,17 @@
 import { Button, Typography, useTheme } from '@mui/material';
 import { NextPage } from 'next';
 import React from 'react';
+import Home from './Home';
 
 type Props = {};
 
-const Home: NextPage<Props> = ({}) => {
+const Index: NextPage<Props> = ({}) => {
   const theme = useTheme();
-  return <div></div>;
+  return (
+    <>
+      <Home />
+    </>
+  );
 };
 
-export default Home;
+export default Index;

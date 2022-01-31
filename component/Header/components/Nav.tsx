@@ -14,16 +14,33 @@ type Props = {};
 type MenuDataType = {
   text: string;
   path: string;
+  inHeader: boolean;
+  inFooter: boolean;
   badge?: string;
 };
 
-const menuData: MenuDataType[] = [
-  { text: 'О магазине', path: 'about' },
-  { text: 'Доставка и оплата', path: 'about', badge: 'Доступна рассрочка' },
-  { text: 'Тест-драйв', path: 'test' },
-  { text: 'Блог', path: 'blog' },
-  { text: 'Контакт', path: 'contact' },
-  { text: 'Акции', path: 'discount', badge: '%' },
+export const menuData: MenuDataType[] = [
+  { text: 'О магазине', path: 'about', inHeader: true, inFooter: true },
+  { text: 'Сервисный центр', path: 'service', inHeader: false, inFooter: true },
+  { text: 'Рассрочка', path: 'service', inHeader: false, inFooter: true },
+  { text: 'Сотрудничество', path: 'service', inHeader: false, inFooter: true },
+  {
+    text: 'Доставка и оплата',
+    path: 'about',
+    badge: 'Доступна рассрочка',
+    inHeader: true,
+    inFooter: true,
+  },
+  { text: 'Тест-драйв', path: 'test', inHeader: true, inFooter: true },
+  { text: 'Блог', path: 'blog', inHeader: true, inFooter: true },
+  { text: 'Контакт', path: 'contact', inHeader: true, inFooter: true },
+  {
+    text: 'Акции',
+    path: 'discount',
+    badge: '%',
+    inHeader: true,
+    inFooter: true,
+  },
 ];
 
 const NavBox = styled(Box)(({ theme }) => ({
@@ -61,25 +78,34 @@ const Nav: React.FC<Props> = ({}) => {
         {' '}
         <Container>
           <NavList container>
-            {menuData.map((el, i) => (
-              <NavItem item key={i}>
-                <LinkNext href={el.path}>
-                  <NavLink
-                    sx={{ fontSize: theme.typography.t3b }}
-                    href={el.path}>
-                    {el.text}
-                  </NavLink>
-                </LinkNext>
-                {el.badge ? (
-                  <NavBadge
-                    sx={{ px: 4, py: 2, ml: 4, fontSize: theme.typography.t5 }}>
-                    {el.badge}
-                  </NavBadge>
-                ) : (
-                  ''
-                )}
-              </NavItem>
-            ))}
+            {menuData.map((el, i) =>
+              el.inHeader ? (
+                <NavItem item key={i}>
+                  <LinkNext href={el.path}>
+                    <NavLink
+                      sx={{ fontSize: theme.typography.t3b }}
+                      href={el.path}>
+                      {el.text}
+                    </NavLink>
+                  </LinkNext>
+                  {el.badge ? (
+                    <NavBadge
+                      sx={{
+                        px: 4,
+                        py: 2,
+                        ml: 4,
+                        fontSize: theme.typography.t5,
+                      }}>
+                      {el.badge}
+                    </NavBadge>
+                  ) : (
+                    ''
+                  )}
+                </NavItem>
+              ) : (
+                ''
+              ),
+            )}
           </NavList>
         </Container>
       </NavBox>

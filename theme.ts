@@ -66,6 +66,8 @@ let theme = createTheme({
     },
     h4: {
       fontSize: '20px',
+      lineHeight: '29px',
+      fontWeight: '600',
     },
     t1: {
       fontWeight: ' 400',
@@ -166,7 +168,7 @@ theme = createTheme(theme, {
       defaultProps: {},
       styleOverrides: {
         root: {
-          padding: '0 15px',
+          padding: '0px !important',
         },
       },
     },
@@ -180,7 +182,10 @@ theme = createTheme(theme, {
         root: {
           textTransform: 'none',
         },
-        outlined: {},
+        text: {
+          ...theme.typography.t4b,
+          padding: 0,
+        },
         contained: {
           textTransform: 'none',
         },
@@ -192,8 +197,64 @@ theme = createTheme(theme, {
             ...theme.typography.t4,
           },
         },
+        containedReverse: {
+          '&, &:hover': {
+            border: `1px solid ${theme.palette.common.white}`,
+            backgroundColor: theme.palette.common.white,
+            color: theme.palette.primary.main,
+            padding: `${theme.spacing(7.5)} ${theme.spacing(12.5)}`,
+            ...theme.typography.t2,
+          },
+        },
+        outlined: {
+          '&, &:hover': {
+            border: `1px solid ${theme.palette.primary.main}`,
+            backgroundColor: theme.palette.common.white,
+            color: theme.palette.primary.main,
+            padding: `${theme.spacing(7.5)} ${theme.spacing(12.5)}`,
+            ...theme.typography.t2,
+          },
+        },
       },
     },
+    MuiSelect: {
+      styleOverrides: {
+        icon: {
+          display: 'none',
+        },
+        outlined: {
+          // padding: `${theme.spacing(5)} ${theme.spacing(10)}`,
+          // color: theme.palette.primary.main,
+          // paddingRight: '20px !important',
+          // ...theme.typography.t4,
+          // display: 'flex',
+          // alignItems: 'center',
+          // '&::after': {
+          //   content: '""',
+          //   display: 'block',
+          //   marginLeft: theme.spacing(5),
+          //   mask: `url(/static/icons/arrow-down.svg) no-repeat 0 0`,
+          //   width: '9px',
+          //   height: '5px',
+          //   maskSize: 'contain',
+          //   backgroundColor: theme.palette.primary.main,
+          // },
+          // '& .Mui-focused': {
+          //   padding: '0',
+          // },
+          // '& .MuiOutlinedInput-notchedOutline': {
+          //   border: `2px solid ${theme.palette.primary.main} !important`,
+          // },
+          // // '&.Mui-focused fieldset': {
+          // //   border: `2px solid ${theme.palette.primary.main} !important`,
+          // // },
+          // // '&::hover fieldset': {
+          // //   border: `2px solid ${theme.palette.primary.main} !important`,
+          // // },
+        },
+      },
+    },
+
     MuiIconButton: {
       defaultProps: {
         disableTouchRipple: true,
@@ -228,6 +289,38 @@ theme = createTheme(theme, {
       styleOverrides: {
         root: {
           backgroundColor: theme.palette.grey[600],
+        },
+      },
+    },
+    MuiCheckbox: {
+      defaultProps: {},
+    },
+    MuiList: {
+      styleOverrides: {
+        root: {
+          paddingTop: theme.spacing(3),
+          paddingBottom: theme.spacing(4),
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          ...theme.typography.t3,
+          paddingTop: theme.spacing(1.5),
+          paddingBottom: theme.spacing(1.5),
+          paddingLeft: theme.spacing(7),
+          paddingRight: theme.spacing(15),
+          '&.Mui-selected': {
+            color: theme.palette.primary.main,
+            backgroundColor: '#F4F7FB',
+            '&:hover': {
+              backgroundColor: '#F4F7FB',
+            },
+          },
+          '&:hover': {
+            backgroundColor: '#F4F7FB',
+          },
         },
       },
     },
@@ -281,6 +374,8 @@ declare module '@mui/material/styles' {
 declare module '@mui/material/Button' {
   interface ButtonPropsVariantOverrides {
     containedSmall: true;
+    containedReverse: true;
+    outlineSmall: true;
   }
 }
 export default theme;

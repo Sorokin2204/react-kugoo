@@ -6,10 +6,11 @@ import { Button, Link as LinkMUI, styled } from '@mui/material';
 type Props = {
   href: string;
   icon: string;
+  sizeIcon: string;
 };
 
-const SocialLinkStyle = styled(LinkMUI)<{ icon: string }>(
-  ({ theme, icon }) => ({
+const SocialLinkStyle = styled(LinkMUI)<{ icon: string; sizeIcon: string }>(
+  ({ theme, icon, sizeIcon }) => ({
     display: 'block',
     width: theme.spacing(6),
     height: theme.spacing(6),
@@ -17,17 +18,20 @@ const SocialLinkStyle = styled(LinkMUI)<{ icon: string }>(
       display: 'block',
       content: `""`,
       background: `url(${icon}) no-repeat 0 0/ contain`,
-      width: theme.spacing(6),
-      height: theme.spacing(6),
+      width: sizeIcon,
+      height: sizeIcon,
     },
   }),
 );
 
-function SocialLinkCustom({ href, icon }: Props) {
+function SocialLinkCustom({ href, icon, sizeIcon }: Props) {
   return (
     <>
       <Link href={href}>
-        <SocialLinkStyle href={href} icon={icon}></SocialLinkStyle>
+        <SocialLinkStyle
+          href={href}
+          icon={icon}
+          sizeIcon={sizeIcon}></SocialLinkStyle>
       </Link>
     </>
   );

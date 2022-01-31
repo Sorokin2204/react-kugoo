@@ -1,9 +1,9 @@
 import React from 'react';
 import { Box, Button, styled, Typography, useTheme } from '@mui/material';
-import ButtonIcon from '../common/ButtonIcon';
-import Search from './components/Search';
-import CartPopover from './components/CartPopover';
-import CatalogPopover from './components/CatalogPopover';
+import ButtonIcon from '../../common/ButtonIcon';
+import Search from './Search';
+import CartPopover from './CartPopover';
+import CatalogPopover from './CatalogPopover';
 
 type Props = {};
 
