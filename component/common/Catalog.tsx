@@ -29,7 +29,7 @@ const filterInlineData: FilterInlineType[] = [
   },
 ];
 
-const productData: ProductType[] = [
+export const productData: ProductType[] = [
   {
     title: 'Kugoo Kirin M4',
     oldPrice: 39.9,
@@ -127,7 +127,7 @@ const Catalog: React.FC<Props> = ({ type }) => {
               <Product data={productData[0]} />
             </CatalogGridItem>
           ))}
-          <CatalogGridItem item xs={12}>
+          <CatalogGridItem item xs={12} sx={{ mb: 25 }}>
             <CatalogBtnMore variant="outlined">Смотреть все</CatalogBtnMore>
           </CatalogGridItem>
         </CatalogGrid>

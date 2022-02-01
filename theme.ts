@@ -45,10 +45,11 @@ let theme = createTheme({
   },
   boxShadow: {
     primary: '0px 10px 30px rgba(111, 115, 238, 0.1);',
-    secondary: '',
+    secondary: '0px 20px 40px rgba(30, 33, 142, 0.1);',
   },
   typography: {
     fontFamily: 'Jost',
+
     h1: {
       fontSize: '35px',
       lineHeight: '51px',
@@ -67,6 +68,16 @@ let theme = createTheme({
     h4: {
       fontSize: '20px',
       lineHeight: '29px',
+      fontWeight: '400',
+    },
+    h4b: {
+      fontSize: '20px',
+      lineHeight: '29px',
+      fontWeight: '500',
+    },
+    h4bb: {
+      fontSize: '20px',
+      lineHeight: '29px',
       fontWeight: '600',
     },
     t1: {
@@ -76,6 +87,11 @@ let theme = createTheme({
     },
     t1b: {
       fontWeight: ' 500',
+      fontSize: ' 18px',
+      lineHeight: ' 26px',
+    },
+    t1bb: {
+      fontWeight: ' 600',
       fontSize: ' 18px',
       lineHeight: ' 26px',
     },
@@ -89,6 +105,11 @@ let theme = createTheme({
       fontSize: ' 16px',
       lineHeight: ' 23px',
     },
+    t2bb: {
+      fontWeight: ' 600',
+      fontSize: ' 16px',
+      lineHeight: ' 23px',
+    },
     t3: {
       fontWeight: ' 400',
       fontSize: ' 14px',
@@ -96,6 +117,11 @@ let theme = createTheme({
     },
     t3b: {
       fontWeight: ' 500',
+      fontSize: ' 14px',
+      lineHeight: ' 20px',
+    },
+    t3bb: {
+      fontWeight: ' 600',
       fontSize: ' 14px',
       lineHeight: ' 20px',
     },
@@ -168,7 +194,7 @@ theme = createTheme(theme, {
       defaultProps: {},
       styleOverrides: {
         root: {
-          padding: '0px !important',
+          padding: '0 30px !important',
         },
       },
     },
@@ -329,14 +355,19 @@ theme = createTheme(theme, {
 
 declare module '@mui/material/Typography/Typography' {
   interface TypographyPropsVariantOverrides {
+    h4b: true;
+    h4bb: true;
     t1: true;
     t2: true;
     t3: true;
     t4: true;
     t5: true;
     t1b: true;
+    t1bb: true;
     t2b: true;
+    t2bb: true;
     t3b: true;
+    t3bb: true;
     t4b: true;
     t5b: true;
   }
@@ -344,28 +375,37 @@ declare module '@mui/material/Typography/Typography' {
 
 declare module '@mui/material/styles' {
   interface TypographyVariants {
-    t1: React.CSSProperties;
+    h4b: React.CSSProperties;
+    h4bb: React.CSSProperties;
     t2: React.CSSProperties;
     t3: React.CSSProperties;
     t4: React.CSSProperties;
     t5: React.CSSProperties;
     t1b: React.CSSProperties;
+    t1bb: React.CSSProperties;
     t2b: React.CSSProperties;
+    t2bb: React.CSSProperties;
     t3b: React.CSSProperties;
+    t3bb: React.CSSProperties;
     t4b: React.CSSProperties;
     t5b: React.CSSProperties;
   }
 
   // allow configuration using `createTheme`
   interface TypographyVariantsOptions {
+    h4b?: React.CSSProperties;
+    h4bb?: React.CSSProperties;
     t1?: React.CSSProperties;
     t2?: React.CSSProperties;
     t3?: React.CSSProperties;
     t4?: React.CSSProperties;
     t5?: React.CSSProperties;
     t1b?: React.CSSProperties;
+    t1bb?: React.CSSProperties;
     t2b?: React.CSSProperties;
+    t2bb?: React.CSSProperties;
     t3b?: React.CSSProperties;
+    t3bb?: React.CSSProperties;
     t4b?: React.CSSProperties;
     t5b?: React.CSSProperties;
   }

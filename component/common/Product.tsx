@@ -50,12 +50,17 @@ const Product: React.FC<Props> = ({ data }) => {
           sizeBtn={theme.spacing(20)}></BtnCompare>
       </Header>
       <Content sx={{ pt: 10, px: 12, pb: 0 }}>
-        <Title variant="t1b" sx={{ mb: 10 }}>
+        <Title variant="t1bb" sx={{ mb: 10 }}>
           {data.title}
         </Title>{' '}
         <SpecList container spacing={9} sx={{ mb: 13 }}>
           {data.spec.map((el, i) => (
-            <SpecItem item xs={6} key={i} icon={el.icon}>
+            <SpecItem
+              item
+              xs={6}
+              key={i}
+              icon={el.icon}
+              iconSize={theme.spacing(9)}>
               {el.name}
             </SpecItem>
           ))}
@@ -116,25 +121,26 @@ const BtnCompare = styled(ButtonIcon)(({ theme }) => ({
 const Content = styled(CardContent)(({ theme }) => ({}));
 const Title = styled(Typography)(({ theme }) => ({
   display: 'block',
-  fontWeight: '600',
 }));
 const SpecList = styled(Grid)(({ theme }) => ({
   justifyContent: 'space-between',
 }));
-const SpecItem = styled(Grid)<{ icon: string }>(({ theme, icon }) => ({
-  ...theme.typography.t3,
-  color: theme.palette.grey[600],
-  display: 'flex',
-  alignItems: 'center',
-  '&::before': {
-    content: '""',
-    display: 'block',
-    background: `url(${icon}) no-repeat 0 0/contain`,
-    width: theme.spacing(9),
-    height: theme.spacing(9),
-    marginRight: theme.spacing(5),
-  },
-}));
+export const SpecItem = styled(Grid)<{ icon: string; iconSize: string }>(
+  ({ theme, icon, iconSize }) => ({
+    ...theme.typography.t3,
+    color: theme.palette.grey[600],
+    display: 'flex',
+    alignItems: 'center',
+    '&::before': {
+      content: '""',
+      display: 'block',
+      background: `url(${icon}) no-repeat 0 0/contain`,
+      width: iconSize,
+      height: iconSize,
+      marginRight: theme.spacing(5),
+    },
+  }),
+);
 const Actions = styled(CardActions)(({ theme }) => ({
   display: 'flex',
   flexWrap: 'wrap',

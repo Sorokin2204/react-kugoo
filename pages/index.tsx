@@ -1,7 +1,10 @@
-import { Button, Typography, useTheme } from '@mui/material';
+import { Button, Container, Typography, useTheme } from '@mui/material';
 import { NextPage } from 'next';
 import React from 'react';
-import Home from './Home';
+import Catalog from '../component/common/Catalog';
+import Footer from '../component/Footer.tsx';
+import AdvSmall from './components/Home/AdvSmall';
+import Banner from './components/Home/Banner';
 
 type Props = {};
 
@@ -9,7 +12,13 @@ const Index: NextPage<Props> = ({}) => {
   const theme = useTheme();
   return (
     <>
-      <Home />
+      <Container maxWidth="xl">
+        <Banner />
+      </Container>
+      <Container>
+        <AdvSmall></AdvSmall>
+        <Catalog type="full"></Catalog>
+      </Container>
     </>
   );
 };

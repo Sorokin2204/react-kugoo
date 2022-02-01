@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 
 import SearchIcon from '@mui/icons-material/Search';
+import SearchPopover from './SearchPopover';
 
 type Props = {};
 
@@ -21,34 +22,56 @@ const Search: React.FC<Props> = ({}) => {
   const handleChange = (event) => {
     setAge(event.target.value);
   };
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
   return (
-    <SearchBox>
-      <SearchSelect
-        sx={{ fontSize: theme.typography.t3 }}
-        value={age}
-        onChange={handleChange}
-        displayEmpty>
-        <MenuItem value={''}>Везде</MenuItem>
-        <MenuItem value={'Minsk'}>Минск</MenuItem>
-        <MenuItem value={'Grodno'}>Гродно</MenuItem>
-        <MenuItem value={'Brest'}>Брест</MenuItem>
-      </SearchSelect>
-      <SearchInput
-        sx={{ fontSize: theme.typography.t3 }}
-        placeholder="Искать самокат KUGOO"
-      />
-      <SearchButton>
-        <SearchIcon sx={{ fontSize: 20 }} />
-      </SearchButton>
-    </SearchBox>
+    <SearchWrapper>
+      <SearchBox>
+        <SearchSelect
+          sx={{ fontSize: theme.typography.t3 }}
+          value={age}
+          onChange={handleChange}
+          displayEmpty>
+          <MenuItem value={''}>Везде</MenuItem>
+          <MenuItem value={'Minsk'}>Минск</MenuItem>
+          <MenuItem value={'Grodno'}>Гродно</MenuItem>
+          <MenuItem value={'Brest'}>Брест</MenuItem>
+        </SearchSelect>
+        <SearchInput
+          sx={{ fontSize: theme.typography.t3 }}
+          placeholder="Искать самокат KUGOO"
+        />
+        <SearchButton aria-describedby={id} onClick={handleClick}>
+          <SearchIcon sx={{ fontSize: 20 }} />
+        </SearchButton>
+      </SearchBox>
+      <SearchPopover />
+    </SearchWrapper>
   );
 };
 
 export default Search;
 
+const SearchWrapper = styled(Box)(({ theme }) => ({
+  position: 'relative',
+
+  flexGrow: '1',
+}));
+
 const SearchBox = styled(Box)(({ theme }) => ({
   display: 'flex',
-  flexGrow: '1',
+
   border: `2px solid ${theme.palette.primary.main}`,
   borderRadius: '5px',
 }));
