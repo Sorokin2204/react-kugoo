@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import ButtonIcon from './ButtonIcon';
 import Image from 'next/image';
-import { currencyFormat } from '../Header/components/CartPopover';
+import { currencyFormat } from './Header/components/CartPopover';
 
 type Props = {
   data: ProductType;
@@ -26,6 +26,9 @@ export type ProductType = {
   newPrice: number;
   spec: Array<{ name: string; icon: string }>;
   image: string;
+  views: number;
+  buyers: number;
+  vendorCode: string;
   tag: {
     name: string;
     color: string;
@@ -69,7 +72,7 @@ const Product: React.FC<Props> = ({ data }) => {
       <Actions sx={{ pb: 10, px: 12, pt: 0 }}>
         <PriceBox>
           <OldPrice variant="t4b">{currencyFormat(data.oldPrice)}</OldPrice>
-          <NewPrice variant="h4">{currencyFormat(data.newPrice)}</NewPrice>
+          <NewPrice variant="h4bb">{currencyFormat(data.newPrice)}</NewPrice>
         </PriceBox>
         <BtnCart
           variant="border"
@@ -121,6 +124,7 @@ const BtnCompare = styled(ButtonIcon)(({ theme }) => ({
 const Content = styled(CardContent)(({ theme }) => ({}));
 const Title = styled(Typography)(({ theme }) => ({
   display: 'block',
+  textAlign: 'left',
 }));
 const SpecList = styled(Grid)(({ theme }) => ({
   justifyContent: 'space-between',
@@ -147,10 +151,14 @@ const Actions = styled(CardActions)(({ theme }) => ({
 }));
 const PriceBox = styled(Box)(({ theme }) => ({
   flexGrow: '1',
+  textAlign: 'left',
+  display: 'flex',
+  flexDirection: 'column',
 }));
 const OldPrice = styled(Typography)(({ theme }) => ({
   color: theme.palette.grey[600],
   textDecoration: 'line-through',
+  textAlign: 'left',
 }));
 const NewPrice = styled(Typography)(({ theme }) => ({}));
 const BtnCart = styled(ButtonIcon)(({ theme }) => ({}));

@@ -39,13 +39,15 @@ const FilterFormControlLabelStyle = styled(FormControlLabel)(({ theme }) => ({
   },
 }));
 
-const FilterCheckbox: React.FC<{ data: CheckboxFilterProps[] }> = ({
-  data,
-}) => {
+const FilterCheckbox: React.FC<{
+  data: CheckboxFilterProps[];
+  sx?: object;
+}> = ({ data, sx }) => {
   return (
     <FormGroup>
       {data.map((el, i) => (
         <FilterFormControlLabelStyle
+          sx={sx}
           key={i}
           label={el.label}
           value={el.value}

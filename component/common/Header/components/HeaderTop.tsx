@@ -20,7 +20,7 @@ import LinkNext from 'next/link';
 import LinkCustom from './LinkCustom';
 import SocialLinkCustom from './SocialLinkCustom';
 import PhonePopover from './PhonePopover';
-import ButtonIcon from '../../common/ButtonIcon';
+import ButtonIcon from '../../ButtonIcon';
 
 type Props = {};
 

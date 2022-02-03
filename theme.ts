@@ -6,7 +6,7 @@ let theme = createTheme({
       xs: 0,
       sm: 640,
       md: 1024,
-      lg: 1110,
+      lg: 1170,
       xl: 1440,
     },
   },
@@ -177,6 +177,13 @@ let theme = createTheme({
 
 theme = createTheme(theme, {
   components: {
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderBottom: 'none',
+        },
+      },
+    },
     MuiPopover: {
       styleOverrides: {
         paper: {
@@ -206,6 +213,7 @@ theme = createTheme(theme, {
 
       styleOverrides: {
         root: {
+          boxShadow: 'none !important',
           textTransform: 'none',
         },
         text: {
@@ -214,6 +222,12 @@ theme = createTheme(theme, {
         },
         contained: {
           textTransform: 'none',
+          '&, &:hover': {
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.common.white,
+            padding: `${theme.spacing(7.5)} ${theme.spacing(12.5)}`,
+            ...theme.typography.t2,
+          },
         },
         containedSmall: {
           '&, &:hover': {
@@ -235,7 +249,7 @@ theme = createTheme(theme, {
         outlined: {
           '&, &:hover': {
             border: `1px solid ${theme.palette.primary.main}`,
-            backgroundColor: theme.palette.common.white,
+            backgroundColor: 'transiton',
             color: theme.palette.primary.main,
             padding: `${theme.spacing(7.5)} ${theme.spacing(12.5)}`,
             ...theme.typography.t2,

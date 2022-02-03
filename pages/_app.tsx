@@ -1,9 +1,10 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
-import Footer from '../component/Footer.tsx';
-import Header from '../component/Header';
+import Footer from '../component/common/Footer.tsx';
+import Header from '../component/common/Header';
 import theme from '../theme';
+import './catalog/[id].css';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

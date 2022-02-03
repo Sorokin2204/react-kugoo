@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Button, Container, styled, Typography } from '@mui/material';
-import InputText from '../../common/InputText';
+import InputText from '../../InputText';
 
 type Props = {};
 

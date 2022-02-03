@@ -34,6 +34,9 @@ export const productData: ProductType[] = [
     title: 'Kugoo Kirin M4',
     oldPrice: 39.9,
     newPrice: 29.9,
+    views: 350,
+    buyers: 196,
+    vendorCode: '2200000000026',
     spec: [
       {
         name: '2000 mAh',

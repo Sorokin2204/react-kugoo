@@ -7,9 +7,9 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { SpecItem } from '../../common/Product';
-import { productData } from '../../common/Catalog';
 import { currencyFormat } from './CartPopover';
+import { SpecItem } from '../../Product';
+import { productData } from '../../Catalog';
 
 type Props = {};
 

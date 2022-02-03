@@ -10,8 +10,8 @@ import {
   useTheme,
 } from '@mui/material';
 import Image from 'next/image';
-import ButtonIcon from '../../common/ButtonIcon';
 import styledComp from 'styled-components';
+import ButtonIcon from '../../ButtonIcon';
 type Props = {};
 
 type CartDataType = {

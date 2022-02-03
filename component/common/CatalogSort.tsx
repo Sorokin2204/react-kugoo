@@ -44,28 +44,50 @@ const CatalogSort: React.FC<Props> = ({ data }) => {
   const handleChangeSortSpec = (event) => {
     setSortSpec(event.target.value);
   };
+
+  const sortData = [
+    {
+      list: [
+        {
+          label: 'По цене',
+          value: 'price',
+          defaultChecked: true,
+        },
+        {
+          label: 'По популярности',
+          value: 'popular',
+        },
+        {
+          label: 'По отзывам',
+          value: 'review',
+        },
+      ],
+    },
+    {
+      list: [
+        {
+          label: 'По батарее',
+          value: 'price',
+        },
+        {
+          label: 'По скорости',
+          value: 'popular',
+        },
+        {
+          label: 'По заряду',
+          value: 'review',
+          defaultChecked: true,
+        },
+      ],
+    },
+  ];
   return (
     <>
       <SortBox>
         <SortTitle variant="t3b">Сортировать: </SortTitle>
-        <SelectCustom
-          value={sortCommon}
-          displayEmpty
-          onChange={handleChangeSortCommon}
-          sx={{ ml: 10 }}>
-          <MenuItem value={'price'}>По цене</MenuItem>
-          <MenuItem value={'rating'}>По рейтингу</MenuItem>
-          <MenuItem value={'popular'}>По популярности</MenuItem>
-        </SelectCustom>
-        <SelectCustom
-          sx={{ ml: 10 }}
-          value={sortSpec}
-          displayEmpty
-          onChange={handleChangeSortSpec}>
-          <MenuItem value={'long-work'}>По дальности хода</MenuItem>
-          <MenuItem value={'speed'}>По скорости</MenuItem>
-          <MenuItem value={'power'}>По мощности</MenuItem>
-        </SelectCustom>
+        {sortData.map((el, i) => (
+          <SelectCustom key={i} sx={{ ml: 10 }} data={el}></SelectCustom>
+        ))}
       </SortBox>
     </>
   );
