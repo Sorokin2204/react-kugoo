@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, styled } from '@mui/material';
 import Catalog from '../../component/common/Catalog';
-import CatalogBanner from '../../component/Catalog/CatalogBanner';
+import CatalogBanner from '../../component/common/Catalog/CatalogBanner';
 import BreadcrumbsCustom from '../../component/common/BreadcrumbsCustom';
 
 type Props = {};

@@ -34,7 +34,7 @@ const Subscribe: React.FC<Props> = ({}) => {
           </SubscribeTitle>
           <SubscribeInput
             sx={{ mr: 10 }}
-            type="reverse"
+            variant="reverse"
             placeholder="Введите Ваш email"
           />
           <SubscribeButton variant="containedReverse">

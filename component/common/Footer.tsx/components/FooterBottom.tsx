@@ -6,6 +6,54 @@ import { topHeaderData } from '../../Header/components/HeaderTop';
 
 type Props = {};
 
+const FooterBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+}));
+export const PayList = styled(Box)(({ theme }) => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  marginLeft: 'auto',
+  marginRight: theme.spacing(17),
+
+  gridGap: '5px',
+}));
+export const PayItem = styled(Box)(({ theme }) => ({
+  backgroundColor: theme.palette.common.white,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '34px',
+  height: '23px',
+  borderRadius: '2px',
+  borderColor: `${theme.palette.grey[200]}`,
+  borderWidth: '1px',
+  border: `1px solid ${theme.palette.grey[200]}`,
+}));
+export const PayImage = styled('img')(({ theme }) => ({
+  maxHeight: '18px',
+  maxWidth: '28px',
+}));
+const PayLinkList = styled(Box)(({ theme }) => ({
+  display: 'flex',
+}));
+const PayLinkItem = styled(Box)(({ theme }) => ({}));
+const Chat = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+}));
+const ChatText = styled(Typography)(({ theme }) => ({
+  marginRight: theme.spacing(7),
+}));
+const ChatList = styled(Box)(({ theme }) => ({
+  display: 'flex',
+}));
+const ChatItem = styled(Box)(({ theme }) => ({
+  '& + &': {
+    marginLeft: theme.spacing(6),
+  },
+}));
+
 const FooterBottom: React.FC<Props> = ({}) => {
   const theme = useTheme();
   return (
@@ -63,50 +111,3 @@ const FooterBottom: React.FC<Props> = ({}) => {
 };
 
 export default FooterBottom;
-const FooterBox = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-}));
-const PayList = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  marginLeft: 'auto',
-  marginRight: theme.spacing(17),
-}));
-const PayItem = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.common.white,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: '34px',
-  height: '23px',
-  borderRadius: '2px',
-  borderColor: `${theme.palette.grey[200]}`,
-  borderWidth: '1px',
-  '& + &': {
-    marginLeft: theme.spacing(2.5),
-  },
-}));
-const PayImage = styled('img')(({ theme }) => ({
-  maxHeight: '18px',
-  maxWidth: '28px',
-}));
-const PayLinkList = styled(Box)(({ theme }) => ({
-  display: 'flex',
-}));
-const PayLinkItem = styled(Box)(({ theme }) => ({}));
-const Chat = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-}));
-const ChatText = styled(Typography)(({ theme }) => ({
-  marginRight: theme.spacing(7),
-}));
-const ChatList = styled(Box)(({ theme }) => ({
-  display: 'flex',
-}));
-const ChatItem = styled(Box)(({ theme }) => ({
-  '& + &': {
-    marginLeft: theme.spacing(6),
-  },
-}));

@@ -15,7 +15,9 @@ import BreadcrumbsCustom from '../../component/common/BreadcrumbsCustom';
 import ButtonIcon from '../../component/common/ButtonIcon';
 import { productData } from '../../component/common/Catalog';
 import { currencyFormat } from '../../component/common/Header/components/CartPopover';
-import RadioBlock, { SpecType } from '../../component/Catalog/RadioBlock';
+import RadioBlock, {
+  SpecType,
+} from '../../component/common/Catalog/RadioBlock';
 
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
