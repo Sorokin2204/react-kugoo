@@ -29,7 +29,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
 
 import { FreeMode, Navigation, Thumbs } from 'swiper';
-import ProductInfo from '../../component/ProductSingle/ProductInfo';
+import ProductInfo from '../../component/common/ProductSingle/ProductInfo';
 import ProductCarusel from '../../component/common/ProductCarusel';
 type Props = {};
 

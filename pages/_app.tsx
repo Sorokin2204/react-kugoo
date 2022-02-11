@@ -1,12 +1,29 @@
+import {
+  ApolloClient,
+  ApolloProvider,
+  createHttpLink,
+  InMemoryCache,
+} from '@apollo/client';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import Footer from '../component/common/Footer.tsx';
 import Header from '../component/common/Header';
 import theme from '../theme';
+import themeAdmin from '../themeAdmin';
 import './catalog/[id].css';
 
-function MyApp({ Component, pageProps }: AppProps) {
+const client = new ApolloClient({
+  ssrMode: true,
+  // uri: 'http://localhost:5000/graphql',
+  link: createHttpLink({
+    uri: 'http://localhost:5000/graphql',
+    credentials: 'same-origin',
+  }),
+  cache: new InMemoryCache(),
+});
+
+const ClientSide = ({ Component, pageProps, router }: AppProps) => {
   return (
     <>
       <Head>
@@ -27,6 +44,30 @@ function MyApp({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
         <Footer />
       </ThemeProvider>
+    </>
+  );
+};
+const AdminSide = ({ Component, pageProps, router }: AppProps) => {
+  return (
+    <>
+      <ApolloProvider client={client}>
+        <ThemeProvider theme={themeAdmin}>
+          <CssBaseline />
+          <Component {...pageProps} />
+        </ThemeProvider>
+      </ApolloProvider>
+    </>
+  );
+};
+
+function MyApp(props: AppProps) {
+  return (
+    <>
+      {props.router.pathname.split('/')[1] === 'admin' ? (
+        <AdminSide {...props} />
+      ) : (
+        <ClientSide {...props} />
+      )}
     </>
   );
 }

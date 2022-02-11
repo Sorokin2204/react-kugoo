@@ -1,0 +1,249 @@
+{
+  "product": [
+    {
+      "id": 1,
+      "name": "Kugoo RX 500",
+      "price": 123.56
+    },
+    {
+      "id": 2
+    },
+    {
+      "id": 3
+    },
+    {
+      "id": 4
+    },
+    {
+      "id": 5
+    },
+    {
+      "id": 6,
+      "name": "Kirin"
+    },
+    {
+      "id": 7
+    },
+    {
+      "id": 8
+    },
+    {
+      "id": 9
+    },
+    {
+      "id": 10
+    },
+    {
+      "id": 12,
+      "name": "Kirin",
+      "price": 123
+    },
+    {
+      "name": "Kirin",
+      "price": 123,
+      "id": 13
+    },
+    {
+      "name": "Kirin",
+      "price": 123,
+      "id": 14
+    },
+    {
+      "name": "Kirin",
+      "price": 123,
+      "id": 15
+    },
+    {
+      "name": "rewrewr",
+      "price": 54545,
+      "id": 16
+    },
+    {
+      "name": "fsdfsd",
+      "price": 54545,
+      "id": 17
+    },
+    {
+      "name": "fffffff",
+      "price": 54545,
+      "id": 18
+    },
+    {
+      "name": "fffffff",
+      "price": 2344,
+      "id": 19
+    },
+    {
+      "name": "fffffff",
+      "price": 33333,
+      "id": 20
+    },
+    {
+      "name": "rrrrrr",
+      "price": 44444,
+      "id": 21
+    },
+    {
+      "name": "4444444",
+      "price": 444433,
+      "id": 22
+    },
+    {
+      "name": "4444444",
+      "price": 444433,
+      "id": 23
+    },
+    {
+      "name": "4444444",
+      "price": 444433,
+      "discountPrice": 444,
+      "id": 24
+    },
+    {
+      "name": "4444444",
+      "price": 444433,
+      "discountPrice": null,
+      "id": 25
+    },
+    {
+      "name": "4444444",
+      "price": 444433,
+      "discountPrice": null,
+      "id": 26
+    },
+    {
+      "name": "4444444",
+      "price": 444433,
+      "id": 27
+    },
+    {
+      "name": "eeeeee",
+      "price": 444433,
+      "id": 28
+    },
+    {
+      "name": "eeeeee",
+      "price": 444433,
+      "id": 29
+    },
+    {
+      "name": "eeeeee",
+      "price": 444433,
+      "id": 30
+    },
+    {
+      "name": "fsdfdsfdsfds",
+      "price": 43434,
+      "discountPrice": 343,
+      "id": 31
+    }
+  ],
+  "attribute": [
+    {
+      "id": "620278eb3f77fd323c24fd47",
+      "name": "Масса нетто"
+    },
+    {
+      "id": "620278eb3f77fd323c24fd46",
+      "name": "Масса брутто"
+    },
+    {
+      "id": "620278eb3f77fd323c24fd45",
+      "name": "Общий вес"
+    }
+  ],
+  "category-attribute": [
+    {
+      "id": "620278eb3f77fd323c24fd49",
+      "categoryId": "620278eb3f77fd323c24fd48",
+      "attributeId": "620278eb3f77fd323c24fd47"
+    },
+    {
+      "id": "62037e9c33573c8a54b30138",
+      "categoryId": "620278eb3f77fd323c24fd48",
+      "attrId": "620278eb3f77fd323c24fd47"
+    },
+    {
+      "id": "62037e9c33573c8a54b3013a",
+      "categoryId": "620278eb3f77fd323c24fd48",
+      "attrId": "620278eb3f77fd323c24fd45"
+    },
+    {
+      "id": "62037e9c33573c8a54b30139",
+      "categoryId": "620278eb3f77fd323c24fd48",
+      "attrId": "620278eb3f77fd323c24fd46"
+    }
+  ],
+  "category": [
+    {
+      "id": "112233445566",
+      "name": "No select",
+      "slug": "no-select"
+    },
+    {
+      "name": "fdsfds",
+      "slug": "fsdfsdfs",
+      "id": "-bpgmoJ"
+    },
+    {
+      "name": "new cate",
+      "slug": "new errr",
+      "id": "sbW-PlS"
+    },
+    {
+      "name": "11",
+      "slug": "222",
+      "id": "m1myteR"
+    },
+    {
+      "id": "620278eb3f77fd323c24fd48",
+      "name": "New cater1",
+      "slug": "New-cater1"
+    },
+    {
+      "id": "620279656914367b8cf7170a",
+      "name": "werewrew",
+      "slug": "rwerwerwer"
+    },
+    {
+      "id": "62027a3bfb072373d02e1de8",
+      "name": "fsdfds",
+      "slug": "234324"
+    },
+    {
+      "id": "6202840aaac2f273ecdb831a",
+      "name": "3333",
+      "slug": "33333"
+    },
+    {
+      "id": "62028419aac2f273ecdb831b",
+      "name": "434",
+      "slug": "3444"
+    },
+    {
+      "id": "62028422aac2f273ecdb831c",
+      "name": "fdfdf",
+      "slug": "dfdfdf"
+    },
+    {
+      "id": "6202865daac2f273ecdb831d",
+      "name": "234",
+      "slug": "fsdfds"
+    },
+    {
+      "id": "62029db5f60b2a68e808e54e",
+      "name": "fdsfds",
+      "slug": "fsdfd"
+    },
+    {
+      "id": "62029e55f60b2a68e808e54f",
+      "name": "No ",
+      "slug": "no-select"
+    },
+    {
+      "id": "6202a08af60b2a68e808e550",
+      "name": "NEW CATEGORY",
+      "slug": "NEW CATEGORY"
+    }
+  ]
+}
