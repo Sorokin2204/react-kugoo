@@ -1,6 +1,12 @@
 import { createTheme, Typography, useTheme } from '@mui/material';
+import { teal } from '@mui/material/colors';
 
 let themeAdmin = createTheme({
+  palette: {
+    success: {
+      main: teal[400],
+    },
+  },
   breakpoints: {
     values: {
       xs: 0,
@@ -29,7 +35,10 @@ themeAdmin = createTheme(themeAdmin, {
       styleOverrides: {
         root: {
           '& .MuiTableHead-root': {
-            p: 0,
+            padding: 0,
+          },
+          '& .MuiTableCell-root': {
+            padding: '4px',
           },
         },
       },

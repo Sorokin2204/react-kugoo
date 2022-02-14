@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Autocomplete,
   Box,
   Button,
   Checkbox,
+  FormControl,
   FormControlLabel,
   FormGroup,
   IconButton,
+  InputLabel,
   Modal,
   ModalUnstyled,
   Paper,
@@ -35,6 +38,9 @@ import { ModalBox } from '../ModalBox';
 import { CheckCircle, CheckOutlined, Close } from '@mui/icons-material';
 import _ from 'lodash';
 import NumberFormat from 'react-number-format';
+import translate from 'translate';
+import slugify from 'slugify';
+import translationToSlug from '../../../utils/translateToSlug';
 type Props = {
   open: boolean;
   handleClose();
@@ -56,18 +62,22 @@ type IFormType = {
 
 const AttributeOptionList = styled(Box)(({ theme }) => ({
   display: 'inline-flex',
+  gridGap: '10px',
 }));
 
 const AttributOption = styled(Box)<{ active: boolean }>(
   ({ theme, active }) => ({
+    cursor: 'default',
     display: 'flex',
+    userSelect: 'none',
+    whiteSpace: 'nowrap',
     alignItems: 'center',
     borderRadius: '5px',
     border: `2px solid ${theme.palette.grey[400]}`,
     padding: '4px',
     ...(active && {
-      color: theme.palette.common.white,
-      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.primary.main,
+      border: `2px solid ${theme.palette.primary.main}`,
     }),
   }),
 );
@@ -112,13 +122,41 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
   });
   const [activeAttribute, setActiveAttribute] = useState(null);
   const [activeAttributeOption, setActiveAttributeOption] = useState(null);
-  const [disabledAttributeField, setDisabledAttributeField] = useState(false);
+  const [disabledAttrName, setDisabledAttrName] = useState(false);
+  const [disabledAttrSlug, setDisabledAttrSlug] = useState(false);
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [newAttribute] = useMutation(CREATE_ATTRIBUTE_WITH_OPTIONS);
   const [newAttributeOption] = useMutation(
     CREATE_ATTRIBUTE_OPTION_IN_ATTRIBUTE,
   );
   const [updateAttributeOption] = useMutation(UPDATE_ATTRIBUTE_OPTION);
+
+  // ATTRIBUTE SLUG
+  const [disabledSlugField, setDisabledSlugField] = useState(false);
+  const [typingLabelField, setTypingLabelField] = useState('');
+  const [typingLabelAttrField, setTypingLabelAttrField] = useState('');
+  useEffect(() => {
+    const timer = translationToSlug(
+      'attributeOption.label',
+      'attributeOption.slug',
+      getValues,
+      setValue,
+      setDisabledSlugField,
+    );
+
+    return () => clearTimeout(timer);
+  }, [typingLabelField]);
+
+  useEffect(() => {
+    const timer = translationToSlug(
+      'attribute.name',
+      'attribute.slug',
+      getValues,
+      setValue,
+      setDisabledAttrSlug,
+    );
+    return () => clearTimeout(timer);
+  }, [typingLabelAttrField]);
 
   const {
     data: allAttributeData,
@@ -136,9 +174,18 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
     },
   ] = useLazyQuery(GET_ATTRIBUTE);
 
+  const tra = async () => {
+    console.log(await translate('Аттрибуты', { to: 'en', from: 'ru' }));
+  };
+
+  useEffect(() => {
+    tra();
+  }, []);
+
   useEffect(() => {
     if (activeAttribute) {
-      setDisabledAttributeField(true);
+      setDisabledAttrName(true);
+      setDisabledAttrSlug(true);
       setValue('attribute.name', activeAttribute.name, {
         shouldValidate: true,
       });
@@ -146,7 +193,8 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
         shouldValidate: true,
       });
     } else {
-      setDisabledAttributeField(false);
+      setDisabledAttrName(false);
+      setDisabledAttrSlug(false);
       reset();
     }
   }, [activeAttribute]);
@@ -247,204 +295,246 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
     <>
       <Modal open={open} onClose={handleClose}>
         <ModalBox>
-          <Typography variant="h6" component="h2" sx={{ display: 'inline' }}>
-            {activeAttribute !== null
-              ? `Изменить аттрибут '${activeAttribute.name}'`
-              : 'Добавить аттрибут'}
-          </Typography>
-          {activeAttribute !== null ? (
-            <IconButton
-              sx={{ mb: 0.5, p: 0, ml: 1 }}
-              onClick={() => {
-                setActiveAttribute(null), setActiveAttributeOption(null);
-              }}>
-              <Close />
-            </IconButton>
-          ) : (
-            ''
-          )}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              mb: 3,
+            }}>
+            <Typography variant="h6" component="h2" sx={{ display: 'block' }}>
+              {activeAttribute !== null
+                ? `Изменить аттрибут '${activeAttribute.name}'`
+                : 'Добавить аттрибут'}
+            </Typography>
+            {activeAttribute !== null ? (
+              <IconButton
+                sx={{ p: 0, ml: 1 }}
+                onClick={() => {
+                  setActiveAttribute(null), setActiveAttributeOption(null);
+                }}>
+                <Close />
+              </IconButton>
+            ) : (
+              ''
+            )}
+          </Box>
           <form
             onSubmit={handleSubmit(onSubmit)}
             autoComplete="off"
             onBlur={() => checkFormChange()}>
-            <Controller
-              control={control}
-              name="attribute.name"
-              rules={{
-                required: { value: true, message: 'Обязательное поле' },
-              }}
-              render={({ field }) => (
-                <>
-                  <TextField
-                    disabled={disabledAttributeField}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    label="Название"
-                    error={errors?.attribute?.name?.message !== undefined}
-                    helperText={errors?.attribute?.name?.message}
-                    {...field}
-                    {...register('attribute.name')}
-                  />
-                </>
-              )}
-            />
-            <Controller
-              control={control}
-              name="attribute.slug"
-              rules={{
-                required: { value: true, message: 'Обязательное поле' },
-              }}
-              render={({ field }) => (
-                <>
-                  <TextField
-                    disabled={disabledAttributeField}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    label="Псевдоним"
-                    error={errors?.attribute?.slug?.message !== undefined}
-                    helperText={errors?.attribute?.slug?.message}
-                    {...field}
-                    {...register('attribute.slug')}
-                  />
-                </>
-              )}
-            />
-            <Box>
-              <Typography
-                variant="h6"
-                component="h2"
-                sx={{ display: 'inline' }}>
-                {activeAttributeOption !== null
-                  ? `Изменить опцию '${activeAttributeOption.label}'`
-                  : 'Добавить опцию'}
-              </Typography>
-              {activeAttributeOption !== null ? (
-                <IconButton
-                  sx={{ mb: 0.5, p: 0, ml: 1 }}
-                  onClick={() => {
-                    setActiveAttributeOption(null);
-                  }}>
-                  <Close />
-                </IconButton>
-              ) : (
-                ''
-              )}
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2,1fr)',
+                gridGap: '10px',
+              }}>
               <Controller
                 control={control}
-                name={'attributeOption.label'}
+                name="attribute.name"
                 rules={{
                   required: { value: true, message: 'Обязательное поле' },
                 }}
                 render={({ field }) => (
                   <>
                     <TextField
+                      disabled={disabledAttrName}
                       InputLabelProps={{
                         shrink: true,
                       }}
                       label="Название"
-                      error={
-                        errors?.attributeOption?.label?.message !== undefined
-                      }
-                      helperText={errors?.attributeOption?.label?.message}
+                      error={errors?.attribute?.name?.message !== undefined}
+                      helperText={errors?.attribute?.name?.message}
                       {...field}
-                      {...register('attributeOption.label')}
+                      {...register('attribute.name')}
+                      onChange={(e) => {
+                        setTypingLabelAttrField(e.target.value);
+                        setDisabledAttrSlug(true);
+                        field.onChange(e.target.value);
+                      }}
                     />
                   </>
                 )}
               />
               <Controller
                 control={control}
-                name={'attributeOption.slug'}
+                name="attribute.slug"
                 rules={{
                   required: { value: true, message: 'Обязательное поле' },
                 }}
                 render={({ field }) => (
                   <>
                     <TextField
+                      disabled={disabledAttrSlug}
                       InputLabelProps={{
                         shrink: true,
                       }}
-                      label="Слаг"
-                      error={
-                        errors?.attributeOption?.slug?.message !== undefined
-                      }
-                      helperText={errors?.attributeOption?.slug?.message}
+                      label="Псевдоним"
+                      error={errors?.attribute?.slug?.message !== undefined}
+                      helperText={errors?.attribute?.slug?.message}
                       {...field}
-                      {...register('attributeOption.slug')}
+                      {...register('attribute.slug')}
                     />
                   </>
                 )}
               />
-              <Controller
-                control={control}
-                name={'attributeOption.subLabel'}
-                rules={{
-                  required: false,
-                }}
-                render={({ field }) => (
-                  <>
-                    <TextField
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      label="Доп.текст"
-                      error={
-                        errors?.attributeOption?.subLabel?.message !== undefined
-                      }
-                      helperText={errors?.attributeOption?.subLabel?.message}
-                      {...field}
-                      {...register('attributeOption.subLabel')}
-                    />
-                  </>
+            </Box>
+            <Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  mb: 3,
+                }}>
+                <Typography
+                  variant="h6"
+                  component="h2"
+                  sx={{ display: 'block' }}>
+                  {activeAttributeOption !== null
+                    ? `Изменить опцию '${activeAttributeOption.label}'`
+                    : 'Добавить опцию'}
+                </Typography>
+                {activeAttributeOption !== null ? (
+                  <IconButton
+                    sx={{ p: 0, ml: 1 }}
+                    onClick={() => {
+                      setActiveAttributeOption(null);
+                    }}>
+                    <Close />
+                  </IconButton>
+                ) : (
+                  ''
                 )}
-              />
-              <Controller
-                name={'attributeOption.defaultPrice'}
-                control={control}
-                rules={{
-                  required: false,
-                  min: { value: 1, message: 'Мин. цена - 1₽' },
-                  max: { value: 999999, message: 'Макс. цена - 999 999₽' },
-                }}
-                render={({ field }) => (
-                  <NumberFormat
-                    customInput={TextField}
-                    {...field}
-                    error={
-                      errors?.attributeOption?.defaultPrice?.message !==
-                      undefined
-                    }
-                    helperText={errors?.attributeOption?.defaultPrice?.message}
-                    label="Стоимость"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    thousandSeparator={' '}
-                    prefix={'₽ '}
-                    onValueChange={(v) => {
-                      setValue('attributeOption.defaultPrice', v.floatValue);
-                    }}
-                    {...register('attributeOption.defaultPrice')}
-                  />
-                )}
-              />
-              <FormControlLabel
-                control={
-                  <Controller
-                    name="attributeOption.defaultChecked"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        onChange={(e) => field.onChange(e.target.checked)}
-                        checked={field.value}
+              </Box>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2,1fr)',
+                  gridGap: '10px',
+                }}>
+                <Controller
+                  control={control}
+                  name={'attributeOption.label'}
+                  rules={{
+                    required: { value: true, message: 'Обязательное поле' },
+                  }}
+                  render={({ field }) => (
+                    <>
+                      <TextField
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        label="Название"
+                        error={
+                          errors?.attributeOption?.label?.message !== undefined
+                        }
+                        helperText={errors?.attributeOption?.label?.message}
+                        {...field}
+                        {...register('attributeOption.label')}
+                        onChange={(e) => {
+                          setTypingLabelField(e.target.value);
+                          setDisabledSlugField(true);
+                          field.onChange(e.target.value);
+                        }}
                       />
-                    )}
-                  />
-                }
-                label="Выбран по умолчанию"
-              />
+                    </>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name={'attributeOption.slug'}
+                  rules={{
+                    required: { value: true, message: 'Обязательное поле' },
+                  }}
+                  render={({ field }) => (
+                    <>
+                      <TextField
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        disabled={disabledSlugField}
+                        label="Слаг"
+                        error={
+                          errors?.attributeOption?.slug?.message !== undefined
+                        }
+                        helperText={errors?.attributeOption?.slug?.message}
+                        {...field}
+                        {...register('attributeOption.slug')}
+                      />
+                    </>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name={'attributeOption.subLabel'}
+                  rules={{
+                    required: false,
+                  }}
+                  render={({ field }) => (
+                    <>
+                      <TextField
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        label="Доп.текст"
+                        error={
+                          errors?.attributeOption?.subLabel?.message !==
+                          undefined
+                        }
+                        helperText={errors?.attributeOption?.subLabel?.message}
+                        {...field}
+                        {...register('attributeOption.subLabel')}
+                      />
+                    </>
+                  )}
+                />
+                <Controller
+                  name={'attributeOption.defaultPrice'}
+                  control={control}
+                  rules={{
+                    required: false,
+                    min: { value: 1, message: 'Мин. цена - 1₽' },
+                    max: { value: 999999, message: 'Макс. цена - 999 999₽' },
+                  }}
+                  render={({ field }) => (
+                    <NumberFormat
+                      customInput={TextField}
+                      {...field}
+                      error={
+                        errors?.attributeOption?.defaultPrice?.message !==
+                        undefined
+                      }
+                      helperText={
+                        errors?.attributeOption?.defaultPrice?.message
+                      }
+                      label="Стоимость"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      thousandSeparator={' '}
+                      prefix={'₽ '}
+                      onValueChange={(v) => {
+                        setValue('attributeOption.defaultPrice', v.floatValue);
+                      }}
+                      {...register('attributeOption.defaultPrice')}
+                    />
+                  )}
+                />
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="attributeOption.defaultChecked"
+                      control={control}
+                      render={({ field }) => (
+                        <Switch
+                          onChange={(e) => field.onChange(e.target.checked)}
+                          checked={field.value}
+                        />
+                      )}
+                    />
+                  }
+                  label="Выбран по умолчанию"
+                />
+              </Box>
             </Box>
 
             <Button type="submit" disabled={!isValid || isFormChanged}>
@@ -457,8 +547,8 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
                 <TableHead>
                   <TableRow>
                     <TableCell align="left">Название</TableCell>
-                    <TableCell align="right">Слаг</TableCell>
-                    <TableCell align="right">Опции</TableCell>
+                    <TableCell align="center">Слаг</TableCell>
+                    <TableCell align="center">Опции</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

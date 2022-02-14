@@ -68,39 +68,31 @@ const schema = buildSchema(`
 }
 #### CATEGORY ####
   type Category {
-    id: ID!
+    _id: ID!
   ${categoryFields}
      Products: [Product] #@relationship
-    Category_Attribute: Category_Attribute_Connection
+    attributes: Category_Attribute_Connection
   }
 
     input CategoryInput {
     ${categoryFields}
     parentCategory: CategoryInput
     Products: [ProductInput] #@relationship
-    Category_Attribute: Category_Attribute_ConnectionInput
   }
 
   type Category_Attribute_Connection {
     edges: [Category_Attribute_Edge]
-  }
-    input Category_Attribute_ConnectionInput {
-    edges: [Category_Attribute_EdgeInput]
   }
 
   type Category_Attribute_Edge {
       node: Attribute
   }
 
-  input Category_Attribute_EdgeInput {
-      node: AttributeInput
-  }
-
 #### ATTRIBUTE ####
   type Attribute {
   _id: ID!
   ${attributeFields}
-  AttributeOptions: [AttributeOption!]
+  AttributeOptions: [AttributeOption]
   }
 
 
@@ -112,7 +104,7 @@ const schema = buildSchema(`
     _id: ID!
    ${attributeOptionFields}
     Attribute: Attribute
-    Products: [Product!]
+    Products: [Product]
   }
 
     input AttributeOptionInput {
@@ -151,23 +143,32 @@ node: SpecOption
 
   #### QUERIES ####
   type Query {
-    getProduct(id: ID): Product
-    getCategory(id: String): Category
-    getAttribute(attrId: String, attrOptId: String): Attribute
-    getAllProduct: [Product]
+### CATEGORY
+    getCategory(id: String, withAttrOpts: Boolean!): Category
     getAllCategory: [Category]
+### PRODUCT
+    getProduct(id: ID): Product
+    getAllProduct: [Product]
+### ATTRIBUTE
+    getAttribute(attrId: String, attrOptId: String): Attribute
     getAllAttribute: [Attribute]
     getAllAttributeInCategory(categoryId: String): Category
   }
   #### MUTATIONS ####
   type Mutation {
-      createProduct(input: ProductInput): Product
-      createCategory(input: CategoryInput): Category
-      createAttributeWithOptions(attr: AttributeInput, attrOpt: AttributeOptionInput ): String
-      updateAttributeOption(attrOptId: String, newAttrOpt: AttributeOptionInput ): String
-      createAttributeOptionInAttribute(attrId: String, attrOpt: AttributeOptionInput): String
-      createSpec(input: SpecInput): Spec
+#### CATEGORY
+      deleteCategory(catId: String): String
+      createCategory(cat: CategoryInput, catAttrIds: [String]): Category
       changeAttributeInCategory(categoryId: String, attributeIds: [String]): Boolean
+### PRODUCT  
+      createProduct(input: ProductInput): Product
+### ATTRIBUTE
+    createAttributeWithOptions(attr: AttributeInput, attrOpt: AttributeOptionInput ): String
+### ATTRIBUTE_OPTION
+    updateAttributeOption(attrOptId: String, newAttrOpt: AttributeOptionInput ): String
+    createAttributeOptionInAttribute(attrId: String, attrOpt: AttributeOptionInput): String
+### SPEC
+      createSpec(input: SpecInput): Spec
   }
 `);
 

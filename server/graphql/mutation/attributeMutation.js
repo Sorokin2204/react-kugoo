@@ -1,10 +1,6 @@
-const { Category, AttributeOption, Attribute } = require('./model');
-const { fetchFakeServer } = require('./utils/fetchFakeServer');
+const { AttributeOption, Attribute } = require('../../model');
 
-const rootMutation = {
-  createCategory: async ({ input }) => {
-    return await new Category(input).save();
-  },
+const attributeMutation = {
   createAttributeWithOptions: async ({ attr, attrOpt }) => {
     try {
       const newAttrOpt = await new AttributeOption(attrOpt).save();
@@ -39,23 +35,5 @@ const rootMutation = {
       console.log(error.message);
     }
   },
-
-  createProduct: async ({ input }) => {
-    return await fetchFakeServer('/product', 'POST', input);
-  },
-
-  changeAttributeInCategory: async ({ categoryId, attributeIds }) => {
-    const promisePosts = [];
-    attributeIds.map((attrId) => {
-      promisePosts.push(
-        fetchFakeServer('/category-attribute', 'POST', { categoryId, attrId }),
-      );
-    });
-    Promise.all(promisePosts).then((data) => {
-      console.log('All posts completed');
-      console.log(data);
-      return false;
-    });
-  },
 };
-module.exports = { rootMutation };
+module.exports = { attributeMutation };

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Autocomplete,
   Box,
   Button,
+  Checkbox,
+  FormControl,
+  IconButton,
   Modal,
   ModalUnstyled,
   Paper,
@@ -17,12 +21,23 @@ import {
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { CREATE_CATEGORY } from '../../../graphql/mutation/category';
+import {
+  CREATE_CATEGORY,
+  DELETE_CATEGORY,
+} from '../../../graphql/mutation/category';
 import {
   GET_ALL_CATEGORY,
   GET_CATEGORY,
 } from '../../../graphql/query/category';
 import { ModalBox } from '../ModalBox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import { GET_ALL_ATTRIBUTE } from '../../../graphql/query/attribute';
+import _ from 'lodash';
+import { Close, Delete } from '@mui/icons-material';
+import translationToSlug from '../../../utils/translateToSlug';
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 type Props = {
   open: boolean;
@@ -34,6 +49,7 @@ const style = {};
 type IFormType = {
   name: string;
   slug: string;
+  Attributes: string[];
 };
 
 const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
@@ -44,9 +60,17 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
     register,
     formState: { isValid, errors },
     setValue,
-  } = useForm<IFormType>({ mode: 'onBlur' });
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+    getValues,
+  } = useForm<IFormType>({
+    mode: 'onBlur',
+    defaultValues: {
+      Attributes: [],
+    },
+  });
+  const [activeCategory, setActiveCategory] = useState(null);
   const [newCategory] = useMutation(CREATE_CATEGORY);
+  const [deleteCategory] = useMutation(DELETE_CATEGORY);
+  const [autocompleteAttr, setAutocompleteAttr] = useState([]);
   const {
     data: allCategoryData,
     loading: allCategoryLoading,
@@ -63,45 +87,139 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
     },
   ] = useLazyQuery(GET_CATEGORY);
 
+  const {
+    data: allAttributeData,
+    loading: allAttributeLoading,
+    error: allAttributeError,
+    refetch: allAttributeRefetch,
+  } = useQuery(GET_ALL_ATTRIBUTE);
+
   useEffect(() => {}, []);
 
-  const handleTableRowClick = (event, categoryId) => {
-    if (categoryId !== activeCategory) {
-      setActiveCategory(categoryId);
+  const handleTableRowClick = (event, category) => {
+    if (category._id !== activeCategory?._id) {
+      setActiveCategory(category);
       getCategory({
         variables: {
-          id: categoryId,
+          id: category._id,
+          withAttrOpts: false,
         },
-      }).then((resault) => {
-        setValue('name', resault.data.getCategory.name, {
-          shouldValidate: true,
+      })
+        .then((resault) => {
+          const data = resault.data.getCategory;
+          if (data.attributes) {
+            const Attribute = data.attributes.edges.map((attr) => ({
+              _id: attr.node._id,
+              name: attr.node.name,
+            }));
+            setAutocompleteAttr(Attribute);
+          } else {
+            setAutocompleteAttr([]);
+          }
+          setValue('name', data.name, {
+            shouldValidate: true,
+          });
+          setValue('slug', data.slug, {
+            shouldValidate: true,
+          });
+        })
+        .catch((err) => {
+          console.log(err);
         });
-        setValue('slug', resault.data.getCategory.slug, {
-          shouldValidate: true,
-        });
-      });
     }
   };
 
+  useEffect(() => {
+    if (!activeCategory) reset();
+  }, [activeCategory]);
+
+  useEffect(() => {
+    setValue('Attributes', autocompleteAttr, {
+      shouldValidate: true,
+    });
+  }, [autocompleteAttr]);
+
   const onSubmit = (data: IFormType) => {
+    console.log('Submit data ', data);
+
     newCategory({
       variables: {
-        input: data,
+        cat: { name: data.name, slug: data.slug },
+        catAttrIds: data.Attributes.map((attr) => attr._id),
       },
-    }).then(() => {
-      allCategoryRefetch();
-    });
+    })
+      .then(() => {
+        allCategoryRefetch();
+      })
+      .catch((err) => console.log(err.message));
 
     reset();
+  };
+
+  const [typingNameCat, setTypingNameCat] = useState('');
+  const [disabledSlugCat, setDisabledSlugCat] = useState(false);
+  useEffect(() => {
+    const timer = translationToSlug(
+      'name',
+      'slug',
+      getValues,
+      setValue,
+      setDisabledSlugCat,
+    );
+    return () => clearTimeout(timer);
+  }, [typingNameCat]);
+
+  const handleDeleteCategoryClick = (e) => {
+    deleteCategory({
+      variables: {
+        catId: activeCategory._id,
+      },
+    })
+      .then(() => {
+        allCategoryRefetch();
+        setActiveCategory(null);
+        reset();
+      })
+      .catch((err) => console.log(err.message));
   };
 
   return (
     <>
       <Modal open={open} onClose={handleClose}>
         <ModalBox>
-          <Typography variant="h6" component="h2">
-            Добавить категорию
-          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              mb: 3,
+            }}>
+            <Typography variant="h6" component="h2" sx={{ display: 'block' }}>
+              {activeCategory !== null
+                ? `Изменить категорию '${activeCategory.name}'`
+                : 'Добавить категорию'}
+            </Typography>
+            {activeCategory !== null ? (
+              <>
+                <IconButton
+                  sx={{ p: 0, ml: 1 }}
+                  onClick={() => {
+                    setActiveCategory(null);
+                  }}>
+                  <Close />
+                </IconButton>
+                <IconButton
+                  sx={{ p: 0, ml: 1 }}
+                  onClick={() => {
+                    handleDeleteCategoryClick();
+                  }}>
+                  <Delete />
+                </IconButton>
+              </>
+            ) : (
+              ''
+            )}
+          </Box>
+
           <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
             <Controller
               control={control}
@@ -120,6 +238,11 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
                     helperText={errors?.name?.message}
                     {...field}
                     {...register('name')}
+                    onChange={(e) => {
+                      setTypingNameCat(e.target.value);
+                      setDisabledSlugCat(true);
+                      field.onChange(e.target.value);
+                    }}
                   />
                 </>
               )}
@@ -139,14 +262,70 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
                     label="Псевдоним"
                     error={errors?.slug?.message !== undefined}
                     helperText={errors?.slug?.message}
+                    disabled={disabledSlugCat}
                     {...field}
                     {...register('slug')}
                   />
                 </>
               )}
             />
+            {!allAttributeLoading && (
+              <Controller
+                control={control}
+                name="Attributes"
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <Autocomplete
+                      {...register('Attributes')}
+                      value={autocompleteAttr}
+                      multiple
+                      options={allAttributeData.getAllAttribute}
+                      disableCloseOnSelect
+                      getOptionLabel={(option) => option.name}
+                      {...field}
+                      isOptionEqualToValue={(option, value) =>
+                        option._id == value._id
+                      }
+                      onChange={(e, data) => {
+                        const attrIds = data.map((attr) => ({
+                          _id: attr._id,
+                          name: attr.name,
+                        }));
+                        setAutocompleteAttr(attrIds);
+                        setValue('Attributes', attrIds);
+                        // field.onChange(attrIds);
+                      }}
+                      renderOption={(props, option, { selected }) => (
+                        <li {...props}>
+                          <Checkbox
+                            icon={icon}
+                            checkedIcon={checkedIcon}
+                            style={{ marginRight: 8 }}
+                            checked={selected}
+                          />
+                          {option.name}
+                        </li>
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Аттрибуты по умолчанию"
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          error={errors?.Attributes?.message !== undefined}
+                          helperText={errors?.Attributes?.message}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                )}
+                onChange={([, data]) => data}
+              />
+            )}
+
             <Button type="submit" disabled={!isValid}>
-              Добавить
+              {activeCategory ? 'Сохранить' : 'Добавить'}
             </Button>
           </form>
           {!allCategoryLoading && (
@@ -161,11 +340,9 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
                 <TableBody>
                   {allCategoryData.getAllCategory.map((category) => (
                     <TableRow
-                      onClick={(event) =>
-                        handleTableRowClick(event, category.id)
-                      }
-                      selected={category.id === activeCategory}
-                      key={category.id}
+                      onClick={(event) => handleTableRowClick(event, category)}
+                      selected={category._id === activeCategory?._id}
+                      key={category._id}
                       sx={{
                         '&:last-child td, &:last-child th': { border: 0 },
                       }}>

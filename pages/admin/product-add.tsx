@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
   FormControl,
+  FormHelperText,
   IconButton,
   Input,
   InputLabel,
@@ -10,17 +11,21 @@ import {
   Select,
   styled,
   TextField,
+  Typography,
 } from '@mui/material';
 import HeaderAdmin from '../../component/admin/HeaderAdmin';
 import MainWrapper from '../../component/admin/MainWrapper';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import InputMask from 'react-input-mask';
-import { useMutation, useQuery } from '@apollo/client';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import { CREATE_PRODUCT } from '../../graphql/mutation/product';
 import { Add, Category } from '@mui/icons-material';
 import CategoryModal from '../../component/admin/ProductAdd/CategoryModal';
-import { GET_ALL_CATEGORY } from '../../graphql/query/category';
+import { GET_ALL_CATEGORY, GET_CATEGORY } from '../../graphql/query/category';
 import AttributeModal from '../../component/admin/ProductAdd/AttributeModal';
+import ProductAttribute from '../../component/admin/ProductAttribute';
+import _ from 'lodash';
+import EditOptionModal from '../../component/admin/ProductAdd/EditOptionModal';
 type Props = {};
 
 interface IFormInput {
@@ -43,8 +48,36 @@ const ProductAdmin: React.FC<Props> = ({}) => {
   const [newProduct] = useMutation(CREATE_PRODUCT);
   const [openCategory, setOpenCategory] = useState<boolean>(false);
   const [openAttribute, setOpenAttribute] = useState<boolean>(false);
+  const [openAttrs, setOpenAttrs] = useState<boolean[]>([]);
+  const [attrOptions, setAttrOptions] = useState<
+    Array<{ optId: string; checked: boolean; customPrice: number | null }>
+  >([]);
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+  //EDIT OPTION MODAL
+  const [editedOption, setEditedOption] = useState(null);
+  const [openEditOptionModal, setOpenEditOptionModal] = useState(false);
+  const handleEditOptionClick = (opt) => {
+    setEditedOption(opt);
+    setOpenEditOptionModal(true);
+  };
+  const handleCloseEditOptionModal = () => {
+    setOpenEditOptionModal(false);
+  };
+
+  useEffect(() => {}, [editedOption]);
+
+  const [
+    getCategory,
+    {
+      data: categoryData,
+      loading: categoryLoading,
+      error: categoryError,
+      refetch: categoryRefetch,
+    },
+  ] = useLazyQuery(GET_CATEGORY);
+
   const handleSwithCategory = () => setOpenCategory(!openCategory);
-  const handleSwithAttribute = () => setOpenAttribute(!openCategory);
+  const handleSwithAttribute = () => setOpenAttribute(!openAttribute);
   const {
     data: allCategoryData,
     loading: allCategoryLoading,
@@ -64,10 +97,123 @@ const ProductAdmin: React.FC<Props> = ({}) => {
     });
   };
 
+  useEffect(() => {
+    console.log(activeCategoryId);
+    if (activeCategoryId) {
+      getCategory({
+        variables: {
+          id: activeCategoryId,
+          withAttrOpts: true,
+        },
+      })
+        .then((resault) => {
+          const attrOpts = resault?.data?.getCategory?.attributes?.edges;
+          console.log(attrOpts);
+          if (attrOpts) {
+            const length = attrOpts.leght;
+            const attrOptIds = attrOpts.map((attr) => {
+              return {
+                name: attr.node.name,
+                opts: attr.node.AttributeOptions.map((opt) => ({
+                  ...opt,
+                  checked: false,
+                  customPrice: null,
+                  customSublabel: null,
+                })),
+              };
+            });
+            setAttrOptions(attrOptIds);
+            setOpenAttrs(_.fill(Array(length), false));
+          } else {
+            setAttrOptions([]);
+            setOpenAttrs([]);
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          // console.error(JSON.stringify(err, null, 2));
+        });
+    }
+  }, [activeCategoryId]);
+
+  const ProductAttributeBox = styled(Box)(({ theme }) => ({
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2,1fr)',
+    gridGap: '10px',
+  }));
+
   return (
     <>
       <MainWrapper>
         <form onSubmit={handleSubmit(onSubmit)}>
+          <Controller
+            name="category"
+            control={control}
+            rules={{
+              required: { value: true, message: 'Выберите категорию' },
+            }}
+            render={({ field }) => (
+              <>
+                <FormControl
+                  fullWidth
+                  error={errors?.category?.message !== undefined}>
+                  <InputLabel id="category-id">Категория</InputLabel>
+                  <Select
+                    labelId="category-id"
+                    {...field}
+                    onChange={(e) => {
+                      setActiveCategoryId(e.target.value);
+                      field.onChange(e.target.value);
+                    }}>
+                    {!allCategoryLoading &&
+                      allCategoryData.getAllCategory.map((category) => (
+                        <MenuItem value={category._id}>
+                          {category.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                  {errors?.category?.message && (
+                    <FormHelperText>{errors?.category?.message}</FormHelperText>
+                  )}
+                </FormControl>
+              </>
+            )}
+          />
+          <ProductAttributeBox>
+            {attrOptions.lenght !== 0
+              ? attrOptions.map((attr, i) => (
+                  <>
+                    <ProductAttribute
+                      handleEditOptionClick={handleEditOptionClick}
+                      open={openAttrs[i]}
+                      setOpen={() => {
+                        setOpenAttrs((prev) => {
+                          const arr = [...prev];
+                          arr[i] = !arr[i];
+                          return arr;
+                        });
+                      }}
+                      handleCheckboxChange={(optId) => {
+                        setAttrOptions((prev) => {
+                          const arr = [...prev];
+                          arr[i] = {
+                            ...arr[i],
+                            opts: arr[i].opts.map((prevItem) =>
+                              prevItem._id === optId
+                                ? { ...prevItem, checked: !prevItem.checked }
+                                : prevItem,
+                            ),
+                          };
+                          return arr;
+                        });
+                      }}
+                      attrData={attr}
+                    />
+                  </>
+                ))
+              : ''}
+          </ProductAttributeBox>
+
           <Controller
             name="name"
             control={control}
@@ -156,17 +302,6 @@ const ProductAdmin: React.FC<Props> = ({}) => {
             Сохранить
           </Button>
         </form>
-        <FormControl fullWidth>
-          <InputLabel id="category">Категория</InputLabel>
-          <Select labelId="category" label="Категория">
-            {!allCategoryLoading &&
-              allCategoryData.getAllCategory.map((category) => (
-                <MenuItem key={category.id} value={category.slug}>
-                  {category.name}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
 
         <IconButton
           onClick={handleSwithCategory}
@@ -184,6 +319,37 @@ const ProductAdmin: React.FC<Props> = ({}) => {
           handleClose={handleSwithAttribute}
         />
       </MainWrapper>
+      {openEditOptionModal ? (
+        <EditOptionModal
+          open={true}
+          onClose={handleCloseEditOptionModal}
+          opt={editedOption}
+          handleSaveEditedOption={(selectedOpt, customPrice, customLabel) => {
+            setAttrOptions((prev) => {
+              const arr = [...prev];
+              const indexAttr = arr.findIndex((attr) =>
+                attr.opts.some((opt) => opt._id === selectedOpt._id),
+              );
+              arr[indexAttr] = {
+                ...arr[indexAttr],
+                opts: arr[indexAttr].opts.map((prevItem) =>
+                  prevItem._id === selectedOpt._id
+                    ? {
+                        ...prevItem,
+                        checked: true,
+                        customPrice: customPrice,
+                        customSublabel: customLabel,
+                      }
+                    : prevItem,
+                ),
+              };
+              return arr;
+            });
+            setEditedOption(null);
+            setOpenEditOptionModal(false);
+          }}
+        />
+      ) : null}
     </>
   );
 };

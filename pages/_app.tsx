@@ -3,6 +3,7 @@ import {
   ApolloProvider,
   createHttpLink,
   InMemoryCache,
+  makeVar,
 } from '@apollo/client';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import type { AppProps } from 'next/app';
@@ -12,6 +13,26 @@ import Header from '../component/common/Header';
 import theme from '../theme';
 import themeAdmin from '../themeAdmin';
 import './catalog/[id].css';
+
+// interface AppConfig {
+//   isPaused: boolean;
+// }
+
+// const appConfigVar = makeVar<AppConfig>(initialAppConfig);
+
+// const cache: InMemoryCache = new InMemoryCache({
+//   typePolicies: {
+//     Category: {
+//       fields: {
+//         customPrice: {
+//           read(_, variable) {
+//             return variable;
+//           },
+//         },
+//       },
+//     },
+//   },
+// });
 
 const client = new ApolloClient({
   ssrMode: true,
