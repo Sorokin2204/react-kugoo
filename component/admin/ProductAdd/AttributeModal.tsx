@@ -174,14 +174,6 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
     },
   ] = useLazyQuery(GET_ATTRIBUTE);
 
-  const tra = async () => {
-    console.log(await translate('Аттрибуты', { to: 'en', from: 'ru' }));
-  };
-
-  useEffect(() => {
-    tra();
-  }, []);
-
   useEffect(() => {
     if (activeAttribute) {
       setDisabledAttrName(true);

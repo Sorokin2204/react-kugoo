@@ -43,13 +43,77 @@ var Schema = mongoose.Schema;
 //   },
 // });
 // const Product = mongoose.model('Product', ProductSchema);
-// var SpecSchema = new Schema({
-//   name: {
-//     type: String,
-//     required: true,
-//   },
-// });
-// const Spec = mongoose.model('Spec', SpecSchema);
+//////////////////////////// SPEC ////////////////////////////
+var SpecSchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  slug: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    enum: ['string', 'number'],
+    required: true,
+  },
+});
+const Spec = mongoose.model('Spec', SpecSchema);
+//////////////////////////// SPEC_OPTION ////////////////////////////
+var SpecOptionSchema = new Schema({
+  slug: {
+    type: String,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  Spec: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'Spec',
+  },
+});
+const SpecOption = mongoose.model('SpecOption', SpecOptionSchema);
+//////////////////////////// SPEC_EXTRA_TEXT ////////////////////////////
+var SpecExtraTextSchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  slug: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    enum: ['after', 'before'],
+  },
+  Spec: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'Spec',
+  },
+});
+const SpecExtraText = mongoose.model('SpecExtraText', SpecExtraTextSchema);
+//////////////////////////// CATEGORY_SPEC ////////////////////////////
+var Category_SpecSchema = new Schema({
+  Category: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'Category',
+  },
+  Spec: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'Spec',
+  },
+});
+const Category_Spec = mongoose.model('Category_Spec', Category_SpecSchema);
+
+//////////////////////////// AttributeOption ////////////////////////////
 var AttributeOptionSchema = new Schema({
   label: {
     type: String,
@@ -76,6 +140,8 @@ const AttributeOption = mongoose.model(
   'AttributeOption',
   AttributeOptionSchema,
 );
+//////////////////////////// Attribute ////////////////////////////
+
 var AttributeSchema = new Schema({
   name: {
     type: String,
@@ -94,7 +160,7 @@ var AttributeSchema = new Schema({
   ],
 });
 const Attribute = mongoose.model('Attribute', AttributeSchema);
-
+//////////////////////////// CATEGORY_ATTRUBUTE ////////////////////////////
 var Category_AttributeSchema = new Schema({
   Attribute: {
     type: Schema.Types.ObjectId,
@@ -111,6 +177,8 @@ const Category_Attribute = mongoose.model(
   'Category_Attribute',
   Category_AttributeSchema,
 );
+//////////////////////////// CATEGORY ////////////////////////////
+
 var CategorySchema = new Schema({
   name: {
     type: String,
@@ -127,6 +195,7 @@ var CategorySchema = new Schema({
   },
 });
 const Category = mongoose.model('Category', CategorySchema);
+
 // var Product_AttributeOptionSchema = new Schema({
 //   Product: {
 //     type: Schema.Types.ObjectId,
@@ -145,27 +214,7 @@ const Category = mongoose.model('Category', CategorySchema);
 //   'Product_AttributeOption',
 //   Product_AttributeOptionSchema,
 // );
-// var SpecOptionSchema = new Schema({
-//   slug: {
-//     type: String,
-//     required: true,
-//   },
-//   label: {
-//     type: String,
-//     required: true,
-//   },
-//   Spec: {
-//     type: Schema.Types.ObjectId,
-//     required: true,
-//     ref: 'Spec',
-//   },
-//   type: {
-//     type: String,
-//     enum: ['string', 'number'],
-//     required: true,
-//   },
-// });
-// const SpecOption = mongoose.model('SpecOption', SpecOptionSchema);
+
 // var Product_SpecOptionSchema = new Schema({
 //   SpecOption: {
 //     type: Schema.Types.ObjectId,
@@ -183,27 +232,6 @@ const Category = mongoose.model('Category', CategorySchema);
 //   'Product_SpecOption',
 //   Product_SpecOptionSchema,
 // );
-// var SpecExtraTextSchema = new Schema({
-//   text: {
-//     type: String,
-//     required: true,
-//   },
-//   type: {
-//     type: String,
-//     enum: ['after', 'before'],
-//   },
-//   Spec: {
-//     type: Schema.Types.ObjectId,
-//     required: true,
-//     ref: 'Spec',
-//   },
-//   Product_SpecOption: {
-//     type: Schema.Types.ObjectId,
-//     required: true,
-//     ref: 'Product_SpecOption',
-//   },
-// });
-// const SpecExtraText = mongoose.model('SpecExtraText', SpecExtraTextSchema);
 
 module.exports = {
   //   Product,
@@ -212,8 +240,8 @@ module.exports = {
   Attribute,
   AttributeOption,
   //   Product_AttributeOption,
-  //   Spec,
-  //   SpecOption,
-  //   SpecExtraText,
+  Spec,
+  SpecOption,
+  SpecExtraText,
   //   Product_SpecOption,
 };

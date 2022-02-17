@@ -1,7 +1,7 @@
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const cors = require('cors');
-const schema = require('./schema');
+const schema = require('./schema/schema');
 const fetch = require('node-fetch');
 var ObjectID = require('bson-objectid');
 const { graphqlUploadExpress } = require('graphql-upload');

@@ -338,7 +338,7 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {allCategoryData.getAllCategory.map((category) => (
+                  {allCategoryData?.getAllCategory?.map((category) => (
                     <TableRow
                       onClick={(event) => handleTableRowClick(event, category)}
                       selected={category._id === activeCategory?._id}

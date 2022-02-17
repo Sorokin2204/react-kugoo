@@ -26,6 +26,7 @@ import AttributeModal from '../../component/admin/ProductAdd/AttributeModal';
 import ProductAttribute from '../../component/admin/ProductAttribute';
 import _ from 'lodash';
 import EditOptionModal from '../../component/admin/ProductAdd/EditOptionModal';
+import SpecModal from '../../component/admin/ProductAdd/SpecModal';
 type Props = {};
 
 interface IFormInput {
@@ -48,6 +49,7 @@ const ProductAdmin: React.FC<Props> = ({}) => {
   const [newProduct] = useMutation(CREATE_PRODUCT);
   const [openCategory, setOpenCategory] = useState<boolean>(false);
   const [openAttribute, setOpenAttribute] = useState<boolean>(false);
+  const [openSpec, setOpenSpec] = useState<boolean>(false);
   const [openAttrs, setOpenAttrs] = useState<boolean[]>([]);
   const [attrOptions, setAttrOptions] = useState<
     Array<{ optId: string; checked: boolean; customPrice: number | null }>
@@ -78,6 +80,7 @@ const ProductAdmin: React.FC<Props> = ({}) => {
 
   const handleSwithCategory = () => setOpenCategory(!openCategory);
   const handleSwithAttribute = () => setOpenAttribute(!openAttribute);
+  const handleSwithSpec = () => setOpenSpec(!openSpec);
   const {
     data: allCategoryData,
     loading: allCategoryLoading,
@@ -166,7 +169,7 @@ const ProductAdmin: React.FC<Props> = ({}) => {
                       field.onChange(e.target.value);
                     }}>
                     {!allCategoryLoading &&
-                      allCategoryData.getAllCategory.map((category) => (
+                      allCategoryData?.getAllCategory?.map((category) => (
                         <MenuItem value={category._id}>
                           {category.name}
                         </MenuItem>
@@ -313,11 +316,17 @@ const ProductAdmin: React.FC<Props> = ({}) => {
           sx={{ backgroundColor: 'primary.main', color: 'common.white' }}>
           <Add />
         </IconButton>
+        <IconButton
+          onClick={handleSwithSpec}
+          sx={{ backgroundColor: 'primary.main', color: 'common.white' }}>
+          <Add />
+        </IconButton>
         <CategoryModal open={openCategory} handleClose={handleSwithCategory} />
         <AttributeModal
           open={openAttribute}
           handleClose={handleSwithAttribute}
         />
+        <SpecModal open={openSpec} handleClose={handleSwithSpec} />
       </MainWrapper>
       {openEditOptionModal ? (
         <EditOptionModal
