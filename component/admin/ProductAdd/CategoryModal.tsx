@@ -36,6 +36,7 @@ import { GET_ALL_ATTRIBUTE } from '../../../graphql/query/attribute';
 import _ from 'lodash';
 import { Close, Delete } from '@mui/icons-material';
 import translationToSlug from '../../../utils/translateToSlug';
+import { GET_ALL_SPEC } from '../../../graphql/query/spec';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -50,6 +51,7 @@ type IFormType = {
   name: string;
   slug: string;
   Attributes: string[];
+  Specs: string[];
 };
 
 const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
@@ -64,13 +66,17 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
   } = useForm<IFormType>({
     mode: 'onBlur',
     defaultValues: {
+      name: '',
+      slug: '',
       Attributes: [],
+      Specs: [],
     },
   });
   const [activeCategory, setActiveCategory] = useState(null);
   const [newCategory] = useMutation(CREATE_CATEGORY);
   const [deleteCategory] = useMutation(DELETE_CATEGORY);
   const [autocompleteAttr, setAutocompleteAttr] = useState([]);
+  const [autocompleteSpec, setAutocompleteSpec] = useState([]);
   const {
     data: allCategoryData,
     loading: allCategoryLoading,
@@ -94,6 +100,13 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
     refetch: allAttributeRefetch,
   } = useQuery(GET_ALL_ATTRIBUTE);
 
+  const {
+    data: allSpecData,
+    loading: allSpecLoading,
+    error: allSpecError,
+    refetch: allSpecRefetch,
+  } = useQuery(GET_ALL_SPEC);
+
   useEffect(() => {}, []);
 
   const handleTableRowClick = (event, category) => {
@@ -103,6 +116,7 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
         variables: {
           id: category._id,
           withAttrOpts: false,
+          withSpecOpts: false,
         },
       })
         .then((resault) => {
@@ -116,6 +130,17 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
           } else {
             setAutocompleteAttr([]);
           }
+
+          if (data.specs) {
+            const Spec = data.specs.edges.map((spec) => ({
+              _id: spec.node._id,
+              name: spec.node.name,
+            }));
+            setAutocompleteSpec(Spec);
+          } else {
+            setAutocompleteSpec([]);
+          }
+
           setValue('name', data.name, {
             shouldValidate: true,
           });
@@ -138,6 +163,11 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
       shouldValidate: true,
     });
   }, [autocompleteAttr]);
+  useEffect(() => {
+    setValue('Specs', autocompleteSpec, {
+      shouldValidate: true,
+    });
+  }, [autocompleteSpec]);
 
   const onSubmit = (data: IFormType) => {
     console.log('Submit data ', data);
@@ -146,6 +176,7 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
       variables: {
         cat: { name: data.name, slug: data.slug },
         catAttrIds: data.Attributes.map((attr) => attr._id),
+        catSpecIds: data.Specs.map((spec) => spec._id),
       },
     })
       .then(() => {
@@ -315,6 +346,60 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
                           }}
                           error={errors?.Attributes?.message !== undefined}
                           helperText={errors?.Attributes?.message}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                )}
+                onChange={([, data]) => data}
+              />
+            )}
+
+            {!allSpecLoading && (
+              <Controller
+                control={control}
+                name="Specs"
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <Autocomplete
+                      {...register('Specs')}
+                      value={autocompleteSpec}
+                      multiple
+                      options={allSpecData.getAllSpec}
+                      disableCloseOnSelect
+                      getOptionLabel={(option) => option.name}
+                      {...field}
+                      isOptionEqualToValue={(option, value) =>
+                        option._id == value._id
+                      }
+                      onChange={(e, data) => {
+                        const specIds = data.map((spec) => ({
+                          _id: spec._id,
+                          name: spec.name,
+                        }));
+                        setAutocompleteSpec(specIds);
+                        setValue('Specs', specIds);
+                      }}
+                      renderOption={(props, option, { selected }) => (
+                        <li {...props}>
+                          <Checkbox
+                            icon={icon}
+                            checkedIcon={checkedIcon}
+                            style={{ marginRight: 8 }}
+                            checked={selected}
+                          />
+                          {option.name}
+                        </li>
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Характеристики по умолчанию"
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          error={errors?.Specs?.message !== undefined}
+                          helperText={errors?.Specs?.message}
                         />
                       )}
                     />

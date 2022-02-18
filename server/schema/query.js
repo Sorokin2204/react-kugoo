@@ -1,7 +1,7 @@
 const querySchema = `
   type Query {
 ### CATEGORY
-    getCategory(id: String, withAttrOpts: Boolean!): Category
+    getCategory(id: String, withAttrOpts: Boolean!,withSpecOpts: Boolean!): Category
     getAllCategory: [Category]
 ### PRODUCT
     getProduct(id: ID): Product

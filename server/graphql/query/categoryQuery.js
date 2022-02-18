@@ -1,9 +1,20 @@
-const { Category, Category_Attribute } = require('../../model');
+const { ObjectId } = require('mongodb');
+const { Mongoose } = require('mongoose');
+const {
+  Category,
+  Category_Attribute,
+  Category_Spec,
+  Spec,
+  SpecOption,
+  SpecExtraText,
+} = require('../../model');
 
 const categoryQuery = {
-  getCategory: async ({ id, withAttrOpts }) => {
-    const attributes = await Category_Attribute.find({ Category: id }).populate(
-      {
+  getCategory: async ({ id, withAttrOpts, withSpecOpts }) => {
+    try {
+      const attributes = await Category_Attribute.find({
+        Category: id,
+      }).populate({
         path: 'Attribute',
         ...(withAttrOpts && {
           populate: {
@@ -11,20 +22,70 @@ const categoryQuery = {
             model: 'AttributeOption',
           },
         }),
-      },
-    );
-    const cat = await Category.findById(id);
-    if (attributes.length !== 0) {
-      const catConnect = {
-        ...cat._doc,
-        attributes: {
-          edges: attributes.map((attr) => ({ node: attr.Attribute })),
+      });
+
+      const specs = await Category_Spec.aggregate([
+        {
+          $match: {
+            Category: ObjectId(id),
+          },
         },
-      };
-      console.log(catConnect.attributes.edges[0]);
-      return catConnect;
-    } else {
-      return cat;
+        {
+          $lookup: {
+            from: Spec.collection.name,
+            localField: 'Spec',
+            foreignField: '_id',
+            pipeline: [],
+            as: 'Spec',
+          },
+        },
+        {
+          $unwind: {
+            path: '$Spec',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: SpecOption.collection.name,
+            localField: 'Spec._id',
+            foreignField: 'Spec',
+            as: 'Spec.SpecOptions',
+          },
+        },
+        {
+          $lookup: {
+            from: SpecExtraText.collection.name,
+            localField: 'Spec._id',
+            foreignField: 'Spec',
+            as: 'Spec.SpecExtraTexts',
+          },
+        },
+      ]);
+      // console.log('LOOK UP SPECS ', specsLookUp[0].Spec);
+      // const specs = await Category_Spec.find({ Category: id }).populate('Spec');
+      const cat = await Category.findById(id).lean();
+      let catWithConnections = cat;
+
+      if (attributes.length !== 0) {
+        const attrConnect = {
+          attributes: {
+            edges: attributes.map((attr) => ({ node: attr.Attribute })),
+          },
+        };
+        catWithConnections = { ...catWithConnections, ...attrConnect };
+      }
+      if (specs.length !== 0) {
+        const specConnect = {
+          specs: {
+            edges: specs.map((spec) => ({ node: spec.Spec })),
+          },
+        };
+        catWithConnections = { ...catWithConnections, ...specConnect };
+      }
+      return catWithConnections;
+    } catch (error) {
+      console.log('ERROR ', error.message);
     }
   },
   getAllCategory: async () => {
@@ -34,7 +95,6 @@ const categoryQuery = {
     const attributeIds = await Category_Attribute.find({
       categoryId: categoryId,
     }).select('_id');
-    console.log(attributeIds);
     return;
   },
 };

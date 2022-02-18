@@ -354,10 +354,10 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
               <SubTableModal
                 title={'Префикс'}
                 isNumber={isNumber}
-                parent={'specExtraTextAfter'}
+                parent={'specExtraTextBefore'}
                 firstChild={'name'}
                 secondChild={'slug'}
-                fieldArray={specExtraTextAfterFieldArray}
+                fieldArray={specExtraTextBeforeFieldArray}
               />
               <SubTableModal
                 title={'Значения'}
@@ -377,10 +377,10 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
               <SubTableModal
                 title={'Постфикс'}
                 isNumber={isNumber}
-                parent={'specExtraTextBefore'}
+                parent={'specExtraTextAfter'}
                 firstChild={'name'}
                 secondChild={'slug'}
-                fieldArray={specExtraTextBeforeFieldArray}
+                fieldArray={specExtraTextAfterFieldArray}
               />
             </Box>
 

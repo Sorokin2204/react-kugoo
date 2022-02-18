@@ -21,6 +21,9 @@ let themeAdmin = createTheme({
 themeAdmin = createTheme(themeAdmin, {
   components: {
     MuiTextField: {
+      defaultProps: {
+        size: 'small',
+      },
       styleOverrides: {
         root: {
           '& input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
@@ -29,6 +32,14 @@ themeAdmin = createTheme(themeAdmin, {
               margin: 0,
             },
         },
+      },
+    },
+    MuiSelect: {
+      defaultProps: {
+        size: 'small',
+      },
+      styleOverrides: {
+        '& .MuiPaper-root': { transition: 'none !important' },
       },
     },
     MuiTable: {
@@ -49,6 +60,26 @@ themeAdmin = createTheme(themeAdmin, {
           '& .MuiBackdrop-root': {
             transition: 'none !important',
           },
+        },
+      },
+    },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          transitionDuration: '0s !important',
+        },
+      },
+    },
+    MuiButtonBase: {
+      defaultProps: {
+        disableRipple: true,
+      },
+    },
+    MuiMenuItem: {
+      defaultProps: {},
+      styleOverrides: {
+        paper: {
+          transitionDuration: '0s !important',
         },
       },
     },

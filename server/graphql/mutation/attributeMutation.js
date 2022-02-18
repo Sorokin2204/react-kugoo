@@ -4,7 +4,6 @@ const attributeMutation = {
   createAttributeWithOptions: async ({ attr, attrOpt }) => {
     try {
       const newAttrOpt = await new AttributeOption(attrOpt).save();
-      console.log(newAttrOpt);
       const newAttr = await new Attribute({
         ...attr,
         AttributeOptions: [newAttrOpt._id],

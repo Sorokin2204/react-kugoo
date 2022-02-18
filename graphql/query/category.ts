@@ -1,8 +1,16 @@
 import { gql } from '@apollo/client';
 
 export const GET_CATEGORY = gql`
-  query getCategory($id: String, $withAttrOpts: Boolean!) {
-    getCategory(id: $id, withAttrOpts: $withAttrOpts) {
+  query getCategory(
+    $id: String
+    $withAttrOpts: Boolean!
+    $withSpecOpts: Boolean!
+  ) {
+    getCategory(
+      id: $id
+      withAttrOpts: $withAttrOpts
+      withSpecOpts: $withSpecOpts
+    ) {
       _id
       name
       slug
@@ -18,6 +26,27 @@ export const GET_CATEGORY = gql`
               subLabel
               slug
               defaultPrice
+            }
+          }
+        }
+      }
+      specs {
+        edges {
+          node {
+            _id
+            name
+            slug
+            type
+            SpecOptions @include(if: $withSpecOpts) {
+              _id
+              name
+              slug
+            }
+            SpecExtraTexts @include(if: $withSpecOpts) {
+              _id
+              name
+              slug
+              type
             }
           }
         }

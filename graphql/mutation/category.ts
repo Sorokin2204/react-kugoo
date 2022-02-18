@@ -1,8 +1,12 @@
 import { gql } from '@apollo/client';
 
 export const CREATE_CATEGORY = gql`
-  mutation ($cat: CategoryInput, $catAttrIds: [String]) {
-    createCategory(cat: $cat, catAttrIds: $catAttrIds) {
+  mutation ($cat: CategoryInput, $catAttrIds: [String], $catSpecIds: [String]) {
+    createCategory(
+      cat: $cat
+      catAttrIds: $catAttrIds
+      catSpecIds: $catSpecIds
+    ) {
       name
       slug
     }

@@ -15,7 +15,12 @@ import {
 } from '@mui/material';
 import HeaderAdmin from '../../component/admin/HeaderAdmin';
 import MainWrapper from '../../component/admin/MainWrapper';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import {
+  useForm,
+  SubmitHandler,
+  Controller,
+  useFieldArray,
+} from 'react-hook-form';
 import InputMask from 'react-input-mask';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import { CREATE_PRODUCT } from '../../graphql/mutation/product';
@@ -27,12 +32,17 @@ import ProductAttribute from '../../component/admin/ProductAttribute';
 import _ from 'lodash';
 import EditOptionModal from '../../component/admin/ProductAdd/EditOptionModal';
 import SpecModal from '../../component/admin/ProductAdd/SpecModal';
+import NumberFormat from 'react-number-format';
 type Props = {};
 
 interface IFormInput {
   name: string;
   price: number;
   discountPrice: number;
+  specs: Array<{
+    specId: string;
+    specOpt: string;
+  }>;
   // image: FileList;
 }
 
@@ -41,9 +51,21 @@ const ProductAdmin: React.FC<Props> = ({}) => {
     control,
     handleSubmit,
     register,
+    resetField,
+    reset,
+    setValue,
+    clearErrors,
     formState: { errors, isValid },
   } = useForm<IFormInput>({
-    mode: 'onBlur',
+    mode: 'onTouched',
+    defaultValues: {
+      specs: [],
+    },
+  });
+
+  const { fields } = useFieldArray({
+    control,
+    name: 'specs',
   });
 
   const [newProduct] = useMutation(CREATE_PRODUCT);
@@ -91,27 +113,35 @@ const ProductAdmin: React.FC<Props> = ({}) => {
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
     console.log(data);
 
-    newProduct({
-      variables: {
-        input: data,
-      },
-    }).then((data) => {
-      console.log(data);
-    });
+    // newProduct({
+    //   variables: {
+    //     input: data,
+    //   },
+    // }).then((data) => {
+    //   console.log(data);
+    // });
   };
 
   useEffect(() => {
-    console.log(activeCategoryId);
+    if (categoryData)
+      console.log('DATA SUCCESS', categoryData.getCategory.specs.edges);
+  }, [categoryData]);
+
+  useEffect(() => {
+    clearErrors('specs');
+    setValue('specs', []);
     if (activeCategoryId) {
       getCategory({
         variables: {
           id: activeCategoryId,
           withAttrOpts: true,
+          withSpecOpts: true,
         },
       })
         .then((resault) => {
           const attrOpts = resault?.data?.getCategory?.attributes?.edges;
-          console.log(attrOpts);
+          const specOpts = resault?.data?.getCategory?.specs?.edges;
+
           if (attrOpts) {
             const length = attrOpts.leght;
             const attrOptIds = attrOpts.map((attr) => {
@@ -131,6 +161,8 @@ const ProductAdmin: React.FC<Props> = ({}) => {
             setAttrOptions([]);
             setOpenAttrs([]);
           }
+
+          console.log(specOpts);
         })
         .catch((err) => {
           console.error(err);
@@ -153,7 +185,7 @@ const ProductAdmin: React.FC<Props> = ({}) => {
             name="category"
             control={control}
             rules={{
-              required: { value: true, message: 'Выберите категорию' },
+              required: { value: false, message: 'Выберите категорию' },
             }}
             render={({ field }) => (
               <>
@@ -216,7 +248,210 @@ const ProductAdmin: React.FC<Props> = ({}) => {
                 ))
               : ''}
           </ProductAttributeBox>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)' }}>
+            {!categoryLoading &&
+              categoryData &&
+              categoryData.getCategory.specs.edges.map((spec, index) => (
+                <Box key={spec.node._id}>
+                  <Typography variant="body1" sx={{ fontWeight: '600' }}>
+                    {spec.node.name}
+                  </Typography>
+                  <Box
+                    key={spec.node._id}
+                    sx={{
+                      display: 'flex',
+                    }}>
+                    {spec?.node?.SpecExtraTexts.findIndex(
+                      (specExtra) => specExtra.type === 'before',
+                    ) !== -1 && (
+                      <Box sx={{ width: '25%' }}>
+                        <Controller
+                          name={`specs[${index}].before`}
+                          control={control}
+                          rules={{
+                            required: {
+                              value: false,
+                              message: 'Обязательное поле',
+                            },
+                          }}
+                          render={({ field }) => (
+                            <>
+                              <FormControl
+                                fullWidth
+                                error={errors?.specs?.message !== undefined}>
+                                <InputLabel
+                                  id={`spec-${spec.node._id}`}></InputLabel>
+                                <Select
+                                  defaultValue={''}
+                                  error={
+                                    errors?.specs?.[index]?.before?.message !==
+                                    undefined
+                                  }
+                                  labelId={`spec-${spec.node._id}id`}
+                                  {...field}
+                                  onChange={(e) => {
+                                    // setActiveCategoryId(e.target.value);
+                                    field.onChange(e.target.value);
+                                  }}>
+                                  <MenuItem value={''}>Не выбранно</MenuItem>
+                                  {spec?.node?.SpecExtraTexts?.map(
+                                    (specOpt) => (
+                                      <MenuItem value={specOpt.slug}>
+                                        {specOpt.name}
+                                      </MenuItem>
+                                    ),
+                                  )}
+                                </Select>
+                                {errors?.specs?.[index]?.before?.message !==
+                                  undefined && (
+                                  <FormHelperText sx={{ color: 'error.main' }}>
+                                    {errors?.specs?.[index]?.before?.message}
+                                  </FormHelperText>
+                                )}
+                              </FormControl>
+                            </>
+                          )}
+                        />
+                      </Box>
+                    )}
 
+                    <Controller
+                      key={spec.node._id}
+                      name={`specs[${index}].value`}
+                      control={control}
+                      rules={{
+                        required: {
+                          value: true,
+                          message: ' ',
+                        },
+                      }}
+                      render={({ field }) => (
+                        <Box sx={{ width: '100%' }}>
+                          {spec?.node?.SpecOptions.length !== 0 ? (
+                            <FormControl
+                              fullWidth
+                              error={errors?.specs?.message !== undefined}>
+                              <InputLabel id={`spec-${spec.node._id}id`}>
+                                {/* {spec.node.name} */}
+                              </InputLabel>
+                              <Select
+                                defaultValue={''}
+                                error={
+                                  errors?.specs?.[index]?.value?.message !==
+                                  undefined
+                                }
+                                labelId={`spec-${spec.node._id}id`}
+                                {...field}
+                                onChange={(e) => {
+                                  // setActiveCategoryId(e.target.value);
+                                  field.onChange(e.target.value);
+                                }}>
+                                <MenuItem value={''}>Не выбранно</MenuItem>
+                                {spec?.node?.SpecOptions?.map((specOpt) => (
+                                  <MenuItem value={specOpt.slug}>
+                                    {specOpt.name}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {errors?.specs?.[index]?.value?.message !==
+                                undefined && (
+                                <FormHelperText sx={{ color: 'error.main' }}>
+                                  {errors?.specs?.[index]?.value?.message}
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                          ) : spec.node.type === 'number' ? (
+                            <NumberFormat
+                              customInput={TextField}
+                              sx={{ width: '100%' }}
+                              error={
+                                errors?.specs?.[index]?.value?.message !==
+                                undefined
+                              }
+                              helperText={
+                                errors?.specs?.[index]?.value?.message
+                              }
+                              {...field}
+                              variant="outlined"
+                            />
+                          ) : (
+                            <TextField
+                              sx={{ width: '100%' }}
+                              error={
+                                errors?.specs?.[index]?.value?.message !==
+                                undefined
+                              }
+                              helperText={
+                                errors?.specs?.[index]?.value?.message
+                              }
+                              {...field}
+                              variant="outlined"
+                            />
+                          )}
+                        </Box>
+                      )}
+                    />
+
+                    {spec?.node?.SpecExtraTexts.findIndex(
+                      (specExtra) => specExtra.type === 'after',
+                    ) !== -1 && (
+                      <Box sx={{ width: '25%' }}>
+                        <Controller
+                          name={`specs[${index}].after`}
+                          control={control}
+                          rules={{
+                            required: {
+                              value: false,
+                              message: 'Обязательное поле',
+                            },
+                          }}
+                          render={({ field }) => (
+                            <>
+                              <FormControl
+                                fullWidth
+                                error={
+                                  errors?.specs?.[index]?.after?.message !==
+                                  undefined
+                                }>
+                                <InputLabel
+                                  id={`spec-${spec.node._id}`}></InputLabel>
+                                <Select
+                                  defaultValue={''}
+                                  error={
+                                    errors?.specs?.[index]?.after?.message !==
+                                    undefined
+                                  }
+                                  labelId={`spec-${spec.node._id}id`}
+                                  {...field}
+                                  onChange={(e) => {
+                                    // setActiveCategoryId(e.target.value);
+                                    field.onChange(e.target.value);
+                                  }}>
+                                  <MenuItem value={''}>Не выбранно</MenuItem>
+                                  {spec?.node?.SpecExtraTexts?.map(
+                                    (specOpt) => (
+                                      <MenuItem value={specOpt.slug}>
+                                        {specOpt.name}
+                                      </MenuItem>
+                                    ),
+                                  )}
+                                </Select>
+                                {errors?.specs?.[index]?.after?.message !==
+                                  undefined && (
+                                  <FormHelperText sx={{ color: 'error.main' }}>
+                                    {errors?.specs?.[index]?.after?.message}
+                                  </FormHelperText>
+                                )}
+                              </FormControl>
+                            </>
+                          )}
+                        />
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
+              ))}
+          </Box>
           <Controller
             name="name"
             control={control}

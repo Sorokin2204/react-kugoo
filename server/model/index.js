@@ -239,6 +239,7 @@ module.exports = {
   Category_Attribute,
   Attribute,
   AttributeOption,
+  Category_Spec,
   //   Product_AttributeOption,
   Spec,
   SpecOption,

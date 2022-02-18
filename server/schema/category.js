@@ -8,6 +8,7 @@ const categorySchema = `
   ${categoryFields}
      Products: [Product] #@relationship
     attributes: Category_Attribute_Connection
+    specs: Category_Spec_Connection
   }
 
     input CategoryInput {
