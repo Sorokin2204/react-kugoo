@@ -4,7 +4,7 @@ const querySchema = `
     getCategory(id: String, withAttrOpts: Boolean!,withSpecOpts: Boolean!): Category
     getAllCategory: [Category]
 ### PRODUCT
-    getProduct(id: ID): Product
+    getProduct(productSlug: String): Product
     getAllProduct: [Product]
 ### ATTRIBUTE
     getAttribute(attrId: String, attrOptId: String): Attribute

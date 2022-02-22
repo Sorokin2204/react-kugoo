@@ -23,6 +23,7 @@ themeAdmin = createTheme(themeAdmin, {
     MuiTextField: {
       defaultProps: {
         size: 'small',
+        autoComplete: 'off',
       },
       styleOverrides: {
         root: {
@@ -76,11 +77,15 @@ themeAdmin = createTheme(themeAdmin, {
       },
     },
     MuiMenuItem: {
-      defaultProps: {},
       styleOverrides: {
         paper: {
           transitionDuration: '0s !important',
         },
+      },
+    },
+    MuiInputLabel: {
+      defaultProps: {
+        shrink: true,
       },
     },
   },

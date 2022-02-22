@@ -5,7 +5,7 @@ const mutationSchema = `
       createCategory(cat: CategoryInput, catAttrIds: [String], catSpecIds: [String]): Category
       changeAttributeInCategory(categoryId: String, attributeIds: [String]): Boolean
 ### PRODUCT  
-      createProduct(input: ProductInput): Product
+      createProduct(product: ProductInput): String
 ### ATTRIBUTE
     createAttributeWithOptions(attr: AttributeInput, attrOpt: AttributeOptionInput ): String
 ### ATTRIBUTE_OPTION

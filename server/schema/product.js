@@ -5,10 +5,11 @@ const productImageFields = `
 `;
 const productFields = `
   name: String!
+  slug: String!
     price: Int!
     discountPrice: Int
-    vendorCode: Int!
-    viewsCounter: Int!
+    vendorCode: String!
+
 `;
 
 const productSchema = `
@@ -16,23 +17,43 @@ const productSchema = `
      ${productImageFields}
   }
 
+  type Product {
+    _id: ID!
+   ${productFields}
+    viewsCounter: Int
+    images: [ProductImage]
+    Category: Category
+    SpecOptions: Product_SpecOption_Connection
+    AttributeOptions: Product_AttributeOption_Connection
+  }
+
+
   input ProductImageInput {
     ${productImageFields}
   }
 
-  type Product {
-    id: ID!
-   ${productFields}
-    images: [ProductImage]
-    Category: Category!
-    AttributeOptions: [AttributeOption!] #@relationship
-  }
-
     input ProductInput {
     ${productFields}
+    category: String!
     images: [ProductImageInput]
-    Category: CategoryInput!
-    AttributeOptions: [AttributeOptionInput!] #@relationship
+    attributes:[ProductAttributesDtoInput]
+    specs: [ProductSpecDtoInput]
 }
+input ProductAttributesDtoInput {
+  _id: String!
+  customPrice: Int
+  customSublabel: String
+}
+input ProductSpecDtoInput {
+  specId: String!
+  specOptId: String
+  type: String
+  customValue: String
+  afterId: String
+  beforeId: String
+}
+
+
+
 `;
 module.exports = productSchema;

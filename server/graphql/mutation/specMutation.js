@@ -5,7 +5,11 @@ const specMutation = {
     const newSpec = await new Spec(spec).save();
     if (SpecOption.length !== 0) {
       await SpecOption.insertMany(
-        specOpts.map((specOpt) => ({ ...specOpt, Spec: newSpec._id })),
+        specOpts.map((specOpt) => ({
+          ...specOpt,
+          Spec: newSpec._id,
+          default: true,
+        })),
       );
     }
 

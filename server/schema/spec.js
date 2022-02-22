@@ -1,13 +1,13 @@
 const specFields = `
         name: String!
         slug: String!
-          type: SpecOptionType
+        type: SpecOptionType
     `;
 
 const specOptionFields = `
     name: String!
     slug: String!
-   
+    default: Boolean
     `;
 const specExtraTextFields = `
       name: String!
@@ -16,6 +16,18 @@ const specExtraTextFields = `
     `;
 
 const specSchema = `
+
+union IntOrString = IntBox | StringBox
+
+type IntBox {
+  value: Int
+}
+
+type StringBox {
+  value: String
+}
+
+
 
 enum SpecOptionType {
     string

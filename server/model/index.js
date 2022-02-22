@@ -1,52 +1,58 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-// var ProductSchema = new Schema({
-//   name: {
-//     type: String,
-//     required: true,
-//   },
-//   price: {
-//     type: Number,
-//     required: true,
-//   },
-//   oldPrice: {
-//     type: Number,
-//   },
-//   vendorCode: {
-//     type: String,
-//     required: true,
-//   },
-//   images: [
-//     {
-//       path: {
-//         type: String,
-//         required: true,
-//       },
-//       type: {
-//         type: String,
-//         required: true,
-//       },
-//       name: {
-//         type: String,
-//         required: true,
-//       },
-//     },
-//   ],
-//   ViewsCounter: {
-//     type: Number,
-//     required: true,
-//   },
-//   Category: {
-//     type: Schema.Types.ObjectId,
-//     required: true,
-//     ref: 'Category',
-//   },
-// });
-// const Product = mongoose.model('Product', ProductSchema);
+var ProductSchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  slug: {
+    type: String,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  discountPrice: {
+    type: Number,
+    required: false,
+  },
+  vendorCode: {
+    type: String,
+    required: true,
+  },
+  // images: [
+  //   {
+  //     path: {
+  //       type: String,
+  //       required: true,
+  //     },
+  //     type: {
+  //       type: String,
+  //       required: true,
+  //     },
+  //     name: {
+  //       type: String,
+  //       required: true,
+  //     },
+  //   },
+  // ],
+  viewsCounter: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  Category: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'Category',
+  },
+});
+const Product = mongoose.model('Product', ProductSchema);
 //////////////////////////// SPEC ////////////////////////////
 var SpecSchema = new Schema({
   name: {
-    type: String,
+    type: Schema.Types.Mixed,
     required: true,
   },
   slug: {
@@ -69,6 +75,11 @@ var SpecOptionSchema = new Schema({
   name: {
     type: String,
     required: true,
+  },
+  default: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
   Spec: {
     type: Schema.Types.ObjectId,
@@ -130,6 +141,12 @@ var AttributeOptionSchema = new Schema({
     type: Number,
     required: false,
   },
+  Attribute: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'Attribute',
+  },
+
   defaultChecked: {
     type: Boolean,
     required: true,
@@ -196,53 +213,76 @@ var CategorySchema = new Schema({
 });
 const Category = mongoose.model('Category', CategorySchema);
 
-// var Product_AttributeOptionSchema = new Schema({
-//   Product: {
-//     type: Schema.Types.ObjectId,
-//     required: true,
-//     ref: 'Product',
-//   },
-//   AttributeOption: {
-//     type: AttributeOption,
-//     required: true,
-//   },
-//   customPrice: {
-//     type: Number,
-//   },
-// });
-// const Product_AttributeOption = mongoose.model(
-//   'Product_AttributeOption',
-//   Product_AttributeOptionSchema,
-// );
+var Product_AttributeOptionSchema = new Schema({
+  Product: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'Product',
+  },
+  AttributeOption: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'AttributeOption',
+  },
+  customPrice: {
+    type: Number,
+  },
+  customSublabel: {
+    type: String,
+  },
+});
+const Product_AttributeOption = mongoose.model(
+  'Product_AttributeOption',
+  Product_AttributeOptionSchema,
+);
 
-// var Product_SpecOptionSchema = new Schema({
-//   SpecOption: {
-//     type: Schema.Types.ObjectId,
-//     required: true,
-//     ref: 'SpecOption',
-//   },
-//   Product: {
-//     type: Schema.Types.ObjectId,
-//     required: true,
-//     ref: 'Product',
-//   },
-// });
+var Product_SpecOptionSchema = new Schema({
+  SpecOption: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'SpecOption',
+  },
+  Product: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'Product',
+  },
+});
 
-// const Product_SpecOption = mongoose.model(
-//   'Product_SpecOption',
-//   Product_SpecOptionSchema,
-// );
+const Product_SpecOption = mongoose.model(
+  'Product_SpecOption',
+  Product_SpecOptionSchema,
+);
+
+var ProductSpecOption_SpecExtraTextSchema = new Schema({
+  SpecExtraText: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'SpecExtraText',
+  },
+  Product_SpecOption: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'Product_SpecOption',
+  },
+});
+
+const ProductSpecOption_SpecExtraText = mongoose.model(
+  'ProductSpecOption_SpecExtraText',
+  ProductSpecOption_SpecExtraTextSchema,
+);
 
 module.exports = {
-  //   Product,
+  Product,
   Category,
   Category_Attribute,
   Attribute,
   AttributeOption,
   Category_Spec,
-  //   Product_AttributeOption,
+  Product_AttributeOption,
   Spec,
   SpecOption,
   SpecExtraText,
-  //   Product_SpecOption,
+  Product_SpecOption,
+  ProductSpecOption_SpecExtraText,
 };

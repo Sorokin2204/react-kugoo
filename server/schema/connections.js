@@ -22,6 +22,16 @@ type Product_SpecOption_Connection {
 }
 type Product_SpecOption_Edge {
   node: SpecOption
+  SpecExtraTexts: [SpecExtraText]
+}
+type Product_AttributeOption_Connection {
+  edges: [Product_AttributeOption_Edge]
+}
+type Product_AttributeOption_Edge {
+  node: AttributeOption
+  customPrice: Int
+  customSublabel: String
+
 }
 
 `;

@@ -7,7 +7,7 @@ const productSchema = require('./product');
 const { querySchema } = require('./query');
 const { specSchema } = require('./spec');
 
-const schema = buildSchema(`
+const sch = `
 #### CONNECTIONS-EDGES ####
 ${connectionsSchema}
 #### PRODUCT ####
@@ -22,6 +22,7 @@ ${categorySchema}
 ${querySchema}
   #### MUTATIONS ####
 ${mutationSchema}
-`);
+`;
+const schema = buildSchema(sch);
 
 module.exports = schema;

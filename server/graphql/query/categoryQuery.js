@@ -51,6 +51,7 @@ const categoryQuery = {
             localField: 'Spec._id',
             foreignField: 'Spec',
             as: 'Spec.SpecOptions',
+            pipeline: [{ $match: { default: { $eq: true } } }],
           },
         },
         {
