@@ -10,7 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.26.0",
     "bson-objectid": "^2.0.2",
+    "cheerio": "^1.0.0-rc.10",
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "express-graphql": "^0.12.0",
@@ -20,6 +22,11 @@
     "mongoose": "^6.2.1",
     "node-fetch": "^2.6.1",
     "nodemon": "^2.0.15",
-    "query-string": "^7.1.1"
+    "pretty": "^2.0.0",
+    "puppeteer": "^13.4.0",
+    "query-string": "^7.1.1",
+    "slugify": "^1.6.5",
+    "xmldom": "^0.6.0",
+    "xpath": "^0.0.32"
   }
 }

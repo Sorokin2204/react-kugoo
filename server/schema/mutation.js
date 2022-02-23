@@ -14,6 +14,7 @@ const mutationSchema = `
 ### SPEC
       createSpec(spec: SpecInput, specOpts: [SpecOptionInput], specExtraAfter: [SpecExtraTextInput], specExtraBefore: [SpecExtraTextInput]): String
       deleteSpec(specId: String): String
+    
     }`;
 
 module.exports = { mutationSchema };
