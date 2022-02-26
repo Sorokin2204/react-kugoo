@@ -21,22 +21,22 @@ var ProductSchema = new Schema({
     type: String,
     required: true,
   },
-  // images: [
-  //   {
-  //     path: {
-  //       type: String,
-  //       required: true,
-  //     },
-  //     type: {
-  //       type: String,
-  //       required: true,
-  //     },
-  //     name: {
-  //       type: String,
-  //       required: true,
-  //     },
-  //   },
-  // ],
+  images: [
+    {
+      path: {
+        type: String,
+        required: false,
+      },
+      type: {
+        type: String,
+        required: false,
+      },
+      name: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
   viewsCounter: {
     type: Number,
     required: false,

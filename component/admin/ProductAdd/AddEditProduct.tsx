@@ -178,14 +178,13 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
         .then((resault) => {
           const attrOpts = resault?.data?.getCategory?.attributes?.edges;
           const specOpts = resault?.data?.getCategory?.specs?.edges;
-
+          console.log('Attribut Resault', attrOpts);
           if (attrOpts) {
             const length = attrOpts.leght;
             const attrOptIds = attrOpts.map((attr) => {
               const findAttr = product?.AttributeOptions?.edges.filter(
                 (attrOpt) => attrOpt.node.Attribute._id == attr.node._id,
               );
-              console.log('ATTR', findAttr);
 
               return {
                 name: attr.node.name,
@@ -239,21 +238,23 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
             const findSpec = product?.SpecOptions?.edges.find(
               (specc) => specc.node.Spec._id == spec.node._id,
             );
-            if (findSpec.node.default == true) {
+            if (findSpec) {
+              if (findSpec.node.default == true) {
+                productForm.setValue(
+                  `specs[${index}].specOptId`,
+                  findSpec.node._id,
+                );
+                return;
+              }
               productForm.setValue(
-                `specs[${index}].specOptId`,
-                findSpec.node._id,
+                `specs[${index}].customValue`,
+                findSpec.node.name,
               );
-              return;
             }
-            productForm.setValue(
-              `specs[${index}].customValue`,
-              findSpec.node.name,
-            );
           });
         })
         .catch((err) => {
-          console.error(err);
+          console.log(err);
           // console.error(JSON.stringify(err, null, 2));
         });
     }
@@ -514,6 +515,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
           />
           <PriceInputForm
             label={'Акционная цена'}
+            rules={{ required: false }}
             name={'discountPrice'}
             form={productForm}
           />

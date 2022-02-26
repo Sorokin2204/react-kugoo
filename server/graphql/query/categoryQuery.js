@@ -7,22 +7,58 @@ const {
   Spec,
   SpecOption,
   SpecExtraText,
+  Attribute,
+  AttributeOption,
 } = require('../../model');
 
 const categoryQuery = {
   getCategory: async ({ id, withAttrOpts, withSpecOpts }) => {
     try {
-      const attributes = await Category_Attribute.find({
-        Category: id,
-      }).populate({
-        path: 'Attribute',
-        ...(withAttrOpts && {
-          populate: {
-            path: 'AttributeOptions',
-            model: 'AttributeOption',
+      // const attributes = await Category_Attribute.find({
+      //   Category: id,
+      // }).populate({
+      //   path: 'Attribute',
+      //   ...(withAttrOpts && {
+      //     populate: {
+      //       path: 'AttributeOptions',
+      //       model: 'AttributeOption',
+      //     },
+      //   }),
+      // });
+
+      const pipelineCatAttr = [
+        {
+          $match: {
+            Category: ObjectId(id),
           },
-        }),
+        },
+        {
+          $lookup: {
+            from: Attribute.collection.name,
+            localField: 'Attribute',
+            foreignField: '_id',
+            pipeline: [],
+            as: 'Attribute',
+          },
+        },
+      ];
+
+      pipelineCatAttr.push({
+        $unwind: {
+          path: '$Attribute',
+          preserveNullAndEmptyArrays: true,
+        },
       });
+      pipelineCatAttr.push({
+        $lookup: {
+          from: AttributeOption.collection.name,
+          localField: 'Attribute._id',
+          foreignField: 'Attribute',
+          as: 'Attribute.AttributeOptions',
+        },
+      });
+
+      const attributes = await Category_Attribute.aggregate(pipelineCatAttr);
 
       const specs = await Category_Spec.aggregate([
         {

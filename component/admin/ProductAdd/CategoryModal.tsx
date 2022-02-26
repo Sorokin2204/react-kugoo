@@ -121,6 +121,8 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
       })
         .then((resault) => {
           const data = resault.data.getCategory;
+          console.log('CATEGORY DATA', data);
+
           if (data.attributes) {
             const Attribute = data.attributes.edges.map((attr) => ({
               _id: attr.node._id,

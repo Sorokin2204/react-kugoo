@@ -7,17 +7,22 @@ const {
   Product_AttributeOption,
   AttributeOption,
   Attribute,
+  Category_Attribute,
+  Category_Spec,
+  Spec,
 } = require('../../model');
+const { showSpec } = require('../../scrapper/AddScrapedProduct');
 const browserObject = require('../../scrapper/browser');
 const scraperController = require('../../scrapper/pageController');
 
 const productQuery = {
   getAllProduct: async () => {
+    // await showSpec();
     //Start the browser and create a browser instance
-    let browserInstance = browserObject.startBrowser();
+    // let browserInstance = browserObject.startBrowser();
 
     // Pass the browser instance to the scraper controller
-    scraperController(browserInstance);
+    // scraperController(browserInstance);
     return await Product.find();
   },
   getProduct: async ({ productSlug }) => {

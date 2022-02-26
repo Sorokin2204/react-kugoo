@@ -191,12 +191,12 @@ function findExistProduct(productTitle, price) {
   const indexProduct = allProduct.find(
     (product) => product.title === productTitle,
   );
-  indexProduct.price = price;
-  var updateProducts = JSON.stringify(allProduct);
-  fs.writeFile('productData.json', updateProducts, (err) => {
-    if (err) throw err;
-    console.log('Update price');
-  });
+  // indexProduct.price = price;
+  // var updateProducts = JSON.stringify(allProduct);
+  // fs.writeFile('productData.json', updateProducts, (err) => {
+  //   if (err) throw err;
+  //   console.log('Update price');
+  // });
   if (!indexProduct) {
     return false;
   } else {

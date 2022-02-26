@@ -1,6 +1,7 @@
 const mutationSchema = `
   type Mutation {
 ### CATEGORY
+
       deleteCategory(catId: String): String
       createCategory(cat: CategoryInput, catAttrIds: [String], catSpecIds: [String]): Category
       changeAttributeInCategory(categoryId: String, attributeIds: [String]): Boolean
