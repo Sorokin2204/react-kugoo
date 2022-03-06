@@ -29,6 +29,7 @@ import CartSidebar from '../component/common/Cart/CartSidebar';
 import CartDeliveryInfo from '../component/common/Cart/CartDeliveryInfo';
 import CartDeliveryChoice from '../component/common/Cart/CartDeliveryChoice';
 import CartPaymentChoice from '../component/common/Cart/CartPaymentChoice';
+import { useForm } from 'react-hook-form';
 
 type Props = {};
 
@@ -52,8 +53,44 @@ const CartStepTitle = styled(Typography)(({ theme }) => ({
   },
 }));
 
+type IFormType = {
+  city: string;
+  street: string;
+  buildingNumber: number;
+  buildingPart: number;
+  buildingFlat: number;
+  buildingIndex: number;
+  name: string;
+  surname: string;
+  phone: string;
+  email: string;
+  comment: string;
+};
+
 const CartPage: React.FC<Props> = ({}) => {
   const theme = useTheme();
+  const [stepCheckout, setStepCheckout] = useState(false);
+  const formCheckout = useForm<IFormType>({
+    mode: 'onChange',
+    defaultValues: {
+      city: '',
+      street: '',
+      buildingNumber: undefined,
+      buildingPart: undefined,
+      buildingFlat: undefined,
+      buildingIndex: undefined,
+      name: '',
+      surname: '',
+      phone: '',
+      email: '',
+      comment: '',
+    },
+  });
+
+  const onSubmit = (dataSubmit) => {
+    console.log('Submit Data', dataSubmit);
+  };
+
   return (
     <>
       <Container>
@@ -70,37 +107,47 @@ const CartPage: React.FC<Props> = ({}) => {
         </Typography>
         <CartGrid sx={{ mb: 50 }}>
           <CartContent>
-            <CartStep>
-              <CartStepTitle variant="h4b">
-                <span>Шаг 1.</span> Выберите способ доставки
-              </CartStepTitle>
-              <CartDeliveryChoice />
-            </CartStep>
-            <CartStep>
-              <CartStepTitle variant="h4b">
-                <span>Шаг 2.</span> Укажите адрес доставки
-              </CartStepTitle>
-              <CartDeliveryInfo />
-            </CartStep>
-            <CartStep>
-              <CartStepTitle variant="h4b">
-                <span>Шаг 3.</span> Укажите данные получателя
-              </CartStepTitle>{' '}
-              <CartClientInfo />
-            </CartStep>
-            <CartStep>
-              <CartStepTitle variant="h4b">
-                <span>Шаг 4.</span> Выберите способ оплаты
-              </CartStepTitle>
-              <CartPaymentChoice />
-            </CartStep>
+            {!stepCheckout ? (
+              <CartProducts />
+            ) : (
+              <form
+                onSubmit={formCheckout.handleSubmit(onSubmit)}
+                autoComplete="off">
+                {/* <CartStep>
+                  <CartStepTitle variant="h4b">
+                    <span>Шаг 1.</span> Выберите способ доставки
+                  </CartStepTitle>
+                  <CartDeliveryChoice />
+                </CartStep> */}
+                <CartStep>
+                  <CartStepTitle variant="h4b">
+                    <span>Шаг 2.</span> Укажите адрес доставки
+                  </CartStepTitle>
+                  <CartDeliveryInfo form={formCheckout} />
+                </CartStep>
+                <CartStep>
+                  <CartStepTitle variant="h4b">
+                    <span>Шаг 3.</span> Укажите данные получателя
+                  </CartStepTitle>{' '}
+                  <CartClientInfo form={formCheckout} />
+                </CartStep>
+                {/* <CartStep>
+                  <CartStepTitle variant="h4b">
+                    <span>Шаг 4.</span> Выберите способ оплаты
+                  </CartStepTitle>
+                  <CartPaymentChoice />
+                </CartStep> */}
+              </form>
+            )}
           </CartContent>
-          <CartSidebar />
+          <CartSidebar
+            form={formCheckout}
+            setStepCheckout={setStepCheckout}
+            stepCheckout={stepCheckout}
+          />
         </CartGrid>
       </Container>
-      <Box sx={{ mb: 50 }}>
-        <ProductCarusel />
-      </Box>
+      <Box sx={{ mb: 50 }}>{/* <ProductCarusel /> */}</Box>
     </>
   );
 };

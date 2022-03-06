@@ -5,6 +5,8 @@ const querySchema = `
     getAllCategory: [Category]
 ### PRODUCT
     getProduct(productSlug: String): Product
+    getAllProductFromCart(productsFromCart: [ProductsFromCartInput]): [Product]
+    getAllProductCard(sort: String): [Product]
     getAllProduct: [Product]
 ### ATTRIBUTE
     getAttribute(attrId: String, attrOptId: String): Attribute

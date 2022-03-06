@@ -1,10 +1,19 @@
-import React from 'react';
-import { Box, Button, Grid, styled, Typography } from '@mui/material';
+import React, { useEffect } from 'react';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  styled,
+  Typography,
+} from '@mui/material';
 import FilterInline, { FilterInlineType } from './FilterInline';
 import Product, { ProductType } from './Product';
 import FilterBlock from './FilterBlock';
 import FilterRange from './FilterRange';
 import CatalogSort from './CatalogSort';
+import { useLazyQuery, useQuery } from '@apollo/client';
+import { GET_ALL_PRODUCTS_CARD } from '../../graphql/query/product';
 
 type Props = {
   type: 'full' | 'filter' | 'inline';
@@ -12,20 +21,20 @@ type Props = {
 
 const filterInlineData: FilterInlineType[] = [
   {
-    label: 'Хиты продаж',
-    value: 'hits',
+    label: 'Популярные',
+    value: 'popular',
   },
   {
-    label: 'Для города',
-    value: 'for-town',
+    label: 'Дешевые',
+    value: 'low-price',
   },
   {
-    label: 'Для взрослых',
-    value: 'for-adulte',
+    label: 'Дорогие',
+    value: 'high-price',
   },
   {
-    label: 'Для детей',
-    value: 'for-kids',
+    label: 'Названию',
+    value: 'name',
   },
 ];
 
@@ -97,12 +106,28 @@ const CatalogBtnMore = styled(Button)(({ theme }) => ({
 }));
 
 const Catalog: React.FC<Props> = ({ type }) => {
+  const [getAllProductCard, getAllProductCardData] = useLazyQuery(
+    GET_ALL_PRODUCTS_CARD,
+  );
+  useEffect(() => {
+    // console.log('CATALOG DATA ', getAllProductCardData);
+  }, [getAllProductCardData]);
+
+  const onChangeSort = (sort: string) => {
+    console.log('SORTING DATA ', getAllProductCardData);
+    getAllProductCard({
+      variables: {
+        sort: sort,
+      },
+    });
+  };
+
   return (
     <CatalogBox>
       {type === 'full' && (
         <CatalogHead>
           <CatalogTitle variant="h1">Электросамокаты</CatalogTitle>
-          <FilterInline data={filterInlineData} />
+          <FilterInline data={filterInlineData} onChangeSort={onChangeSort} />
         </CatalogHead>
       )}
       {type === 'filter' && (
@@ -125,11 +150,20 @@ const Catalog: React.FC<Props> = ({ type }) => {
         )}
 
         <CatalogGrid container spacing={13} type={type}>
-          {[...Array(6)].map((el, i) => (
-            <CatalogGridItem item xs={type === 'filter' ? 4 : 3} key={i}>
-              <Product data={productData[0]} />
-            </CatalogGridItem>
-          ))}
+          {!getAllProductCardData?.loading ? (
+            getAllProductCardData?.data?.getAllProductCard?.map(
+              (product, i) => (
+                <CatalogGridItem
+                  item
+                  xs={type === 'filter' ? 4 : 3}
+                  key={product._id}>
+                  <Product data={product} />
+                </CatalogGridItem>
+              ),
+            )
+          ) : (
+            <CircularProgress />
+          )}
           <CatalogGridItem item xs={12} sx={{ mb: 25 }}>
             <CatalogBtnMore variant="outlined">Смотреть все</CatalogBtnMore>
           </CatalogGridItem>

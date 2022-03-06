@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FormControl,
   FormControlLabel,
@@ -7,6 +7,8 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
+import { useLazyQuery } from '@apollo/client';
+import { GET_ALL_PRODUCTS_CARD } from '../../graphql/query/product';
 
 export type FilterInlineType = {
   label: string;
@@ -15,10 +17,14 @@ export type FilterInlineType = {
 
 type Props = {
   data: FilterInlineType[];
+  onChangeSort: (sort: string) => {};
 };
 
-const FilterInline: React.FC<Props> = ({ data }) => {
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+const FilterInline: React.FC<Props> = ({ data, onChangeSort }) => {
+  // const [getAllProductCard, getAllProductCardData] = useLazyQuery(
+  //   GET_ALL_PRODUCTS_CARD,
+  // );
+  const [activeFilter, setActiveFilter] = useState<string>(data[0].value);
   const theme = useTheme();
   const handleChangeFilter = (
     event: React.ChangeEvent<Element>,
@@ -26,20 +32,27 @@ const FilterInline: React.FC<Props> = ({ data }) => {
   ) => {
     setActiveFilter(value);
   };
+  useEffect(() => {
+    onChangeSort(activeFilter);
+  }, [activeFilter]);
+
   return (
     <FormControl>
       <FilterRadioGroup onChange={handleChangeFilter}>
-        {data.map((el, i) => (
-          <FilterFormControlLabel
-            margin={theme.spacing(5)}
-            sx={{ px: 10, py: 5, m: 0, ml: 5 }}
-            key={i}
-            value={el.value}
-            control={<Radio />}
-            label={el.label}
-            active={activeFilter === el.value}
-          />
-        ))}
+        {data.map((el, i) => {
+          return (
+            <FilterFormControlLabel
+              margin={theme.spacing(5)}
+              sx={{ px: 10, py: 5, m: 0, ml: 5 }}
+              key={i}
+              value={el.value}
+              control={<Radio />}
+              label={el.label}
+              active={activeFilter === el.value}
+              defaultChecked={i === 0}
+            />
+          );
+        })}
       </FilterRadioGroup>
     </FormControl>
   );

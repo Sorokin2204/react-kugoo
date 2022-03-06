@@ -3,6 +3,7 @@ const { attributeSchema } = require('./attribute');
 const { categorySchema } = require('./category');
 const { connectionsSchema } = require('./connections');
 const { mutationSchema } = require('./mutation');
+const { orderSchema } = require('./order');
 const productSchema = require('./product');
 const { querySchema } = require('./query');
 const { specSchema } = require('./spec');
@@ -18,6 +19,8 @@ ${categorySchema}
  ${attributeSchema}
 #### SPEC ####
   ${specSchema}
+#### ORDER ####
+  ${orderSchema}
   #### QUERIES ####
 ${querySchema}
   #### MUTATIONS ####

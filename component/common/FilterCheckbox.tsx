@@ -1,7 +1,13 @@
 import React from 'react';
-import { Checkbox, FormControlLabel, FormGroup, styled } from '@mui/material';
+import {
+  Checkbox,
+  FormControlLabel,
+  FormControlProps,
+  FormGroup,
+  styled,
+} from '@mui/material';
 
-type Props = {};
+type Props = { data: CheckboxFilterProps[] } & FormControlProps;
 
 export type CheckboxFilterProps = { label: string; value: string };
 
@@ -39,15 +45,12 @@ const FilterFormControlLabelStyle = styled(FormControlLabel)(({ theme }) => ({
   },
 }));
 
-const FilterCheckbox: React.FC<{
-  data: CheckboxFilterProps[];
-  sx?: object;
-}> = ({ data, sx }) => {
+const FilterCheckbox: React.FC<Props> = ({ data, ...props }) => {
   return (
     <FormGroup>
       {data.map((el, i) => (
         <FilterFormControlLabelStyle
-          sx={sx}
+          {...props}
           key={i}
           label={el.label}
           value={el.value}

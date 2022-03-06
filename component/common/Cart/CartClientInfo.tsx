@@ -2,8 +2,13 @@ import React, { useState } from 'react';
 import { Box, FormLabel, styled, Typography, useTheme } from '@mui/material';
 import InputText from '../InputText';
 import FilterCheckbox from '../FilterCheckbox';
+import { UseFormReturn } from 'react-hook-form';
+import TextInputForm from '../../admin/inputs/TextInputForm';
+import NumberInputForm from '../../admin/inputs/NumberInputForm';
 
-type Props = {};
+type Props = {
+  form: UseFormReturn;
+};
 
 const CartGridInput = styled(Box)(({ theme }) => ({
   display: 'grid',
@@ -14,23 +19,107 @@ const InputBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
 }));
-const CartClientInfo: React.FC<Props> = ({}) => {
+const CartClientInfo: React.FC<Props> = ({ form }) => {
   const theme = useTheme();
   const [inputValue, setInputValue] = useState('');
   return (
     <>
       <CartGridInput>
-        <InputBox>
-          <Typography variant="t4" sx={{ mb: 3.5 }}>
-            Ваша фамилия
+        <TextInputForm
+          CustomTag={InputText}
+          label={'Ваша фамилия*'}
+          inputProps={{
+            placeholder: 'Введите фамилия',
+          }}
+          name={`surname`}
+          rules={{
+            required: {
+              value: true,
+              message: 'Обязательное поле',
+            },
+          }}
+          form={form}
+        />
+        <TextInputForm
+          CustomTag={InputText}
+          label={'Ваша имя*'}
+          inputProps={{
+            placeholder: 'Введите имя',
+          }}
+          name={`name`}
+          rules={{
+            required: {
+              value: true,
+              message: 'Обязательное поле',
+            },
+          }}
+          form={form}
+        />
+        <NumberInputForm
+          CustomTag={InputText}
+          label={' Ваш телефон*'}
+          inputProps={{
+            format: '+375 (##) ### ## ##',
+            placeholder: '+375 (__) ___ __ __',
+            onValueChange: (vals) => {
+              form.setValue('phone', vals.value);
+            },
+          }}
+          name={`phone`}
+          rules={{
+            required: { value: true, message: 'Обязательное поле' },
+            pattern: {
+              value: /[0-9]{9,}/,
+              message: 'Номер не полный',
+            },
+          }}
+          form={form}
+        />
+        <TextInputForm
+          CustomTag={InputText}
+          label={'Ваш email'}
+          inputProps={{
+            placeholder: 'Введите email',
+          }}
+          name={`email`}
+          rules={{
+            required: false,
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'Некорректная почта',
+            },
+          }}
+          form={form}
+        />
+        <InputBox sx={{ gridColumn: '1/3' }}>
+          {/* <Typography variant="t4" sx={{ mb: 3.5 }}>
+            Комментрий
           </Typography>
           <InputText
+            multiline
+            
             value={inputValue}
-            placeholder={'Введите фамилия'}
+            placeholder={'Оставьте пожелание или комментарий к заказу '}
             onInput={(event) => setInputValue(event.target.value)}
+          /> */}
+
+          <TextInputForm
+            CustomTag={InputText}
+            label={'Комментрий'}
+            inputProps={{
+              multiline: true,
+              minRows: 4,
+              maxRows: 4,
+              placeholder: 'Оставьте пожелание или комментарий к заказу',
+            }}
+            name={`comment`}
+            rules={{
+              required: false,
+            }}
+            form={form}
           />
         </InputBox>
-        <InputBox>
+        {/* <InputBox>
           <Typography variant="t4" sx={{ mb: 3.5 }}>
             Ваше имя
           </Typography>
@@ -78,20 +167,7 @@ const CartClientInfo: React.FC<Props> = ({}) => {
               },
             ]}
           />
-        </InputBox>
-        <InputBox sx={{ gridColumn: '1/3' }}>
-          <Typography variant="t4" sx={{ mb: 3.5 }}>
-            Комментрий
-          </Typography>
-          <InputText
-            multiline
-            rows={4}
-            maxRows={4}
-            value={inputValue}
-            placeholder={'Оставьте пожелание или комментарий к заказу '}
-            onInput={(event) => setInputValue(event.target.value)}
-          />
-        </InputBox>
+        </InputBox> */}
       </CartGridInput>
     </>
   );

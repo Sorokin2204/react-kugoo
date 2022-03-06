@@ -1,8 +1,17 @@
-import React from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Box, Button, styled, Typography, useTheme } from '@mui/material';
 import FilterCheckbox from '../FilterCheckbox';
+import useAppConfig from '../../../hooks/useAppConfig';
+import { currencyFormat } from '../Header/components/CartPopover';
+import _ from 'lodash';
+import { CREATE_ORDER } from '../../../graphql/mutation/order';
+import { useMutation } from '@apollo/client';
 
-type Props = {};
+type Props = {
+  setStepCheckout: Dispatch<SetStateAction<boolean>>;
+  stepCheckout: boolean;
+  form: UseFormReturn;
+};
 const TotalConfirm = styled(Box)(({ theme }) => ({}));
 
 const CartSidebarBox = styled(Box)(({ theme }) => ({}));
@@ -32,33 +41,81 @@ const TotalBtnOrder = styled(Button)(({ theme }) => ({
 
   width: '100%',
 }));
-const CartSidebar: React.FC<Props> = ({}) => {
+const CartSidebar: React.FC<Props> = ({
+  setStepCheckout,
+  stepCheckout,
+  form,
+}) => {
   const theme = useTheme();
+  const { cartProducts } = useAppConfig();
+  const [totalPrice, setTotalPrice] = useState<number | null>();
+  const [confirm, setConfirm] = useState(false);
+  const [newOrder] = useMutation(CREATE_ORDER);
+  useEffect(() => {
+    // let total = cartProducts.map(
+    //   (cartProd) => cartProd.totalPrice * cartProd.pieces,
+    // );
+    let total = _.sumBy(cartProducts, (item) => item.totalPrice * item.pieces);
+    setTotalPrice(total);
+  }, [cartProducts]);
+
+  const onSubmit = (data) => {
+    console.log(data);
+    newOrder({
+      variables: {
+        orderInfo: {
+          ...data,
+          phone: parseInt(data.phone),
+          buildingIndex: parseInt(data.buildingIndex),
+        },
+        productsInfo: cartProducts,
+      },
+    }).catch((err) => console.log(JSON.stringify(err, 2, null)));
+  };
+
   return (
     <CartSidebarBox>
       <Total sx={{ px: 13, pb: 13, pt: 9 }}>
         <TotalText variant="t4">Итого</TotalText>
-        <TotalPrice variant="h3">58 800 ₽</TotalPrice>
+        <TotalPrice variant="h3">{currencyFormat(totalPrice)}</TotalPrice>
         <TotalList sx={{ pt: 7, pb: 10, mt: 5, mb: 10 }}>
           <TotalItem>
             <TotalItemName variant="t4">Стоимость товаров</TotalItemName>
-            <TotalItemPrice variant="t2b">58 800 ₽</TotalItemPrice>
+            <TotalItemPrice variant="t2b">
+              {currencyFormat(totalPrice)}
+            </TotalItemPrice>
           </TotalItem>
-          <TotalItem>
+          {/* <TotalItem>
             <TotalItemName variant="t4">Сумма скидки</TotalItemName>
             <TotalItemPrice variant="t2b">8 000 ₽</TotalItemPrice>
           </TotalItem>
           <TotalItem>
             <TotalItemName variant="t4">Итого без учета доставки</TotalItemName>
             <TotalItemPrice variant="t2b">50 800 ₽</TotalItemPrice>
-          </TotalItem>
+          </TotalItem> */}
         </TotalList>
-        <TotalBtnOrder variant="contained">Оформить заказ</TotalBtnOrder>
+        {!stepCheckout ? (
+          <TotalBtnOrder
+            onClick={() => {
+              setStepCheckout(true);
+            }}
+            variant="contained">
+            Оформить заказ
+          </TotalBtnOrder>
+        ) : (
+          <TotalBtnOrder
+            {...(confirm && { onClick: form.handleSubmit(onSubmit) })}
+            variant="contained">
+            Подтвердить заказ
+          </TotalBtnOrder>
+        )}
+
         <FilterCheckbox
           sx={{
             '& .MuiTypography-root': {
               ...theme.typography.t4,
               lineHeight: '14px',
+              userSelect: 'none',
             },
             '& .MuiCheckbox-root': {
               '& span:before': {
@@ -67,6 +124,9 @@ const CartSidebar: React.FC<Props> = ({}) => {
               },
               alignSelf: 'flex-start',
             },
+          }}
+          onChange={() => {
+            setConfirm(!confirm);
           }}
           data={[
             {

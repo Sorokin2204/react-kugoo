@@ -1,8 +1,19 @@
-import React from 'react';
-import { Box, Button, ButtonBase, InputBase, styled } from '@mui/material';
+import React, { useState } from 'react';
+import {
+  Box,
+  Button,
+  ButtonBase,
+  InputBase,
+  InputBaseProps,
+  styled,
+} from '@mui/material';
 import ButtonIcon from './ButtonIcon';
+import NumberFormat, { NumberFormatProps } from 'react-number-format';
 
-type Props = {};
+type Props = {
+  onChangeNumber: (value: number) => {};
+} & InputBaseProps &
+  NumberFormatProps;
 
 const BoxInput = styled(Box)(({ theme }) => ({
   display: 'grid',
@@ -21,7 +32,7 @@ const DecrimentButton = styled(ButtonBase)(({ theme }) => ({
     height: '1px',
   },
 }));
-const InputCustom = styled(InputBase)(({ theme }) => ({
+const InputCustom = styled(NumberFormat)(({ theme }) => ({
   //   border: '1px solid red',
 
   '& .MuiInputBase-input': {
@@ -46,13 +57,43 @@ const IncrimentButton = styled(ButtonBase)(({ theme }) => ({
   },
 }));
 
-const QuantityInput: React.FC<Props> = ({}) => {
+const QuantityInput: React.FC<Props> = (props) => {
+  const [value, setValue] = useState<number>(props.defaultValue ?? 0);
+  const handleChangeInput = (event) => {
+    setValue(event.target.value);
+  };
   return (
     <>
       <BoxInput>
-        <DecrimentButton></DecrimentButton>
-        <InputCustom type="number" defaultValue={1} />
-        <IncrimentButton></IncrimentButton>
+        <DecrimentButton
+          onClick={() => {
+            if (value > 1) {
+              props.onChangeNumber(value - 1);
+              setValue(value - 1);
+            }
+          }}></DecrimentButton>
+        <InputCustom
+          customInput={InputBase}
+          value={value}
+          min={1}
+          max={9999}
+          isAllowed={(value) => {
+            return !value.value || value.floatValue > 100 ? false : true;
+          }}
+          allowEmptyFormatting={false}
+          {...props}
+          onChange={(event) => {
+            props.onChangeNumber(parseInt(event.target.value));
+            setValue(parseInt(event.target.value));
+          }}
+        />
+        <IncrimentButton
+          onClick={() => {
+            if (value < 99) {
+              props.onChangeNumber(value + 1);
+              setValue(value + 1);
+            }
+          }}></IncrimentButton>
       </BoxInput>
     </>
   );

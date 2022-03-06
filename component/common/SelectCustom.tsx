@@ -1,5 +1,6 @@
 import React from 'react';
 import { MenuItem, Select, SelectProps, styled } from '@mui/material';
+import useAppConfig from '../../hooks/useAppConfig';
 
 type SelectData = {
   list: Array<{
@@ -12,18 +13,18 @@ type SelectData = {
 type SelectCustomProps = SelectProps & Props;
 
 type Props = {
-  data: SelectData;
+  attrId: string;
   typeSelect?: 'rounded';
   beforeText?: string;
 };
 
 const SelectCustom: React.FC<SelectCustomProps> = (props) => {
-  const defaultCheckedValue = props.data.list.find(
-    (el) => el.defaultChecked === true,
-  )?.value;
-  const [sortValue, setSortValue] = React.useState<string | undefined>(
-    defaultCheckedValue,
-  );
+  // const defaultCheckedValue = props.data.list.find(
+  //   (el) => el.defaultChecked === true,
+  // )?.value;
+
+  const { cartProducts, updateInCart } = useAppConfig();
+  const [sortValue, setSortValue] = React.useState<string>(props.defaultValue);
   const handleChangeSortValue = (event) => {
     setSortValue(event.target.value);
   };
@@ -33,12 +34,11 @@ const SelectCustom: React.FC<SelectCustomProps> = (props) => {
         {...props}
         value={sortValue}
         displayEmpty
-        onChange={handleChangeSortValue}>
-        {props.data.list.map((el, i) => (
-          <MenuItem key={i} value={el.value}>
-            {el.label}
-          </MenuItem>
-        ))}
+        onChange={(event, value) => {
+          props?.onChange(event);
+          handleChangeSortValue(event);
+        }}>
+        {props.children}
       </SelectStyled>
     </>
   );

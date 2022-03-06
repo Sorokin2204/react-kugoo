@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Button,
@@ -12,6 +12,9 @@ import {
 import Image from 'next/image';
 import styledComp from 'styled-components';
 import ButtonIcon from '../../ButtonIcon';
+import { useLazyQuery, useQuery } from '@apollo/client';
+import { GET_ALL_PRODUCTS_FORM_CART } from '../../../../graphql/query/product';
+import useAppConfig from '../../../../hooks/useAppConfig';
 type Props = {};
 
 type CartDataType = {
@@ -107,11 +110,41 @@ const CartButton = styled(Button)(({ theme }) => ({
   flexGrow: '1',
 }));
 
-export const currencyFormat = (price: number) =>
-  `${price.toFixed(3).replace('.', ' ')} ₽`;
+export const currencyFormat = (price: number) => {
+  // let priceFormated = price.toString();
+  // pattern = '#### ####';
+  // priceFormated = `${price.toFixed(3).replace('.', ' ')} ₽`;
+  return price ? formatNumber(price) : '';
+};
+var formatNumber = function (num) {
+  var array = num.toString().split('');
+  var index = -3;
+  while (array.length + index > 0) {
+    array.splice(index, 0, ' ');
+    // Decrement by 4 since we just added another unit to the array.
+    index -= 4;
+  }
+  return array.join('') + ' ₽';
+};
 
 const CartPopover: React.FC<PopoverProps> = (props) => {
   const theme = useTheme();
+  const { cartProducts } = useAppConfig();
+  const [getAllProductsFromCart, { data, loading }] = useLazyQuery(
+    GET_ALL_PRODUCTS_FORM_CART,
+  );
+  useEffect(() => {
+    console.log('CART CACHE IN CART POPOVER', cartProducts);
+
+    getAllProductsFromCart({
+      variables: {
+        productsFromCart: cartProducts,
+      },
+    })
+      .then((prodData) => console.log('Cart data', prodData))
+      .catch((err) => console.log(JSON.stringify(err, null, 2)));
+  }, []);
+
   return (
     <CartPopoverStyled {...props}>
       <CartWrapper>
@@ -120,28 +153,33 @@ const CartPopover: React.FC<PopoverProps> = (props) => {
           <CartCount variant="t3">2 товара</CartCount>
         </CartHead>
         <CartList>
-          {cartData.map((el, i) => (
-            <CartItem key={i} sx={{ px: 9, py: 8 }}>
-              <CartItemImageBox sx={{ mr: 8 }}>
-                <CartItemImage src={el.image} width={54} height={40} />
-              </CartItemImageBox>
+          {!loading &&
+            data?.getAllProductFromCart?.map((el, i) => (
+              <CartItem key={i} sx={{ px: 9, py: 8 }}>
+                <CartItemImageBox sx={{ mr: 8 }}>
+                  <CartItemImage
+                    src={`/static/products/${el.images[0].name}`}
+                    width={54}
+                    height={40}
+                  />
+                </CartItemImageBox>
 
-              <CartItemBody container>
-                <CartItemTitle variant="t3b" sx={{ mb: 1 }}>
-                  {el.name}
-                </CartItemTitle>
-                <CartItemPrice variant="t4" sx={{ mr: 8 }}>
-                  {currencyFormat(el.price)}
-                </CartItemPrice>
-                <CartItemPiece variant="t4">{`${el.piece} шт.`}</CartItemPiece>
-              </CartItemBody>
-              <CartItemDelete
-                icon="/static/icons/delete.svg"
-                iconW="15px"
-                iconH="16px"
-                padding="0"></CartItemDelete>
-            </CartItem>
-          ))}
+                <CartItemBody container>
+                  <CartItemTitle variant="t3b" sx={{ mb: 1 }}>
+                    {el.name}
+                  </CartItemTitle>
+                  <CartItemPrice variant="t4" sx={{ mr: 8 }}>
+                    {currencyFormat(el.price)}
+                  </CartItemPrice>
+                  <CartItemPiece variant="t4">{`${el.piece} шт.`}</CartItemPiece>
+                </CartItemBody>
+                <CartItemDelete
+                  icon="/static/icons/delete.svg"
+                  iconW="15px"
+                  iconH="16px"
+                  padding="0"></CartItemDelete>
+              </CartItem>
+            ))}
         </CartList>
         <CartFooter sx={{ px: 10, py: 8 }}>
           <CartTotalBox>

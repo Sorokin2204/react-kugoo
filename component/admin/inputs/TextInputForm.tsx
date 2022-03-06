@@ -11,6 +11,7 @@ import _ from 'lodash';
 import { NumberFormatPropsBase } from 'react-number-format';
 type Props = InputFormType & {
   inputProps?: NumberFormatPropsBase & TextFieldProps;
+  CustomTag?: React.ComponentType;
 };
 
 const TextInputForm: React.FC<Props> = ({
@@ -19,6 +20,7 @@ const TextInputForm: React.FC<Props> = ({
   rules,
   form,
   inputProps,
+  CustomTag = TextField,
 }) => {
   return (
     <>
@@ -28,7 +30,7 @@ const TextInputForm: React.FC<Props> = ({
         rules={rules}
         render={({ field }) => (
           <>
-            <TextField
+            <CustomTag
               sx={{ width: '100%' }}
               error={
                 _.get(form.formState, `errors.${name}.message`) !== undefined

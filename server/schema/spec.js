@@ -2,6 +2,7 @@ const specFields = `
         name: String!
         slug: String!
         type: SpecOptionType
+        orderInCard: Int
     `;
 
 const specOptionFields = `

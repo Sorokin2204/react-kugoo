@@ -9,7 +9,10 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { useLazyQuery, useQuery } from '@apollo/client';
-import { GET_ALL_PRODUCTS, GET_PRODUCT } from '../../graphql/query/product';
+import {
+  GET_ALL_PRODUCTS,
+  GET_PRODUCT_ADMIN,
+} from '../../graphql/query/product';
 import { Edit } from '@mui/icons-material';
 import Link from 'next/link';
 

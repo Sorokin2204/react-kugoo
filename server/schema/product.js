@@ -12,7 +12,30 @@ const productFields = `
 
 `;
 
+const productFromCartSchema = `
+productId: String
+  pieces: Int
+  totalPrice: Int
+    
+`;
+
 const productSchema = `
+input AttributesFromCart {
+attr: String
+attrOpt: String
+}
+
+input ProductsFromCartInput {
+  _id: String
+  ${productFromCartSchema}
+  attributes: [AttributesFromCart]
+}
+
+type ProductsFromCart {
+  _id: String
+  ${productFromCartSchema}
+}
+
  type ProductImage {
      ${productImageFields}
   }

@@ -4,6 +4,8 @@ import Search from './Search';
 import CartPopover from './CartPopover';
 import CatalogPopover from './CatalogPopover';
 import ButtonIcon from '../../ButtonIcon';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 type Props = {};
 
@@ -95,11 +97,13 @@ const HeaderBox = styled(Box)(({ theme }) => ({
 
 const HeaderBottom: React.FC<Props> = ({}) => {
   const theme = useTheme();
+  const router = useRouter();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [anchorElCatalog, setAnchorElCatalog] = React.useState(null);
 
   const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+    // setAnchorEl(event.currentTarget);
+    router.push('/cart');
   };
 
   const handleClickCatalog = (event) => {
@@ -119,7 +123,12 @@ const HeaderBottom: React.FC<Props> = ({}) => {
 
   return (
     <HeaderBox sx={{ pt: 15, pb: 18 }}>
-      <Logo sx={{ mr: 18 }} variant="h2">
+      <Logo
+        sx={{ mr: 18, cursor: 'pointer' }}
+        variant="h2"
+        onClick={() => {
+          router.push('/');
+        }}>
         KUGOO
       </Logo>
       <ButtonCatalog

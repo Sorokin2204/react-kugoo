@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -31,6 +31,14 @@ import 'swiper/css/thumbs';
 import { FreeMode, Navigation, Thumbs } from 'swiper';
 import ProductInfo from '../../component/common/ProductSingle/ProductInfo';
 import ProductCarusel from '../../component/common/ProductCarusel';
+import { useLazyQuery, useQuery } from '@apollo/client';
+import { GET_PRODUCT, GET_PRODUCT_ADMIN } from '../../graphql/query/product';
+import { useRouter } from 'next/router';
+import Image from 'next/image';
+import { useFieldArray, useForm } from 'react-hook-form';
+import useAppConfig from '../../hooks/useAppConfig';
+import _ from 'lodash';
+import { groupBy } from '../../utils/groupBy';
 type Props = {};
 
 const Content = styled(Box)(({ theme }) => ({
@@ -232,9 +240,86 @@ export const specData: SpecType[] = [
   },
 ];
 
+type IFormType = {
+  attributes: Array<{ attr: string; attrOpt: string; price: number }>;
+};
+
 const ProductPage: React.FC<Props> = ({}) => {
   const theme = useTheme();
+  const router = useRouter();
+  const [getProduct, { data, loading }] = useLazyQuery(GET_PRODUCT);
+  const [groupAttributes, setGroupAttributes] = useState([]);
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+  const { cartProducts, addingInCart } = useAppConfig();
+  const [inCart, setInCart] = useState(false);
+  const productForm = useForm<IFormType>({
+    mode: 'onBlur',
+    defaultValues: {
+      attributes: [],
+    },
+  });
+  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
+    {
+      control: productForm.control,
+      name: 'attributes', // unique name for your Field Array
+    },
+  );
+  React.useEffect(() => {
+    // const subscription = watch((value, { name, type }) =>
+    //   console.log(value, name, type),
+    // );
+    // return () => subscription.unsubscribe();
+  }, [productForm.getValues('attributes')]);
+  useEffect(() => {
+    console.log('Selected attribute', totalPrice);
+  }, [totalPrice]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    getProduct({
+      variables: {
+        productSlug: router.query.id,
+      },
+    }).then((dataSuccess) => {
+      console.log('Cache Data ', cartProducts);
+      const indexInCart = cartProducts.findIndex(
+        (productInCart) =>
+          productInCart.productId === dataSuccess.data.getProduct._id,
+      );
+      setGroupAttributes(
+        groupBy(dataSuccess?.data?.getProduct?.AttributeOptions?.edges),
+      );
+      setInCart(indexInCart !== -1);
+      setTotalPrice(dataSuccess.data.getProduct.price);
+    });
+  }, [router]);
+
+  useEffect(() => {
+    if (groupAttributes.length !== 0) {
+      groupAttributes.map((attr, i) => {
+        productForm.setValue(`attributes[${i}]`, {
+          attr: attr._id,
+          attrOpt: attr.attrOpts[0]._id,
+          price: attr.attrOpts[0].defaultPrice,
+        });
+      });
+    }
+  }, [groupAttributes]);
+
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  const onSubmit = (dataForm: IFormType) => {
+    console.log('Prod form data', dataForm);
+    console.log('CART PRODUCT', cartProducts);
+
+    if (typeof window !== 'undefined') {
+      addingInCart({
+        totalPrice: totalPrice,
+        productId: data?.getProduct._id,
+        attributes: dataForm.attributes.map((attr) => _.omit(attr, ['price'])),
+        pieces: 1,
+      });
+    }
+  };
   return (
     <>
       <Container sx={{ mb: 50 }}>
@@ -253,36 +338,12 @@ const ProductPage: React.FC<Props> = ({}) => {
             thumbs={{ swiper: thumbsSwiper }}
             modules={[FreeMode, Navigation, Thumbs]}
             className="mySwiper2">
-            <SwiperSlide>
-              <img src="/static/product-full-with-bg.png" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-2.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-3.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-4.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-5.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-6.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-7.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-8.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-9.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-10.jpg" />
-            </SwiperSlide>
+            {!data?.loading &&
+              data?.getProduct?.images?.map((image) => (
+                <SwiperSlide>
+                  <img src={`/static/products/${image.name}`} />
+                </SwiperSlide>
+              ))}
           </Swiper>
           <Swiper
             style={{
@@ -296,40 +357,16 @@ const ProductPage: React.FC<Props> = ({}) => {
             allowSlideNext={false}
             allowSlidePrev={false}
             className="mySwiper">
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-1.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-2.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-3.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-4.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-5.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-6.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-7.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-8.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-9.jpg" />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img src="https://swiperjs.com/demos/images/nature-10.jpg" />
-            </SwiperSlide>
+            {!data?.loading &&
+              data?.getProduct?.images?.map((image) => (
+                <SwiperSlide>
+                  <img src={`/static/products/${image.name}`} />
+                </SwiperSlide>
+              ))}
           </Swiper>
 
           <Content>
-            <Title variant="h1">{productData[0].title}</Title>
+            <Title variant="h1">{data?.getProduct.name}</Title>
             <Box
               sx={{
                 display: 'flex',
@@ -337,13 +374,13 @@ const ProductPage: React.FC<Props> = ({}) => {
                 mb: 10,
               }}>
               <Views sx={{ mr: 10 }} variant="t4">
-                Просмотров {productData[0].views}
+                Просмотров {data?.getProduct.viewsCounter}
               </Views>
               <Buyers sx={{ mr: 10 }} variant="t4">
                 Купили {productData[0].buyers} раз
               </Buyers>
               <VendorCode sx={{ mr: 10 }} variant="t4">
-                Артикул: {productData[0].vendorCode}
+                Артикул: {data?.getProduct.vendorCode}
               </VendorCode>
             </Box>
 
@@ -378,12 +415,14 @@ const ProductPage: React.FC<Props> = ({}) => {
                 mb: 15,
               }}>
               <PriceBox>
-                <OldPrice variant="t4">
-                  {currencyFormat(productData[0].oldPrice)}
-                </OldPrice>
-                <NewPrice variant="h3">
-                  {currencyFormat(productData[0].newPrice)}
-                </NewPrice>
+                {data?.getProduct?.discountPrice && (
+                  <OldPrice variant="t4">
+                    {currencyFormat(data?.getProduct?.discountPrice)}
+                  </OldPrice>
+                )}
+                {data?.getProduct?.price && (
+                  <NewPrice variant="h3">{currencyFormat(totalPrice)}</NewPrice>
+                )}
               </PriceBox>
               <Installment sx={{ px: 7, py: 3.5 }}>
                 <InstallmentImage
@@ -401,64 +440,110 @@ const ProductPage: React.FC<Props> = ({}) => {
                 </InstallmentBox>
               </Installment>
             </Box>
-            {specData.map((el, i) => (
-              <Box
-                key={i}
-                sx={{
-                  '& + &': {
-                    mt: 15,
-                    pt: 15,
-                    borderTop: `1px solid ${theme.palette.grey[200]}`,
-                  },
-                }}>
-                <RadioBlock key={i} data={el} />
-              </Box>
-            ))}
-            <Total sx={{ px: 15, py: 14, mt: 15 }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  pb: 10,
-                  mb: 15,
-                  borderBottom: `1px solid ${theme.palette.grey[200]}`,
-                }}>
-                <TotalPrice variant="h1">45 900 руб.</TotalPrice>
-                <TotalBtnFavorite
-                  variant="border"
-                  iconW={theme.spacing(8.5)}
-                  iconH={theme.spacing(7.5)}
-                  icon={'/static/icons/favorite.svg'}
-                  iconColor={theme.palette.primary.main}
-                  sizeBtn={theme.spacing(20)}></TotalBtnFavorite>
-              </Box>
+            <form
+              onSubmit={productForm.handleSubmit(onSubmit)}
+              autoComplete="off">
+              {!loading &&
+                data?.getProduct?.AttributeOptions?.edges &&
+                groupAttributes.map((attr, i) => {
+                  return (
+                    <Box
+                      key={i}
+                      sx={{
+                        '& + &': {
+                          mt: 15,
+                          pt: 15,
+                          borderTop: `1px solid ${theme.palette.grey[200]}`,
+                        },
+                      }}>
+                      <RadioBlock
+                        key={i}
+                        defaultValue={attr.attrOpts[0]}
+                        radioName={attr.name}
+                        radioList={attr.attrOpts}
+                        onChange={(value) => {
+                          productForm.setValue(`attributes[${i}]`, {
+                            attr: attr._id,
+                            attrOpt: value._id,
+                            price: value.defaultPrice,
+                          });
+                          console.log();
+                          let price = productForm
+                            .getValues('attributes')
+                            .map((a) => a.price)
+                            .reduce((aa, bb) => aa + bb, 0);
+                          setTotalPrice(price + data?.getProduct.price);
 
-              <TotalDelivary sx={{ mb: 15 }}>
-                <TotalDelivaryTitle variant="t2b">
-                  Бесплатная доставка по РФ
-                </TotalDelivaryTitle>
-                <TotalDelivarySubtitle variant="t2">
-                  от 1 дня при заказе до 01.09
-                </TotalDelivarySubtitle>
-              </TotalDelivary>
-              <Box sx={{ display: 'flex' }}>
-                <TotalBtnClick variant="contained">
-                  Купить в 1 клик
-                </TotalBtnClick>
-                <TotalBtnCart variant="outlined">
-                  Добавить в корзину
-                </TotalBtnCart>
-              </Box>
-            </Total>
+                          // setSelectedAttribute((prev) => {
+                          //   prev?.[i] = prev?.[i] ?? {};
+                          //   prev?.[i] = { attr: attr._id, attrOpt: value };
+                          // });
+                        }}
+                        // selectedAttribute={selectedAttribute[i]}
+                      />
+                    </Box>
+                  );
+                })}
+              <Total sx={{ px: 15, py: 14, mt: 15 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    pb: 10,
+                    mb: 15,
+                    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+                  }}>
+                  <TotalPrice variant="h1">
+                    {currencyFormat(totalPrice)}
+                  </TotalPrice>
+                  <TotalBtnFavorite
+                    variant="border"
+                    iconW={theme.spacing(8.5)}
+                    iconH={theme.spacing(7.5)}
+                    icon={'/static/icons/favorite.svg'}
+                    iconColor={theme.palette.primary.main}
+                    sizeBtn={theme.spacing(20)}></TotalBtnFavorite>
+                </Box>
+
+                <TotalDelivary sx={{ mb: 15 }}>
+                  <TotalDelivaryTitle variant="t2b">
+                    Бесплатная доставка по РФ
+                  </TotalDelivaryTitle>
+                  <TotalDelivarySubtitle variant="t2">
+                    от 1 дня при заказе до 01.09
+                  </TotalDelivarySubtitle>
+                </TotalDelivary>
+                <Box sx={{ display: 'flex' }}>
+                  <TotalBtnClick variant="contained">
+                    Купить в 1 клик
+                  </TotalBtnClick>
+                  {/* {inCart ? (
+                    <TotalBtnCart
+                      sx={{
+                        backgroundColor: 'success.main',
+                        border: '1px solid transparent !important',
+                        color: 'white !important',
+                      }}
+                      variant="outlined"
+                      onClick={() => router.push('/cart')}>
+                      В корзине
+                    </TotalBtnCart>
+                  ) : (
+                   
+                  )} */}
+                  <TotalBtnCart variant="outlined" type="submit">
+                    Добавить в корзину
+                  </TotalBtnCart>
+                </Box>
+              </Total>
+            </form>
           </Content>
         </ProductWrapper>
 
-        <ProductInfo />
+        <ProductInfo data={data?.getProduct?.SpecOptions?.edges} />
       </Container>
-      <Box sx={{ mb: 50 }}>
-        <ProductCarusel />
-      </Box>
+      p<Box sx={{ mb: 50 }}>{/* <ProductCarusel /> */}</Box>
     </>
   );
 };

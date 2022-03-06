@@ -1,7 +1,6 @@
 const mutationSchema = `
   type Mutation {
 ### CATEGORY
-
       deleteCategory(catId: String): String
       createCategory(cat: CategoryInput, catAttrIds: [String], catSpecIds: [String]): Category
       changeAttributeInCategory(categoryId: String, attributeIds: [String]): Boolean
@@ -15,7 +14,8 @@ const mutationSchema = `
 ### SPEC
       createSpec(spec: SpecInput, specOpts: [SpecOptionInput], specExtraAfter: [SpecExtraTextInput], specExtraBefore: [SpecExtraTextInput]): String
       deleteSpec(specId: String): String
-    
+### ORDER
+    createOrder(orderInfo: OrderInput, productsInfo: [ProductsFromCartInput]): String
     }`;
 
 module.exports = { mutationSchema };

@@ -15,10 +15,19 @@ import {
 import ButtonIcon from './ButtonIcon';
 import Image from 'next/image';
 import { currencyFormat } from './Header/components/CartPopover';
+import { Product } from '../../types/graphql';
+import { useRouter } from 'next/router';
 
 type Props = {
-  data: ProductType;
+  data: Product;
 };
+
+const specIcons = [
+  '/static/icons/spec-1.svg',
+  '/static/icons/spec-2.svg',
+  '/static/icons/spec-3.svg',
+  '/static/icons/spec-4.svg',
+];
 
 export type ProductType = {
   title: string;
@@ -37,13 +46,21 @@ export type ProductType = {
 
 const Product: React.FC<Props> = ({ data }) => {
   const theme = useTheme();
+  const router = useRouter();
   return (
-    <ProductCard>
-      <Header sx={{ py: 13, px: 5 }}>
-        <MainMedia src={data.image} width="242" height="182" />
-        <Tag sx={{ backgroundColor: data.tag.color, px: 4.5, py: 2 }}>
+    <ProductCard
+      sx={{ cursor: 'pointer' }}
+      onClick={() => router.push(`/catalog/${data.slug}`)}>
+      <Header sx={{ '& span': { display: 'block !important' } }}>
+        <MainMedia
+          sx={{}}
+          src={`/static/products/${data.images[data.images.length - 1]?.name}`}
+          width="242"
+          height="182"
+        />
+        {/* <Tag sx={{ backgroundColor: data.tag.color, px: 4.5, py: 2 }}>
           {data.tag.name}
-        </Tag>
+        </Tag> */}
 
         <BtnCompare
           iconW={theme.spacing(10)}
@@ -54,25 +71,35 @@ const Product: React.FC<Props> = ({ data }) => {
       </Header>
       <Content sx={{ pt: 10, px: 12, pb: 0 }}>
         <Title variant="t1bb" sx={{ mb: 10 }}>
-          {data.title}
+          {data.name}
         </Title>{' '}
         <SpecList container spacing={9} sx={{ mb: 13 }}>
-          {data.spec.map((el, i) => (
+          {data.SpecOptions.edges.map((specOpt, i) => (
             <SpecItem
               item
               xs={6}
               key={i}
-              icon={el.icon}
+              icon={specIcons[i]}
               iconSize={theme.spacing(9)}>
-              {el.name}
+              {specOpt.node.name.replace('*', '').replace('до', '')}
             </SpecItem>
           ))}
         </SpecList>
       </Content>
       <Actions sx={{ pb: 10, px: 12, pt: 0 }}>
         <PriceBox>
-          <OldPrice variant="t4b">{currencyFormat(data.oldPrice)}</OldPrice>
-          <NewPrice variant="h4bb">{currencyFormat(data.newPrice)}</NewPrice>
+          {data?.discountPrice ? (
+            <>
+              <OldPrice variant="t4b">{currencyFormat(data.price)}</OldPrice>
+              <NewPrice variant="h4bb">
+                {currencyFormat(data?.discountPrice)}
+              </NewPrice>
+            </>
+          ) : (
+            <>
+              <NewPrice variant="h4bb">{currencyFormat(data.price)}</NewPrice>
+            </>
+          )}
         </PriceBox>
         <BtnCart
           variant="border"

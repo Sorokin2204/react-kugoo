@@ -9,6 +9,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { currencyFormat } from '../Header/components/CartPopover';
 
 export type SpecType = {
   title?: string;
@@ -19,10 +20,6 @@ export type SpecType = {
     defaultChecked?: boolean;
     content?: React.ReactNode | undefined;
   }>;
-};
-
-type Props = {
-  data: SpecType;
 };
 
 const RadioBox = styled(Box)(({ theme }) => ({
@@ -87,7 +84,7 @@ const RadioName = styled(Typography)<{ withContent: boolean }>(
     display: 'block',
     lineHeight: '20px',
     textAlign: 'center',
-    whiteSpace: 'pre',
+    // whiteSpace: 'pre',
     ...(withContent && {
       ...theme.typography.t2b,
       textAlign: 'left',
@@ -113,7 +110,7 @@ const RadioButton = styled(FormControlLabel)<{
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  height: '126px',
+  minHeight: '126px',
   border: `2px solid ${theme.palette.grey[200]}`,
   borderRadius: '10px',
   margin: 0,
@@ -145,49 +142,69 @@ const RadioSubtitle = styled(Typography)(({ theme }) => ({
   textAlign: 'center',
   marginTop: theme.spacing(4.5),
 }));
+type Props = {
+  withSubtitle: boolean;
+  withContent: boolean;
+  radioName: string;
+  radioList: object[];
+  defaultValue: string;
+  onChange: () => {};
+};
+const RadioBlock: React.FC<Props> = ({
+  onChange,
+  defaultValue,
+  withSubtitle = true,
+  withContent = true,
+  radioName,
+  radioList,
+}) => {
+  // const defaultCheckedLabel = data.attrOpts.find(
+  //   (el) => el.defaultChecked === true,
+  // )?.value;
+  // const defaultCheckedLabel = data.attrOpts[0];
 
-const RadioBlock: React.FC<Props> = ({ data }) => {
-  const defaultCheckedLabel = data.list.find(
-    (el) => el.defaultChecked === true,
-  )?.value;
+  // const withSubtitle: boolean =
+  //   data.attrOpts.findIndex((el) => el.subLabel) == -1 ? true : false;
 
-  const withSubtitle: boolean =
-    data.list.findIndex((el) => el.subLabel) == -1 ? true : false;
+  // const withContent: boolean =
+  //   data.attrOpts.findIndex((el) => el.content) == -1 ? true : false;
 
-  const withContent: boolean =
-    data.list.findIndex((el) => el.content) == -1 ? true : false;
-
-  const [activeFilter, setActiveFilter] = useState<string | undefined>(
-    defaultCheckedLabel,
-  );
+  const [activeFilter, setActiveFilter] = useState<string>(defaultValue);
 
   useEffect(() => {
     console.log();
   }, []);
 
   const theme = useTheme();
-  const handleChangeFilter = (
-    event: React.ChangeEvent<Element>,
-    value: string,
-  ) => {
+  const handleChangeFilter = (event: React.ChangeEvent<Element>, value) => {
     setActiveFilter(value);
+  };
+  const handleChangeRadio = (value) => {
+    setActiveFilter(value);
+    onChange(value);
   };
 
   return (
     <>
       <RadioBox>
         <RadioTitle variant="t2b" sx={{ mb: 10 }}>
-          {data.title}
+          {radioName}
         </RadioTitle>
 
         <FormControl>
-          <RadioList onChange={handleChangeFilter} withContent={!withContent}>
-            {data.list.map((el, i) => (
+          <RadioList
+            // onChange={(e, value) => {
+            //   onChange(e, value);
+            //   handleChangeFilter(e, value);
+            // }}
+            withContent={!withContent}>
+            {radioList.map((el, i) => (
               <RadioButton
+                onChange={() => handleChangeRadio(el)}
                 withContent={!withContent}
-                active={activeFilter === el.value}
+                active={activeFilter?.slug === el.slug}
                 key={i}
-                value={el.value}
+                value={el}
                 control={<RadioCustom withContent={!withContent} />}
                 small={withSubtitle}
                 label={
@@ -196,10 +213,15 @@ const RadioBlock: React.FC<Props> = ({ data }) => {
                       <RadioName withContent={!withContent}>
                         {el.label}
                       </RadioName>
-                      {el.subLabel && (
-                        <RadioSubtitle>{el.subLabel}</RadioSubtitle>
-                      )}
-                      <RadioBody>{el.content}</RadioBody>
+                      <RadioSubtitle>
+                        {el.subLabel
+                          ? el.subLabel
+                          : el.defaultPrice === 0
+                          ? 'Бесплатно'
+                          : currencyFormat(el.defaultPrice)}
+                      </RadioSubtitle>
+
+                      {el.content && <RadioBody>{el.content}</RadioBody>}
                     </RadioContent>
                   </>
                 }

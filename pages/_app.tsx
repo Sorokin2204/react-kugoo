@@ -10,12 +10,13 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import Footer from '../component/common/Footer.tsx';
 import Header from '../component/common/Header';
+import cache from '../graphql/cache';
 import theme from '../theme';
 import themeAdmin from '../themeAdmin';
 import './catalog/[id].css';
 
 // interface AppConfig {
-//   isPaused: boolean;
+//   cartProducts: boolean;
 // }
 
 // const appConfigVar = makeVar<AppConfig>(initialAppConfig);
@@ -36,12 +37,13 @@ import './catalog/[id].css';
 
 const client = new ApolloClient({
   ssrMode: true,
-  // uri: 'http://localhost:5000/graphql',
+  connectToDevTools: true, // uri: 'http://localhost:5000/graphql',
   link: createHttpLink({
     uri: 'http://localhost:5000/graphql',
     credentials: 'same-origin',
   }),
-  cache: new InMemoryCache(),
+  // cache: new InMemoryCache(),
+  cache: cache,
 });
 
 const ClientSide = ({ Component, pageProps, router }: AppProps) => {
@@ -59,12 +61,14 @@ const ClientSide = ({ Component, pageProps, router }: AppProps) => {
           rel="stylesheet"
         />
       </Head>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Header />
-        <Component {...pageProps} />
-        <Footer />
-      </ThemeProvider>
+      <ApolloProvider client={client}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Header />
+          <Component {...pageProps} />
+          <Footer />
+        </ThemeProvider>
+      </ApolloProvider>
     </>
   );
 };

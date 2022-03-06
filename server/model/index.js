@@ -64,6 +64,12 @@ var SpecSchema = new Schema({
     enum: ['string', 'number'],
     required: true,
   },
+  orderInCard: {
+    type: Number,
+    min: 1,
+    max: 4,
+    required: false,
+  },
 });
 const Spec = mongoose.model('Spec', SpecSchema);
 //////////////////////////// SPEC_OPTION ////////////////////////////
@@ -272,6 +278,96 @@ const ProductSpecOption_SpecExtraText = mongoose.model(
   ProductSpecOption_SpecExtraTextSchema,
 );
 
+var OrderSchema = new Schema({
+  city: {
+    type: String,
+    required: true,
+  },
+  street: {
+    type: String,
+    required: true,
+  },
+  buildingNumber: {
+    type: Number,
+    required: true,
+  },
+  buildingPart: {
+    type: Number,
+  },
+  buildingFlat: {
+    type: Number,
+  },
+  buildingIndex: {
+    type: Number,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  surname: {
+    type: String,
+    required: true,
+  },
+  phone: {
+    type: Number,
+    required: true,
+  },
+  email: {
+    type: String,
+  },
+  comment: {
+    type: String,
+  },
+});
+
+const Order = mongoose.model('Order', OrderSchema);
+
+var OrderProductSchema = new Schema({
+  pieces: {
+    type: Number,
+    required: true,
+  },
+  totalPrice: {
+    type: Number,
+    required: true,
+  },
+  Order: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'Order',
+  },
+  Product: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'Product',
+  },
+  AttributeOptions: [
+    {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: 'AttributeOption',
+    },
+  ],
+});
+const OrderProduct = mongoose.model('OrderProduct', OrderProductSchema);
+
+// var OrderProduct_ProductAttributeOptionSchema = new Schema({
+//   OrderProduct: {
+//     type: Schema.Types.ObjectId,
+//     required: true,
+//     ref: 'OrderProduct',
+//   },
+//   Product_AttributeOption: {
+//     type: Schema.Types.ObjectId,
+//     required: true,
+//     ref: 'Product_AttributeOption',
+//   },
+// });
+// const OrderProduct_ProductAttributeOption = mongoose.model(
+//   'OrderProduct_ProductAttributeOption',
+//   OrderProduct_ProductAttributeOptionSchema,
+// );
+
 module.exports = {
   Product,
   Category,
@@ -285,4 +381,7 @@ module.exports = {
   SpecExtraText,
   Product_SpecOption,
   ProductSpecOption_SpecExtraText,
+  Order,
+  OrderProduct,
+  // OrderProduct_ProductAttributeOption,
 };

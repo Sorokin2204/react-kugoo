@@ -3,13 +3,13 @@ import { CircularProgress, styled } from '@mui/material';
 import { useRouter } from 'next/router';
 import AddEditProduct from '../../../component/admin/ProductAdd/AddEditProduct';
 import { useLazyQuery, useQuery } from '@apollo/client';
-import { GET_PRODUCT } from '../../../graphql/query/product';
+import { GET_PRODUCT_ADMIN } from '../../../graphql/query/product';
 
 type Props = {};
 
 const ProductEdit: React.FC<Props> = ({}) => {
   const router = useRouter();
-  const [getProduct, getProductData] = useLazyQuery(GET_PRODUCT);
+  const [getProduct, getProductData] = useLazyQuery(GET_PRODUCT_ADMIN);
 
   useEffect(() => {
     if (!router.isReady) return;
