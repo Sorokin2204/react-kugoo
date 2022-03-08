@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -14,12 +14,13 @@ import FilterRange from './FilterRange';
 import CatalogSort from './CatalogSort';
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { GET_ALL_PRODUCTS_CARD } from '../../graphql/query/product';
+import { useFieldArray, useForm } from 'react-hook-form';
 
 type Props = {
   type: 'full' | 'filter' | 'inline';
 };
 
-const filterInlineData: FilterInlineType[] = [
+export const filterInlineData: FilterInlineType[] = [
   {
     label: 'Популярные',
     value: 'popular',
@@ -94,6 +95,8 @@ const CatalogBody = styled(Grid)<CatalogType>(({ theme, type }) => ({
   }),
 }));
 const CatalogGrid = styled(Grid)<CatalogType>(({ theme, type }) => ({
+  alignSelf: 'flex-start',
+  position: 'relative',
   ...(type === 'filter' && {
     gritTemplate: '2/12',
   }),
@@ -105,19 +108,92 @@ const CatalogBtnMore = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(12),
 }));
 
+const LoadingOverlay = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  left: '26px',
+  top: 0,
+  bottom: 0,
+  right: 0,
+  backgroundColor: theme.palette.common.black,
+  opacity: 0.1,
+  width: 'calc(100% - 26px)',
+  height: '100%',
+  zIndex: '1000',
+}));
+
+type IFormType = {
+  attributes: string[];
+};
+
 const Catalog: React.FC<Props> = ({ type }) => {
   const [getAllProductCard, getAllProductCardData] = useLazyQuery(
     GET_ALL_PRODUCTS_CARD,
   );
-  useEffect(() => {
-    // console.log('CATALOG DATA ', getAllProductCardData);
-  }, [getAllProductCardData]);
+  const [allProductData, setAllProductData] = useState([]);
 
-  const onChangeSort = (sort: string) => {
-    console.log('SORTING DATA ', getAllProductCardData);
-    getAllProductCard({
+  const catalogForm = useForm<IFormType>({
+    mode: 'onBlur',
+    defaultValues: {
+      attributes: [],
+    },
+  });
+  const { fields, append, remove } = useFieldArray({
+    name: 'attributes', // unique name for your Field Array
+    control: catalogForm.control,
+  });
+  let sort = useRef('');
+  let filter = useRef([]);
+  const limit = 8;
+  let offset = useRef(0);
+  const onChangeSort = (selectSort: string) => {
+    offset.current = 0;
+    sort.current = selectSort;
+    fetchMoreProducts()
+      .then((prodData) => {
+        setAllProductData(prodData.data.getAllProductCard.pageProduct);
+      })
+      .catch((err) => console.log(JSON.stringify(err, null, 2)));
+  };
+
+  const onChangeFilter = (selectFilter: string) => {
+    offset.current = 0;
+    let indexExistAttr = filter.current.findIndex(
+      (attr) => attr === selectFilter,
+    );
+    if (indexExistAttr === -1) {
+      filter.current.push(selectFilter);
+    } else {
+      filter.current.splice(indexExistAttr);
+    }
+    console.log(filter);
+    fetchMoreProducts().then((prodData) => {
+      setAllProductData(prodData.data.getAllProductCard.pageProduct);
+    });
+  };
+  const onLoadMore = () => {
+    offset.current = offset.current + limit;
+    console.log(offset.current);
+
+    console.log(sort);
+
+    fetchMoreProducts().then((prodData) => {
+      setAllProductData((prev) => [
+        ...prev,
+        ...prodData.data.getAllProductCard.pageProduct,
+      ]);
+    });
+  };
+  useEffect(() => {
+    console.log(allProductData);
+  }, [allProductData]);
+
+  const fetchMoreProducts = () => {
+    return getAllProductCard({
       variables: {
-        sort: sort,
+        filter: filter.current,
+        sort: sort.current,
+        offset: offset.current,
+        limit,
       },
     });
   };
@@ -133,13 +209,14 @@ const Catalog: React.FC<Props> = ({ type }) => {
       {type === 'filter' && (
         <CatalogHead sx={{ mb: 15 }}>
           <CatalogTitle variant="h3">Фильтр</CatalogTitle>
-          <CatalogSort data={filterInlineData} />
+          <CatalogSort data={filterInlineData} onChangeSort={onChangeSort} />
         </CatalogHead>
       )}
 
       <CatalogBody type={type}>
         {type === 'filter' && (
           <FilterBlock
+            onChangeFilter={onChangeFilter}
             sx={{
               ...(type === 'filter' && {
                 gritTemplate: '1/2',
@@ -150,23 +227,24 @@ const Catalog: React.FC<Props> = ({ type }) => {
         )}
 
         <CatalogGrid container spacing={13} type={type}>
-          {!getAllProductCardData?.loading ? (
-            getAllProductCardData?.data?.getAllProductCard?.map(
-              (product, i) => (
-                <CatalogGridItem
-                  item
-                  xs={type === 'filter' ? 4 : 3}
-                  key={product._id}>
-                  <Product data={product} />
-                </CatalogGridItem>
-              ),
-            )
-          ) : (
-            <CircularProgress />
-          )}
-          <CatalogGridItem item xs={12} sx={{ mb: 25 }}>
-            <CatalogBtnMore variant="outlined">Смотреть все</CatalogBtnMore>
-          </CatalogGridItem>
+          {getAllProductCardData.loading && <LoadingOverlay />}
+          {allProductData.map((product, i) => (
+            <CatalogGridItem
+              item
+              xs={type === 'filter' ? 4 : 3}
+              key={product._id}>
+              <Product data={product} />
+            </CatalogGridItem>
+          ))}
+          {!getAllProductCardData.loading &&
+            getAllProductCardData?.data?.getAllProductCard?.pageInfo
+              ?.hasNextPage && (
+              <CatalogGridItem item xs={12} sx={{ mb: 25 }}>
+                <CatalogBtnMore variant="outlined" onClick={onLoadMore}>
+                  Загрузить еще
+                </CatalogBtnMore>
+              </CatalogGridItem>
+            )}
         </CatalogGrid>
       </CatalogBody>
     </CatalogBox>

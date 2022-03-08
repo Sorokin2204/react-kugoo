@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -13,28 +13,52 @@ import {
 
 import SearchIcon from '@mui/icons-material/Search';
 import SearchPopover from './SearchPopover';
+import { useLazyQuery } from '@apollo/client';
+import { GET_SEARCH_PRODUCTS } from '../../../../graphql/query/product';
 
 type Props = {};
 
 const Search: React.FC<Props> = ({}) => {
   const theme = useTheme();
   const [age, setAge] = useState('');
+  const [searchText, setSearchText] = useState('');
   const handleChange = (event) => {
     setAge(event.target.value);
   };
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [openSearch, setOpenSearch] = React.useState(false);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const [getSearchProducts, { data, loading, previousData }] =
+    useLazyQuery(GET_SEARCH_PRODUCTS);
 
   const handleClose = () => {
-    setAnchorEl(null);
+    setOpenSearch(false);
   };
 
-  const open = Boolean(anchorEl);
-  const id = open ? 'simple-popover' : undefined;
+  useEffect(() => {
+    let timer = setTimeout(() => {
+      console.log(searchText);
+      if (!searchText) {
+        setOpenSearch(false);
+        return;
+      }
+      getSearchProducts({
+        variables: {
+          searchText: searchText,
+        },
+      })
+        .then((dataS) => {
+          setOpenSearch(true);
+          console.log('search data', dataS.data.searchProducts);
+        })
+        .catch((err) => console.log(JSON.stringify(err, null, 2)));
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
+  const dataSearch = loading ? previousData : data;
+
   return (
     <SearchWrapper>
       <SearchBox>
@@ -49,14 +73,17 @@ const Search: React.FC<Props> = ({}) => {
           <MenuItem value={'Brest'}>Брест</MenuItem>
         </SearchSelect>
         <SearchInput
+          onChange={(e) => {
+            setSearchText(e.target.value);
+          }}
           sx={{ fontSize: theme.typography.t3 }}
           placeholder="Искать самокат KUGOO"
         />
-        <SearchButton aria-describedby={id} onClick={handleClick}>
+        <SearchButton>
           <SearchIcon sx={{ fontSize: 20 }} />
         </SearchButton>
       </SearchBox>
-      <SearchPopover />
+      {openSearch && <SearchPopover data={dataSearch} />}
     </SearchWrapper>
   );
 };
@@ -71,7 +98,7 @@ const SearchWrapper = styled(Box)(({ theme }) => ({
 
 const SearchBox = styled(Box)(({ theme }) => ({
   display: 'flex',
-
+  marginRight: theme.spacing(10),
   border: `2px solid ${theme.palette.primary.main}`,
   borderRadius: '5px',
 }));

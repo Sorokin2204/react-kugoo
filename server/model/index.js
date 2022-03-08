@@ -48,6 +48,7 @@ var ProductSchema = new Schema({
     ref: 'Category',
   },
 });
+ProductSchema.index({ name: 'text' });
 const Product = mongoose.model('Product', ProductSchema);
 //////////////////////////// SPEC ////////////////////////////
 var SpecSchema = new Schema({

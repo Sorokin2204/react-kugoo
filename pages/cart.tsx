@@ -30,6 +30,7 @@ import CartDeliveryInfo from '../component/common/Cart/CartDeliveryInfo';
 import CartDeliveryChoice from '../component/common/Cart/CartDeliveryChoice';
 import CartPaymentChoice from '../component/common/Cart/CartPaymentChoice';
 import { useForm } from 'react-hook-form';
+import useAppConfig from '../hooks/useAppConfig';
 
 type Props = {};
 
@@ -69,6 +70,7 @@ type IFormType = {
 
 const CartPage: React.FC<Props> = ({}) => {
   const theme = useTheme();
+  const { cartProducts } = useAppConfig();
   const [stepCheckout, setStepCheckout] = useState(false);
   const formCheckout = useForm<IFormType>({
     mode: 'onChange',
@@ -90,7 +92,7 @@ const CartPage: React.FC<Props> = ({}) => {
   const onSubmit = (dataSubmit) => {
     console.log('Submit Data', dataSubmit);
   };
-
+  // if (cartProducts.length === 0) return <div>Корзина пуста</div>;
   return (
     <>
       <Container>

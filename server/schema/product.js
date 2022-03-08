@@ -25,10 +25,21 @@ attr: String
 attrOpt: String
 }
 
+
+
 input ProductsFromCartInput {
   _id: String
   ${productFromCartSchema}
   attributes: [AttributesFromCart]
+}
+
+type PageInfo {
+  hasNextPage: Boolean
+}
+
+type ProductPage {
+  pageProduct: [Product]
+  pageInfo: PageInfo
 }
 
 type ProductsFromCart {

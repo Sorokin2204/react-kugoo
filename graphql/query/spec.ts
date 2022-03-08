@@ -29,3 +29,17 @@ export const GET_ALL_SPEC = gql`
     }
   }
 `;
+export const GET_ALL_SPEC_WITH_OPTIONS = gql`
+  query {
+    getAllSpecWithOptions {
+      _id
+      name
+      slug
+      SpecOptions {
+        _id
+        name
+        slug
+      }
+    }
+  }
+`;

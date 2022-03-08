@@ -139,9 +139,10 @@ export const GET_ALL_PRODUCTS = gql`
     }
   }
 `;
-export const GET_ALL_PRODUCTS_CARD = gql`
-  query getAllProductCard($sort: String) {
-    getAllProductCard(sort: $sort) {
+
+export const GET_SEARCH_PRODUCTS = gql`
+  query searchProducts($searchText: String) {
+    searchProducts(searchText: $searchText) {
       _id
       name
       slug
@@ -157,6 +158,44 @@ export const GET_ALL_PRODUCTS_CARD = gql`
             name
           }
         }
+      }
+    }
+  }
+`;
+
+export const GET_ALL_PRODUCTS_CARD = gql`
+  query getAllProductCard(
+    $filter: [String]
+    $sort: String
+    $offset: Int
+    $limit: Int
+  ) {
+    getAllProductCard(
+      filter: $filter
+      sort: $sort
+      offset: $offset
+      limit: $limit
+    ) {
+      pageProduct {
+        _id
+        name
+        slug
+        price
+        discountPrice
+        images {
+          name
+        }
+        SpecOptions {
+          edges {
+            node {
+              _id
+              name
+            }
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
       }
     }
   }

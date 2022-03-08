@@ -93,6 +93,7 @@ const ButtonRounded = styled(Button)<{
 }));
 const HeaderBox = styled(Box)(({ theme }) => ({
   display: 'flex',
+  alignItems: 'center',
 }));
 
 const HeaderBottom: React.FC<Props> = ({}) => {
@@ -159,7 +160,7 @@ const HeaderBottom: React.FC<Props> = ({}) => {
         }}
       />
       <Search />
-      <ButtonIcon
+      {/* <ButtonIcon
         iconW={theme.spacing(10)}
         iconH={theme.spacing(6)}
         padding={`0`}
@@ -170,7 +171,7 @@ const HeaderBottom: React.FC<Props> = ({}) => {
         iconW={theme.spacing(10)}
         iconH={theme.spacing(7)}
         padding={`0`}
-        icon={'/static/icons/favorite.svg'}></ButtonIcon>
+        icon={'/static/icons/favorite.svg'}></ButtonIcon> */}
       <ButtonRounded
         aria-describedby={id}
         onClick={handleClick}

@@ -13,7 +13,6 @@ type SelectData = {
 type SelectCustomProps = SelectProps & Props;
 
 type Props = {
-  attrId: string;
   typeSelect?: 'rounded';
   beforeText?: string;
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   styled,
@@ -9,8 +9,12 @@ import {
 } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import SelectCustom from './SelectCustom';
+import { filterInlineData } from './Catalog';
 
-type Props = { data: SortData };
+type Props = {
+  data: typeof filterInlineData;
+  onChangeSort: (selectSort: string) => {};
+};
 
 // type SortData = {
 //   list: Array<{ value: string; label: string }>;
@@ -33,61 +37,78 @@ type Props = { data: SortData };
 //   },
 // ];
 
-const CatalogSort: React.FC<Props> = ({ data }) => {
+const CatalogSort: React.FC<Props> = ({ data, onChangeSort }) => {
   const theme = useTheme();
 
-  const [sortCommon, setSortCommon] = React.useState('price');
-  const handleChangeSortCommon = (event) => {
-    setSortCommon(event.target.value);
-  };
-  const [sortSpec, setSortSpec] = React.useState('long-work');
-  const handleChangeSortSpec = (event) => {
-    setSortSpec(event.target.value);
-  };
+  // const [sortCommon, setSortCommon] = React.useState('price');
+  // const handleChangeSortCommon = (event) => {
+  //   setSortCommon(event.target.value);
+  // };
+  // const [sortSpec, setSortSpec] = React.useState('long-work');
+  // const handleChangeSortSpec = (event) => {
+  //   setSortSpec(event.target.value);
+  // };
 
-  const sortData = [
-    {
-      list: [
-        {
-          label: 'По цене',
-          value: 'price',
-          defaultChecked: true,
-        },
-        {
-          label: 'По популярности',
-          value: 'popular',
-        },
-        {
-          label: 'По отзывам',
-          value: 'review',
-        },
-      ],
-    },
-    {
-      list: [
-        {
-          label: 'По батарее',
-          value: 'price',
-        },
-        {
-          label: 'По скорости',
-          value: 'popular',
-        },
-        {
-          label: 'По заряду',
-          value: 'review',
-          defaultChecked: true,
-        },
-      ],
-    },
-  ];
+  // const sortData = [
+  //   {
+  //     list: [
+  //       {
+  //         label: 'По цене',
+  //         value: 'price',
+  //         defaultChecked: true,
+  //       },
+  //       {
+  //         label: 'По популярности',
+  //         value: 'popular',
+  //       },
+  //       {
+  //         label: 'По отзывам',
+  //         value: 'review',
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     list: [
+  //       {
+  //         label: 'По батарее',
+  //         value: 'price',
+  //       },
+  //       {
+  //         label: 'По скорости',
+  //         value: 'popular',
+  //       },
+  //       {
+  //         label: 'По заряду',
+  //         value: 'review',
+  //         defaultChecked: true,
+  //       },
+  //     ],
+  //   },
+  // ];
+
+  const [activeFilter, setActiveFilter] = useState<string>(data[0].value);
+  const handleChangeFilter = (event: React.ChangeEvent<Element>) => {
+    setActiveFilter(event.target.value);
+  };
+  useEffect(() => {
+    onChangeSort(activeFilter);
+  }, [activeFilter]);
+
   return (
     <>
       <SortBox>
         <SortTitle variant="t3b">Сортировать: </SortTitle>
-        {sortData.map((el, i) => (
+        <SelectCustom defaultValue={activeFilter} onChange={handleChangeFilter}>
+          {data.map((opt, i) => (
+            <MenuItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </MenuItem>
+          ))}
+        </SelectCustom>
+
+        {/* {sortData.map((el, i) => (
           <SelectCustom key={i} sx={{ ml: 10 }} data={el}></SelectCustom>
-        ))}
+        ))} */}
       </SortBox>
     </>
   );

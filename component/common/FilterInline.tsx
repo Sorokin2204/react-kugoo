@@ -17,7 +17,7 @@ export type FilterInlineType = {
 
 type Props = {
   data: FilterInlineType[];
-  onChangeSort: (sort: string) => {};
+  onChangeSort: (selectSort: string) => {};
 };
 
 const FilterInline: React.FC<Props> = ({ data, onChangeSort }) => {

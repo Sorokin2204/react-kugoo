@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  CircularProgress,
   Grid,
   Popover,
   PopoverProps,
@@ -8,14 +9,15 @@ import {
   useTheme,
 } from '@mui/material';
 import { currencyFormat } from './CartPopover';
-import { SpecItem } from '../../Product';
+import { specIcons, SpecItem } from '../../Product';
 import { productData } from '../../Catalog';
+import { useQuery } from '@apollo/client';
+import { GET_SEARCH_PRODUCTS } from '../../../../graphql/query/product';
 
 type Props = {};
 
 const SearchPopoverStyled = styled(Popover)(({ theme }) => ({}));
 const SearchList = styled(Grid)(({ theme }) => ({
-  display: 'none',
   backgroundColor: theme.palette.common.white,
   position: 'absolute',
   width: '100%',
@@ -62,32 +64,40 @@ const SpecList = styled(Grid)(({ theme }) => ({
   gridRow: '2/3',
 }));
 
-const SearchPopover: React.FC<Props> = (props) => {
+const SearchPopover: React.FC<Props> = ({ data }) => {
   const theme = useTheme();
 
   return (
     <SearchList sx={{ p: 10 }}>
-      {[...Array(3)].map((el, i) => (
-        <SearchItem key={i}>
-          <SearchImage src={productData[0].image} />
-          <SearchTitle variant="t2bb">{productData[0].title}</SearchTitle>
-          <SearchPrice variant="t3bb">
-            {currencyFormat(productData[0].newPrice)}
-          </SearchPrice>
-          <SpecList container spacing={10}>
-            {productData[0].spec.map((el, i) => (
-              <SpecItem
-                item
-                key={i}
-                icon={el.icon}
-                iconSize={theme.spacing(8)}
-                sx={{ ...theme.typography.t4 }}>
-                {el.name}
-              </SpecItem>
-            ))}
-          </SpecList>
-        </SearchItem>
-      ))}
+      {data?.searchProducts.length !== 0 ? (
+        data?.searchProducts?.map((product, i) => (
+          <SearchItem key={i}>
+            <SearchImage
+              src={`/static/products/${
+                product.images[product.images.length - 1]?.name
+              }`}
+            />
+            <SearchTitle variant="t2bb">{product.name}</SearchTitle>
+            <SearchPrice variant="t3bb">
+              {currencyFormat(product.price)}
+            </SearchPrice>
+            <SpecList container spacing={10}>
+              {product.SpecOptions.edges.map((specOpt, i) => (
+                <SpecItem
+                  item
+                  key={i}
+                  icon={specIcons[i]}
+                  iconSize={theme.spacing(8)}
+                  sx={{ ...theme.typography.t4 }}>
+                  {specOpt.node.name.replace('*', '').replace('до', '')}
+                </SpecItem>
+              ))}
+            </SpecList>
+          </SearchItem>
+        ))
+      ) : (
+        <div>Ничего не найдено</div>
+      )}
     </SearchList>
   );
 };

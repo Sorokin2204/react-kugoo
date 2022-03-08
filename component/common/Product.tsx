@@ -22,7 +22,7 @@ type Props = {
   data: Product;
 };
 
-const specIcons = [
+export const specIcons = [
   '/static/icons/spec-1.svg',
   '/static/icons/spec-2.svg',
   '/static/icons/spec-3.svg',
@@ -61,13 +61,13 @@ const Product: React.FC<Props> = ({ data }) => {
         {/* <Tag sx={{ backgroundColor: data.tag.color, px: 4.5, py: 2 }}>
           {data.tag.name}
         </Tag> */}
-
+        {/* 
         <BtnCompare
           iconW={theme.spacing(10)}
           iconH={theme.spacing(6)}
           icon={'/static/icons/compare.svg'}
           iconColor={theme.palette.grey[600]}
-          sizeBtn={theme.spacing(20)}></BtnCompare>
+          sizeBtn={theme.spacing(20)}></BtnCompare> */}
       </Header>
       <Content sx={{ pt: 10, px: 12, pb: 0 }}>
         <Title variant="t1bb" sx={{ mb: 10 }}>
@@ -108,13 +108,13 @@ const Product: React.FC<Props> = ({ data }) => {
           icon={'/static/icons/cart.svg'}
           iconColor={theme.palette.primary.main}
           sizeBtn={theme.spacing(20)}></BtnCart>
-        <BtnFavorite
+        {/* <BtnFavorite
           variant="border"
           iconW={theme.spacing(8.5)}
           iconH={theme.spacing(7.5)}
           icon={'/static/icons/favorite.svg'}
           iconColor={theme.palette.primary.main}
-          sizeBtn={theme.spacing(20)}></BtnFavorite>
+          sizeBtn={theme.spacing(20)}></BtnFavorite> */}
 
         <BtnBuy variant="containedSmall">Купить в 1 клик</BtnBuy>
       </Actions>
@@ -162,6 +162,7 @@ export const SpecItem = styled(Grid)<{ icon: string; iconSize: string }>(
     color: theme.palette.grey[600],
     display: 'flex',
     alignItems: 'center',
+
     '&::before': {
       content: '""',
       display: 'block',

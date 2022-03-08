@@ -10,6 +10,23 @@ const specQuery = {
   getAllSpec: async () => {
     return await Spec.find();
   },
+  getAllSpecWithOptions: async () => {
+    try {
+      const specsOptions = await Spec.aggregate([
+        {
+          $lookup: {
+            from: SpecOption.collection.name,
+            localField: '_id',
+            foreignField: 'Spec',
+            as: 'SpecOptions',
+          },
+        },
+      ]);
+      return specsOptions;
+    } catch (error) {
+      console.log(error.message);
+    }
+  },
 
   getSpec: async ({ specId }) => {
     const spec = await Spec.findById(specId).lean();

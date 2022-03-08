@@ -17,6 +17,29 @@ const browserObject = require('../../scrapper/browser');
 const scraperController = require('../../scrapper/pageController');
 
 const productQuery = {
+  searchProducts: async ({ searchText }) => {
+    const allProduct = await getProductsCard(
+      [
+        {
+          $match: { name: { $regex: searchText, $options: 'i' } },
+        },
+      ],
+      [{ $limit: 5 }],
+    );
+    const allProductDto = allProduct.map((product) => ({
+      ...product,
+      Category: { _id: product.Category },
+      SpecOptions: {
+        edges: product.SpecOptions.map((specOpt) => ({
+          node: {
+            ...specOpt.SpecOption,
+            Spec: { _id: specOpt.SpecOption.Spec },
+          },
+        })),
+      },
+    }));
+    return allProductDto;
+  },
   getAllProduct: async () => {
     // await showSpec();
     //Start the browser and create a browser instance
@@ -27,7 +50,6 @@ const productQuery = {
     return await Product.find();
   },
   getAllProductFromCart: async ({ productsFromCart }) => {
-    console.log(productsFromCart);
     const attrsFromCart = [];
     productsFromCart.map((prod) =>
       prod.attributes.map((attr) => attrsFromCart.push(ObjectId(attr.attrOpt))),
@@ -92,62 +114,35 @@ const productQuery = {
         })),
       },
     }));
-    console.log(allProductDto);
     return allProductDto;
   },
-  getAllProductCard: async ({ sort }) => {
-    let aggregateSort = {};
+  getAllProductCard: async ({ filter, sort, offset, limit }) => {
+    let aggregateAfter = [];
     switch (sort) {
       case 'popular':
-        aggregateSort = { $sort: { viewCounter: 1 } };
+        // aggregateAfter.push({ $sort: { viewCounter: 1 } });
         break;
       case 'high-price':
-        aggregateSort = { $sort: { price: -1 } };
+        aggregateAfter.push({ $sort: { price: -1 } });
         break;
       case 'low-price':
-        aggregateSort = { $sort: { price: 1 } };
+        aggregateAfter.push({ $sort: { price: 1 } });
         break;
       case 'name':
-        aggregateSort = { $sort: { name: 1 } };
+        aggregateAfter.push({ $sort: { name: 1 } });
         break;
 
       default:
         break;
     }
-    const specInCard = await Spec.find({
-      orderInCard: { $exists: true },
-    }).select('_id');
-    specInCardIds = specInCard.map((spec) => spec._id);
-    // console.log(specInCardIds);
-    const allProduct = await Product.aggregate([
-      {
-        $lookup: {
-          from: Product_SpecOption.collection.name,
-          localField: '_id',
-          foreignField: 'Product',
-          as: 'SpecOptions',
-          pipeline: [
-            { $project: { Product: 0 } },
-
-            {
-              $lookup: {
-                from: SpecOption.collection.name,
-                localField: 'SpecOption',
-                foreignField: '_id',
-                as: 'SpecOption',
-                pipeline: [],
-              },
-            },
-            { $unwind: '$SpecOption' },
-            { $unwind: '$SpecOption.Spec' },
-            { $match: { 'SpecOption.Spec': { $in: specInCardIds } } },
-          ],
-        },
-      },
-      aggregateSort,
-    ]);
-
-    const allProductDto = allProduct.map((product) => ({
+    const allProduct = await getProductsCard(
+      undefined,
+      [...aggregateAfter, { $skip: offset }, { $limit: limit }],
+      filter,
+    );
+    const count = allProduct[0].count[0].count;
+    const hasNextPage = count > offset + limit;
+    const allProductDto = allProduct[0].data.map((product) => ({
       ...product,
       Category: { _id: product.Category },
       SpecOptions: {
@@ -159,7 +154,7 @@ const productQuery = {
         })),
       },
     }));
-    return allProductDto;
+    return { pageProduct: allProductDto, pageInfo: { hasNextPage } };
   },
   getProduct: async ({ productSlug }) => {
     // const findProduct = await Product.findOne({ slug: productSlug });
@@ -276,6 +271,77 @@ const productQuery = {
     };
     return productData;
   },
+};
+
+const getProductsCard = async (aggregateBefore, aggregateAfter, filter) => {
+  const specInCard = await Spec.find({
+    orderInCard: { $exists: true },
+  }).select('_id');
+  specInCardIds = specInCard.map((spec) => spec._id);
+  let filterIds = filter.map((filt) => ObjectId(filt));
+  let aggregateOptions = [];
+  let productOption = [
+    {
+      $lookup: {
+        from: Product_SpecOption.collection.name,
+        localField: '_id',
+        foreignField: 'Product',
+        as: 'SpecOptions',
+        pipeline: [
+          ...(filterIds.length != 0
+            ? [
+                {
+                  $match: { SpecOption: { $in: filterIds } },
+                },
+              ]
+            : []),
+          { $project: { Product: 0 } },
+        ],
+      },
+    },
+    { $match: { SpecOptions: { $not: { $size: 0 } } } },
+    {
+      $facet: {
+        count: [{ $count: 'count' }],
+        data: [
+          {
+            $lookup: {
+              from: Product_SpecOption.collection.name,
+              localField: '_id',
+              foreignField: 'Product',
+              as: 'SpecOptions',
+              pipeline: [
+                { $project: { Product: 0 } },
+                {
+                  $lookup: {
+                    from: SpecOption.collection.name,
+                    localField: 'SpecOption',
+                    foreignField: '_id',
+                    as: 'SpecOption',
+                    pipeline: [],
+                  },
+                },
+                { $unwind: '$SpecOption' },
+                { $unwind: '$SpecOption.Spec' },
+                { $match: { 'SpecOption.Spec': { $in: specInCardIds } } },
+              ],
+            },
+          },
+          ...(aggregateAfter || []),
+        ],
+      },
+    },
+  ];
+  aggregateOptions = [...(aggregateBefore || []), ...productOption];
+  return await Product.aggregate(aggregateOptions);
+};
+
+const getProductsLength = async (aggregateBefore) => {
+  const countProducts = await Product.aggregate([
+    ...(aggregateBefore || []),
+    { $count: 'count' },
+  ]);
+  return countProducts[0].count;
 };
 
 module.exports = { productQuery };

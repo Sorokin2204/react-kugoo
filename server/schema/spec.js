@@ -28,8 +28,6 @@ type StringBox {
   value: String
 }
 
-
-
 enum SpecOptionType {
     string
     number
