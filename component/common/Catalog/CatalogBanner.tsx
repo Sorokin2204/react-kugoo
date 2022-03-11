@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Container, styled, Typography } from '@mui/material';
 
-type Props = {};
+type Props = { title: string };
 
 const BannerBox = styled(Box)(({ theme }) => ({
   position: 'relative',
@@ -27,11 +27,11 @@ const BannerTitle = styled(Typography)(({ theme }) => ({
   zIndex: 2,
 }));
 
-const CatalogBanner: React.FC<Props> = ({}) => {
+const CatalogBanner: React.FC<Props> = ({ title }) => {
   return (
     <BannerBox sx={{ py: 37 }}>
       <Container>
-        <BannerTitle variant="h1">Электросамокаты Kugoo Kirin</BannerTitle>
+        <BannerTitle variant="h1">{title}</BannerTitle>
       </Container>
     </BannerBox>
   );

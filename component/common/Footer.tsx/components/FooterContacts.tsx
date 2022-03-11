@@ -1,69 +1,33 @@
 import React from 'react';
 import { Box, Button, styled, Typography } from '@mui/material';
+import { contactData } from '../../../../data/contactData';
 
 type Props = { data: ContactData };
-
-type ContactData = {
-  title: string;
-  phone: Array<{
-    phonesubtitle: string;
-    phoneFull: string;
-    phoneWorktime: string;
-  }>;
-  address: Array<{
-    addressFull: string;
-    addressPhone: string;
-  }>;
-};
-
-const contactData: ContactData = {
-  title: 'Контакты',
-  phone: [
-    {
-      phonesubtitle: 'Call-центр',
-      phoneFull: '+7 (800) 505-54-61',
-      phoneWorktime: 'Пн-Вс 10:00 - 20:00',
-    },
-    {
-      phonesubtitle: 'Сервисный центр',
-      phoneFull: '+7 (499) 350-76-92',
-      phoneWorktime: 'Пн-Вс 10:00 - 20:00',
-    },
-    {
-      phonesubtitle: '',
-      phoneFull: '',
-      phoneWorktime: '',
-    },
-  ],
-  address: [
-    {
-      addressFull: 'Магазин в Москве \n ул. Ткацкая, 5 стр. 16',
-      addressPhone: '+7 (499) 406 15 87',
-    },
-    {
-      addressFull: 'Магазин в Санкт-\nПетербурге\n ул. Фрунзе, 2',
-      addressPhone: '+7 (499) 406 15 87',
-    },
-    {
-      addressFull: 'Магазин в Краснодаре\n ул. Восточно-Кругликовская, 86',
-      addressPhone: '+ 7 (800) 505 54 61',
-    },
-  ],
-};
 
 const ContactBox = styled(Box)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: ' repeat(3,1fr)',
+  [theme.breakpoints.down('lg')]: {
+    gridTemplateColumns: ' repeat(2,1fr)',
+  },
 }));
 const ContactTitle = styled(Typography)(({ theme }) => ({
   gridColumn: '1/3',
 }));
 const ContactBtnCall = styled(Button)(({ theme }) => ({
   justifySelf: 'flex-end',
+  [theme.breakpoints.down('lg')]: {
+    display: 'none',
+  },
 }));
 const ContactPhone = styled(Typography)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
+  [theme.breakpoints.down('lg')]: {
+    '&:last-of-type': {
+      display: 'none !important',
+    },
+  },
 }));
 const PhoneSubtitle = styled(Typography)(({ theme }) => ({}));
 const PhoneNumber = styled(Typography)(({ theme }) => ({}));

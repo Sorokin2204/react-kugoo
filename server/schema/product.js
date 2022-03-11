@@ -35,6 +35,7 @@ input ProductsFromCartInput {
 
 type PageInfo {
   hasNextPage: Boolean
+  category: Category
 }
 
 type ProductPage {

@@ -15,35 +15,7 @@ import ButtonIcon from '../../ButtonIcon';
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { GET_ALL_PRODUCTS_FORM_CART } from '../../../../graphql/query/product';
 import useAppConfig from '../../../../hooks/useAppConfig';
-type Props = {};
-
-type CartDataType = {
-  image: string;
-  name: string;
-  price: number;
-  piece: number;
-};
-
-const cartData: CartDataType[] = [
-  {
-    image: '/static/product-full.png',
-    name: 'Kugoo Kirin M4',
-    price: 29.9,
-    piece: 1,
-  },
-  {
-    image: '/static/product-full.png',
-    name: 'Kugoo Kirin M4',
-    price: 29.9,
-    piece: 1,
-  },
-  {
-    image: '/static/product-full.png',
-    name: 'Kugoo Kirin M4',
-    price: 29.9,
-    piece: 1,
-  },
-];
+import { currencyFormat } from '../../../../utils/currencyFormat';
 
 const CartPopoverStyled = styled(Popover)(({ theme }) => ({}));
 const CartHead = styled(Box)(({ theme }) => ({
@@ -110,23 +82,7 @@ const CartButton = styled(Button)(({ theme }) => ({
   flexGrow: '1',
 }));
 
-export const currencyFormat = (price: number) => {
-  // let priceFormated = price.toString();
-  // pattern = '#### ####';
-  // priceFormated = `${price.toFixed(3).replace('.', ' ')} ₽`;
-  return price ? formatNumber(price) : '';
-};
-var formatNumber = function (num) {
-  var array = num.toString().split('');
-  var index = -3;
-  while (array.length + index > 0) {
-    array.splice(index, 0, ' ');
-    // Decrement by 4 since we just added another unit to the array.
-    index -= 4;
-  }
-  return array.join('') + ' ₽';
-};
-
+type Props = {};
 const CartPopover: React.FC<PopoverProps> = (props) => {
   const theme = useTheme();
   const { cartProducts } = useAppConfig();

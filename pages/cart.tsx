@@ -15,12 +15,12 @@ import {
   useTheme,
 } from '@mui/material';
 import BreadcrumbsCustom from '../component/common/BreadcrumbsCustom';
-import { currencyFormat } from '../component/common/Header/components/CartPopover';
+import { currencyFormat } from '../utils/currencyFormat';
 import ButtonIcon from '../component/common/ButtonIcon';
 import QuantityInput from '../component/common/QuantityInput';
 import { productData } from '../component/common/Catalog';
 import SelectCustom from '../component/common/SelectCustom';
-import { specData } from './catalog/[id]';
+import { specData } from './[categorySlug]/[productSlug]';
 import FilterCheckbox from '../component/common/FilterCheckbox';
 import ProductCarusel from '../component/common/ProductCarusel';
 import CartProducts from '../component/common/Cart/CartProducts';

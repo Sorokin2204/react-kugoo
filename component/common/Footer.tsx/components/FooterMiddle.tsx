@@ -1,46 +1,38 @@
 import React from 'react';
-import { Box, styled, Typography } from '@mui/material';
+import { Box, styled, Typography, useTheme } from '@mui/material';
+import { socialData } from '../../../../data/socialData';
 
 type Props = {};
-
-type SocialType = {
-  icon: string;
-  name: string;
-  subscribeCount: number;
-};
-
-const socialData: SocialType[] = [
-  {
-    icon: '/static/icons/vk-color.svg',
-    name: 'Вконтакте',
-    subscribeCount: 3300,
-  },
-  {
-    icon: '/static/icons/instagram-color.svg',
-    name: 'Instagram',
-    subscribeCount: 10602,
-  },
-  {
-    icon: '/static/icons/youtube-color.svg',
-    name: 'YouTube',
-    subscribeCount: 3603,
-  },
-  {
-    icon: '/static/icons/telegram-color.svg',
-    name: 'Telegram',
-    subscribeCount: 432,
-  },
-];
 
 const FooterMiddleWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   borderTop: `1px solid rgba(93, 108, 123,0.15);`,
   borderBottom: `1px solid rgba(93, 108, 123,0.15);`,
+  [theme.breakpoints.down('md')]: {
+    // alignItems: 'start',
+  },
+  [theme.breakpoints.down('smd')]: {
+    flexWrap: 'wrap',
+  },
 }));
 const FooterLogo = styled(Typography)(({ theme }) => ({
   textTransform: 'uppercase',
   marginRight: theme.spacing(30),
+  [theme.breakpoints.down('lg')]: {
+    marginRight: theme.spacing(15),
+  },
+  [theme.breakpoints.down('md')]: {
+    marginRight: theme.spacing(30),
+  },
+  [theme.breakpoints.down('smd')]: {
+    display: 'block',
+    margin: '0 auto',
+    marginBottom: theme.spacing(12.5),
+  },
+  [theme.breakpoints.down('sm')]: {
+    display: 'none',
+  },
 }));
 const FooterMobApp = styled('img')(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
@@ -53,18 +45,38 @@ const FooterMobApp = styled('img')(({ theme }) => ({
 const FooterMobAppList = styled(Box)(({ theme }) => ({
   display: 'flex',
   marginRight: 'auto',
+  [theme.breakpoints.down('smd')]: {
+    flexBasis: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: theme.spacing(12.5),
+  },
+  [theme.breakpoints.down('sm')]: {
+    display: 'none',
+  },
 }));
 const FooterSocialList = styled(Box)(({ theme }) => ({
-  display: 'flex',
+  display: 'grid',
   marginLeft: 'auto',
+  gridTemplateColumns: 'repeat(4,1fr)',
+  gridGap: '10px',
+  [theme.breakpoints.down('md')]: {
+    gridTemplateColumns: 'repeat(2,auto)',
+    margin: '0 auto',
+  },
+  [theme.breakpoints.down('smd')]: {
+    flexBasis: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 }));
 const FooterSocialItem = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
   borderRadius: '5px',
   display: 'flex',
-  '& + &': {
-    marginLeft: theme.spacing(5),
-  },
+  // '& + &': {
+  //   marginLeft: theme.spacing(5),
+  // },
 }));
 const FooterSocialIcon = styled('img')(({ theme }) => ({}));
 const FooterSocialBox = styled(Box)(({ theme }) => ({
@@ -78,8 +90,15 @@ const FooterSocialCount = styled(Typography)(({ theme }) => ({
 }));
 
 const FooterMiddle: React.FC<Props> = ({}) => {
+  const theme = useTheme();
   return (
-    <FooterMiddleWrapper sx={{ py: 17.5 }}>
+    <FooterMiddleWrapper
+      sx={{
+        py: 17.5,
+        [theme.breakpoints.down('smd')]: {
+          py: 12.5,
+        },
+      }}>
       <FooterLogo variant="h2">Kugoo</FooterLogo>
       <FooterMobAppList>
         <FooterMobApp src="/static/icons/app-store.svg"></FooterMobApp>

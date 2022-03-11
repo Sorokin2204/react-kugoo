@@ -8,6 +8,8 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import LinkCustom from '../../Header/components/LinkCustom';
+import { SentimentVeryDissatisfied } from '@mui/icons-material';
+import { withSnackbar } from '../../../../hooks/useAlert';
 
 type Props = {
   title: string;
@@ -31,11 +33,22 @@ type Props = {
 
 const FooterColumnList = styled(Grid)(({ theme }) => ({}));
 const FooterColumnItem = styled(Grid)(({ theme }) => ({
-  '& + &': {
-    marginLeft: theme.spacing(22),
-  },
+  // '& + &': {
+  //   marginLeft: theme.spacing(22),
+  // },
   '&:first-child': {
     flexGrow: '1',
+  },
+  [theme.breakpoints.down('lg')]: {
+    '&:nth-of-type(1)': {
+      order: 3,
+    },
+    '&:nth-of-type(2)': {
+      order: 1,
+    },
+    '&:nth-of-type(3)': {
+      order: 2,
+    },
   },
 }));
 const FooterColumnTitle = styled(Typography)(({ theme }) => ({
@@ -55,7 +68,7 @@ const FooterLinkItem = styled(Grid)(({ theme }) => ({
 }));
 const FooterLink = styled(LinkMui)(({ theme }) => ({}));
 
-const FooterLinks: React.FC<Props> = ({ title, list }) => {
+const FooterLinks: React.FC<Props> = ({ title, list, snackbarShowMessage }) => {
   const theme = useTheme();
 
   return (
@@ -65,7 +78,18 @@ const FooterLinks: React.FC<Props> = ({ title, list }) => {
         <FooterLinkList container>
           {list.map((el, i) => (
             <FooterLinkItem item key={i}>
-              <LinkCustom fontSize={theme.typography.t3} href={el.path}>
+              <LinkCustom
+                fontSize={theme.typography.t3}
+                href={el.path}
+                onClick={(e) => {
+                  e.preventDefault();
+                  snackbarShowMessage(
+                    'Страница не найдена',
+                    'info',
+                    500,
+                    <SentimentVeryDissatisfied />,
+                  );
+                }}>
                 {el.name}
               </LinkCustom>
             </FooterLinkItem>
@@ -76,4 +100,4 @@ const FooterLinks: React.FC<Props> = ({ title, list }) => {
   );
 };
 
-export default FooterLinks;
+export default withSnackbar(FooterLinks);

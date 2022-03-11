@@ -15,6 +15,7 @@ const InputText = styled(InputBase)<InputBaseProps & Props>(
     }),
     backgroundColor: theme.palette.common.white,
     padding: `${theme.spacing(7.5)} ${theme.spacing(12.5)}`,
+
     minWidth: '0px',
     width: 'auto',
     ...(error && {

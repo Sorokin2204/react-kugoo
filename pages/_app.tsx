@@ -13,7 +13,7 @@ import Header from '../component/common/Header';
 import cache from '../graphql/cache';
 import theme from '../theme';
 import themeAdmin from '../themeAdmin';
-import './catalog/[id].css';
+import './[categorySlug]/[id].css';
 
 // interface AppConfig {
 //   cartProducts: boolean;
@@ -65,8 +65,13 @@ const ClientSide = ({ Component, pageProps, router }: AppProps) => {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Header />
-          <Component {...pageProps} />
-          <Footer />
+          <main
+            style={{
+              paddingBottom: '55px',
+            }}>
+            <Component {...pageProps} />
+            <Footer />
+          </main>
         </ThemeProvider>
       </ApolloProvider>
     </>

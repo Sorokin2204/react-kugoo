@@ -3,8 +3,9 @@ import { createTheme, Typography, useTheme } from '@mui/material';
 let theme = createTheme({
   breakpoints: {
     values: {
-      xs: 0,
+      xs: 480,
       sm: 640,
+      smd: 840,
       md: 1024,
       lg: 1170,
       xl: 1440,
@@ -56,9 +57,9 @@ let theme = createTheme({
       fontWeight: '600',
     },
     h2: {
-      fontWeight: '700',
       fontSize: '30px',
       lineHeight: '43px',
+      fontWeight: '700',
     },
     h3: {
       fontSize: '25px',
@@ -176,6 +177,41 @@ let theme = createTheme({
 // };
 
 theme = createTheme(theme, {
+  typography: {
+    h1: {
+      ...theme.typography.h1,
+      [theme.breakpoints.down('md')]: {
+        ...theme.typography.h2,
+      },
+    },
+    h2: {
+      ...theme.typography.h2,
+      [theme.breakpoints.down('md')]: {
+        ...theme.typography.h3,
+      },
+    },
+    h3: {
+      ...theme.typography.h3,
+      [theme.breakpoints.down('md')]: {
+        ...theme.typography.h4bb,
+      },
+      [theme.breakpoints.down('smd')]: {
+        ...theme.typography.t1bb,
+      },
+    },
+    t2: {
+      ...theme.typography.t2,
+      [theme.breakpoints.down('md')]: {
+        ...theme.typography.t3,
+      },
+    },
+    t4: {
+      ...theme.typography.t4,
+      [theme.breakpoints.down('smd')]: {
+        // ...theme.typography.t5,
+      },
+    },
+  },
   components: {
     MuiTableCell: {
       styleOverrides: {
@@ -184,14 +220,7 @@ theme = createTheme(theme, {
         },
       },
     },
-    MuiPopover: {
-      styleOverrides: {
-        paper: {
-          borderRadius: '5px',
-          boxShadow: theme.boxShadow.primary,
-        },
-      },
-    },
+
     MuiGrid: {
       styleOverrides: {
         paddingTop: '0',
@@ -202,6 +231,9 @@ theme = createTheme(theme, {
       styleOverrides: {
         root: {
           padding: '0 30px !important',
+          [theme.breakpoints.down('sm')]: {
+            padding: '0 15px !important',
+          },
         },
       },
     },
@@ -244,6 +276,9 @@ theme = createTheme(theme, {
             color: theme.palette.primary.main,
             padding: `${theme.spacing(7.5)} ${theme.spacing(12.5)}`,
             ...theme.typography.t2,
+            [theme.breakpoints.down('md')]: {
+              padding: `${theme.spacing(5)} ${theme.spacing(12.5)}`,
+            },
           },
         },
         outlined: {
@@ -258,6 +293,7 @@ theme = createTheme(theme, {
       },
     },
     MuiSelect: {
+      defaultProps: { disableScrollLock: true },
       styleOverrides: {
         icon: {
           display: 'none',
@@ -388,6 +424,10 @@ declare module '@mui/material/Typography/Typography' {
 }
 
 declare module '@mui/material/styles' {
+  interface BreakpointOverrides {
+    smd: true;
+  }
+
   interface TypographyVariants {
     h4b: React.CSSProperties;
     h4bb: React.CSSProperties;

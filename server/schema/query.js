@@ -4,12 +4,14 @@ const querySchema = `
     getCategory(id: String, withAttrOpts: Boolean!,withSpecOpts: Boolean!): Category
     getAllCategory: [Category]
 ### PRODUCT
+
 searchProducts(searchText: String): [Product]
     getProduct(productSlug: String): Product
     getAllProductFromCart(productsFromCart: [ProductsFromCartInput]): [Product]
-    getAllProductCard(filter: [String], sort: String, offset: Int, limit: Int): ProductPage
+    getAllProductCard(category: String, filter: [String], sort: String, offset: Int, limit: Int): ProductPage
     getAllProduct: [Product]
 ### ATTRIBUTE
+getDefaultProductAttributes(productId: String): [AttributeOption]
     getAttribute(attrId: String, attrOptId: String): Attribute
     getAllAttribute: [Attribute]
     getAllAttributeInCategory(categoryId: String): Category

@@ -7,6 +7,8 @@ import {
   styled,
   Typography,
 } from '@mui/material';
+import Grow from '@mui/material/Grow';
+
 import FilterInline, { FilterInlineType } from './FilterInline';
 import Product, { ProductType } from './Product';
 import FilterBlock from './FilterBlock';
@@ -15,10 +17,8 @@ import CatalogSort from './CatalogSort';
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { GET_ALL_PRODUCTS_CARD } from '../../graphql/query/product';
 import { useFieldArray, useForm } from 'react-hook-form';
-
-type Props = {
-  type: 'full' | 'filter' | 'inline';
-};
+import useAppConfig from '../../hooks/useAppConfig';
+import CatalogBanner from './Catalog/CatalogBanner';
 
 export const filterInlineData: FilterInlineType[] = [
   {
@@ -73,10 +73,6 @@ export const productData: ProductType[] = [
   },
 ];
 
-type CatalogType = {
-  type: string;
-};
-
 const CatalogBox = styled(Box)(({ theme }) => ({}));
 const CatalogHead = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -121,15 +117,25 @@ const LoadingOverlay = styled(Box)(({ theme }) => ({
   zIndex: '1000',
 }));
 
+type Props = {
+  type: 'full' | 'filter' | 'inline';
+  category: string;
+};
+
 type IFormType = {
   attributes: string[];
 };
 
-const Catalog: React.FC<Props> = ({ type }) => {
+type CatalogType = {
+  type: string;
+};
+
+const Catalog: React.FC<Props> = ({ type, category }) => {
   const [getAllProductCard, getAllProductCardData] = useLazyQuery(
     GET_ALL_PRODUCTS_CARD,
   );
   const [allProductData, setAllProductData] = useState([]);
+  const { cartProducts } = useAppConfig();
 
   const catalogForm = useForm<IFormType>({
     mode: 'onBlur',
@@ -146,6 +152,7 @@ const Catalog: React.FC<Props> = ({ type }) => {
   const limit = 8;
   let offset = useRef(0);
   const onChangeSort = (selectSort: string) => {
+    // console.log('cat', cat);
     offset.current = 0;
     sort.current = selectSort;
     fetchMoreProducts()
@@ -194,60 +201,88 @@ const Catalog: React.FC<Props> = ({ type }) => {
         sort: sort.current,
         offset: offset.current,
         limit,
+        category,
       },
     });
   };
 
   return (
-    <CatalogBox>
-      {type === 'full' && (
-        <CatalogHead>
-          <CatalogTitle variant="h1">Электросамокаты</CatalogTitle>
-          <FilterInline data={filterInlineData} onChangeSort={onChangeSort} />
-        </CatalogHead>
-      )}
+    <>
       {type === 'filter' && (
-        <CatalogHead sx={{ mb: 15 }}>
-          <CatalogTitle variant="h3">Фильтр</CatalogTitle>
-          <CatalogSort data={filterInlineData} onChangeSort={onChangeSort} />
-        </CatalogHead>
+        <Box sx={{ mb: 25 }}>
+          <CatalogBanner
+            title={
+              getAllProductCardData?.data?.getAllProductCard?.pageInfo?.category
+                ?.name
+            }
+          />
+        </Box>
       )}
 
-      <CatalogBody type={type}>
+      <CatalogBox>
+        {type === 'full' && (
+          <CatalogHead>
+            <CatalogTitle variant="h1">
+              {
+                getAllProductCardData?.data?.getAllProductCard?.pageInfo
+                  ?.category?.name
+              }
+            </CatalogTitle>
+            <FilterInline data={filterInlineData} onChangeSort={onChangeSort} />
+          </CatalogHead>
+        )}
         {type === 'filter' && (
-          <FilterBlock
-            onChangeFilter={onChangeFilter}
-            sx={{
-              ...(type === 'filter' && {
-                gritTemplate: '1/2',
-                alignSelf: 'start',
-              }),
-            }}
-          />
+          <CatalogHead sx={{ mb: 15 }}>
+            <CatalogTitle variant="h3">Фильтр</CatalogTitle>
+            <CatalogSort data={filterInlineData} onChangeSort={onChangeSort} />
+          </CatalogHead>
         )}
 
-        <CatalogGrid container spacing={13} type={type}>
-          {getAllProductCardData.loading && <LoadingOverlay />}
-          {allProductData.map((product, i) => (
-            <CatalogGridItem
-              item
-              xs={type === 'filter' ? 4 : 3}
-              key={product._id}>
-              <Product data={product} />
-            </CatalogGridItem>
-          ))}
-          {!getAllProductCardData.loading &&
-            getAllProductCardData?.data?.getAllProductCard?.pageInfo
-              ?.hasNextPage && (
-              <CatalogGridItem item xs={12} sx={{ mb: 25 }}>
-                <CatalogBtnMore variant="outlined" onClick={onLoadMore}>
-                  Загрузить еще
-                </CatalogBtnMore>
-              </CatalogGridItem>
-            )}
-        </CatalogGrid>
-      </CatalogBody>
-    </CatalogBox>
+        <CatalogBody type={type}>
+          {type === 'filter' && (
+            <FilterBlock
+              onChangeFilter={onChangeFilter}
+              sx={{
+                ...(type === 'filter' && {
+                  gritTemplate: '1/2',
+                  alignSelf: 'start',
+                }),
+              }}
+            />
+          )}
+
+          <CatalogGrid container spacing={13} type={type}>
+            {/* {getAllProductCardData.loading && <LoadingOverlay />} */}
+            {allProductData.map((product, i) => {
+              let inCart =
+                cartProducts.findIndex(
+                  (cartProd) => cartProd.productId === product._id,
+                ) !== -1;
+              return (
+                <Grow
+                  in={true}
+                  style={{ transformOrigin: '0 0 0' }}
+                  key={product._id}
+                  timeout={400}>
+                  <CatalogGridItem item xs={type === 'filter' ? 4 : 3}>
+                    <Product data={product} inCart={inCart} />
+                  </CatalogGridItem>
+                </Grow>
+              );
+            })}
+            {!getAllProductCardData.loading &&
+              getAllProductCardData?.data?.getAllProductCard?.pageInfo
+                ?.hasNextPage && (
+                <CatalogGridItem item xs={12} sx={{ mb: 25 }}>
+                  <CatalogBtnMore variant="outlined" onClick={onLoadMore}>
+                    Загрузить еще
+                  </CatalogBtnMore>
+                </CatalogGridItem>
+              )}
+          </CatalogGrid>
+        </CatalogBody>
+      </CatalogBox>
+    </>
   );
 };
 

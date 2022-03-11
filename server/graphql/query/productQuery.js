@@ -11,6 +11,7 @@ const {
   Category_Attribute,
   Category_Spec,
   Spec,
+  Category,
 } = require('../../model');
 const { showSpec } = require('../../scrapper/AddScrapedProduct');
 const browserObject = require('../../scrapper/browser');
@@ -25,8 +26,9 @@ const productQuery = {
         },
       ],
       [{ $limit: 5 }],
+      [],
     );
-    const allProductDto = allProduct.map((product) => ({
+    const allProductDto = allProduct[0].data.map((product) => ({
       ...product,
       Category: { _id: product.Category },
       SpecOptions: {
@@ -60,6 +62,14 @@ const productQuery = {
           _id: {
             $in: productsFromCart.map((prod) => ObjectId(prod.productId)),
           },
+        },
+      },
+      {
+        $lookup: {
+          from: Category.collection.name,
+          localField: 'Category',
+          foreignField: '_id',
+          as: 'Category',
         },
       },
       {
@@ -98,9 +108,9 @@ const productQuery = {
         },
       },
     ]).catch((err) => console.log(err));
-
     const allProductDto = productsInCart.map((product) => ({
       ...product,
+      Category: product.Category[0],
       AttributeOptions: {
         edges: product.AttributeOptions.map((attrOpt) => ({
           node: {
@@ -116,7 +126,7 @@ const productQuery = {
     }));
     return allProductDto;
   },
-  getAllProductCard: async ({ filter, sort, offset, limit }) => {
+  getAllProductCard: async ({ category, filter, sort, offset, limit }) => {
     let aggregateAfter = [];
     switch (sort) {
       case 'popular':
@@ -135,8 +145,12 @@ const productQuery = {
       default:
         break;
     }
+
+    const categoryFind = await Category.findOne({ slug: category }).select(
+      'name',
+    );
     const allProduct = await getProductsCard(
-      undefined,
+      [{ $match: { Category: categoryFind._id } }],
       [...aggregateAfter, { $skip: offset }, { $limit: limit }],
       filter,
     );
@@ -154,7 +168,10 @@ const productQuery = {
         })),
       },
     }));
-    return { pageProduct: allProductDto, pageInfo: { hasNextPage } };
+    return {
+      pageProduct: allProductDto,
+      pageInfo: { hasNextPage, category: { name: categoryFind.name } },
+    };
   },
   getProduct: async ({ productSlug }) => {
     // const findProduct = await Product.findOne({ slug: productSlug });
@@ -334,14 +351,6 @@ const getProductsCard = async (aggregateBefore, aggregateAfter, filter) => {
   ];
   aggregateOptions = [...(aggregateBefore || []), ...productOption];
   return await Product.aggregate(aggregateOptions);
-};
-
-const getProductsLength = async (aggregateBefore) => {
-  const countProducts = await Product.aggregate([
-    ...(aggregateBefore || []),
-    { $count: 'count' },
-  ]);
-  return countProducts[0].count;
 };
 
 module.exports = { productQuery };

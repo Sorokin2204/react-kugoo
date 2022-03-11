@@ -11,17 +11,22 @@ import {
   TableRow,
   Typography,
   useTheme,
+  Link as LinkMUI,
 } from '@mui/material';
 import SelectCustom from '../SelectCustom';
 import { productData } from '../Catalog';
 import QuantityInput from '../QuantityInput';
 import ButtonIcon from '../ButtonIcon';
-import { specData } from '../../../pages/catalog/[id]';
-import { currencyFormat } from '../Header/components/CartPopover';
+import { specData } from '../../../pages/[categorySlug]/[productSlug]';
+import { currencyFormat } from '../../../utils/currencyFormat';
 import { useLazyQuery } from '@apollo/client';
 import { GET_ALL_PRODUCTS_FORM_CART } from '../../../graphql/query/product';
 import useAppConfig from '../../../hooks/useAppConfig';
 import { groupBy } from '../../../utils/groupBy';
+import { withSnackbar } from '../../../hooks/useAlert';
+import { Delete } from '@mui/icons-material';
+import Link from 'next/link';
+import { Product } from '../../../types/graphql';
 
 type Props = {};
 function createData(name, calories, fat, carbs, protein) {
@@ -95,7 +100,9 @@ const CartItemContent = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   flexWrap: 'wrap',
 }));
-const CartItemTitle = styled(Typography)(({ theme }) => ({
+const CartItemTitle = styled(LinkMUI)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.common.black,
   flexBasis: '100%',
   marginBottom: theme.spacing(2.5),
 }));
@@ -131,7 +138,7 @@ const SpecBox = styled(Box)(({ theme }) => ({
 }));
 const SpecSelect = styled(SelectCustom)(({ theme }) => ({}));
 
-const CartProducts: React.FC<Props> = ({}) => {
+const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
   const theme = useTheme();
   const { cartProducts, updateInCart, deleteInCart } = useAppConfig();
   const [groupAttributes, setGroupAttributes] = useState([]);
@@ -219,7 +226,7 @@ const CartProducts: React.FC<Props> = ({}) => {
               cartProducts &&
               data?.getAllProductFromCart &&
               cartProducts?.map((cartProduct) => {
-                const product = data?.getAllProductFromCart.find(
+                const product: Product = data?.getAllProductFromCart.find(
                   (prod) => prod._id === cartProduct.productId,
                 );
                 return (
@@ -231,9 +238,15 @@ const CartProducts: React.FC<Props> = ({}) => {
                             src={`/static/products/${product.images[0].name}`}
                           />
                           <CartItemContent>
-                            <CartItemTitle variant="h4b">
-                              {product.name}
-                            </CartItemTitle>
+                            <Link
+                              href={`/${product.Category.slug}/${product.slug}`}>
+                              <CartItemTitle
+                                href={`/${product.Category.slug}/${product.slug}`}
+                                variant="h4b">
+                                {product.name}
+                              </CartItemTitle>
+                            </Link>
+
                             <CartItemStock variant="t4">
                               В наличии
                             </CartItemStock>
@@ -266,6 +279,12 @@ const CartProducts: React.FC<Props> = ({}) => {
                         <ButtonIcon
                           onClick={() => {
                             deleteInCart(cartProduct._id);
+                            snackbarShowMessage(
+                              `Товар удален из корзины`,
+                              'error',
+                              2000,
+                              <Delete />,
+                            );
                           }}
                           icon="/static/icons/delete.svg"
                           iconW="15px"
@@ -355,4 +374,4 @@ const CartProducts: React.FC<Props> = ({}) => {
   );
 };
 
-export default CartProducts;
+export default withSnackbar(CartProducts);

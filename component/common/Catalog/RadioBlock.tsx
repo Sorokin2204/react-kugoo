@@ -9,7 +9,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { currencyFormat } from '../Header/components/CartPopover';
+import { currencyFormat } from '../../../utils/currencyFormat';
 
 export type SpecType = {
   title?: string;

@@ -107,6 +107,9 @@ export const GET_ALL_PRODUCTS_FORM_CART = gql`
       images {
         name
       }
+      Category {
+        slug
+      }
       AttributeOptions {
         edges {
           node {
@@ -165,12 +168,14 @@ export const GET_SEARCH_PRODUCTS = gql`
 
 export const GET_ALL_PRODUCTS_CARD = gql`
   query getAllProductCard(
+    $category: String
     $filter: [String]
     $sort: String
     $offset: Int
     $limit: Int
   ) {
     getAllProductCard(
+      category: $category
       filter: $filter
       sort: $sort
       offset: $offset
@@ -196,6 +201,9 @@ export const GET_ALL_PRODUCTS_CARD = gql`
       }
       pageInfo {
         hasNextPage
+        category {
+          name
+        }
       }
     }
   }

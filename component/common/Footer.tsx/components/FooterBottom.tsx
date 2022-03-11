@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, styled, Typography, useTheme } from '@mui/material';
 import LinkCustom from '../../Header/components/LinkCustom';
 import SocialLinkCustom from '../../Header/components/SocialLinkCustom';
-import { topHeaderData } from '../../Header/components/HeaderTop';
+import { topHeaderData } from '../../../../data/topHeaderData';
 
 type Props = {};
 
@@ -36,19 +36,24 @@ export const PayImage = styled('img')(({ theme }) => ({
 }));
 const PayLinkList = styled(Box)(({ theme }) => ({
   display: 'flex',
+  [theme.breakpoints.down('smd')]: {
+    alignItems: 'center',
+    flexDirection: 'column',
+    margin: '0 auto',
+  },
 }));
 const PayLinkItem = styled(Box)(({ theme }) => ({}));
-const Chat = styled(Box)(({ theme }) => ({
+export const Chat = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
 }));
-const ChatText = styled(Typography)(({ theme }) => ({
+export const ChatText = styled(Typography)(({ theme }) => ({
   marginRight: theme.spacing(7),
 }));
-const ChatList = styled(Box)(({ theme }) => ({
+export const ChatList = styled(Box)(({ theme }) => ({
   display: 'flex',
 }));
-const ChatItem = styled(Box)(({ theme }) => ({
+export const ChatItem = styled(Box)(({ theme }) => ({
   '& + &': {
     marginLeft: theme.spacing(6),
   },
@@ -58,17 +63,36 @@ const FooterBottom: React.FC<Props> = ({}) => {
   const theme = useTheme();
   return (
     <>
-      <FooterBox sx={{ pt: 10, pb: 12 }}>
+      <FooterBox
+        sx={{
+          pt: 10,
+          pb: 12,
+          [theme.breakpoints.down('smd')]: {
+            pt: 6,
+            pb: 6,
+          },
+        }}>
         <PayLinkList>
           <PayLinkItem>
             <LinkCustom href="/">Реквизиты</LinkCustom>
           </PayLinkItem>
-          <PayLinkItem sx={{ ml: 22 }}>
+          <PayLinkItem
+            sx={{
+              ml: 22,
+              [theme.breakpoints.down('smd')]: {
+                ml: 0,
+              },
+            }}>
             <LinkCustom href="/">Политика конфиденциальности</LinkCustom>
           </PayLinkItem>
         </PayLinkList>
 
-        <PayList>
+        <PayList
+          sx={{
+            [theme.breakpoints.down('smd')]: {
+              display: 'none',
+            },
+          }}>
           <PayItem>
             <PayImage src="/static/icons/google-pay.svg" />
           </PayItem>
@@ -91,7 +115,12 @@ const FooterBottom: React.FC<Props> = ({}) => {
             <PayImage src="/static/icons/qiwi.svg" />{' '}
           </PayItem>
         </PayList>
-        <Chat>
+        <Chat
+          sx={{
+            [theme.breakpoints.down('smd')]: {
+              display: 'none',
+            },
+          }}>
           <ChatText variant="t3">Online чат:</ChatText>
           <ChatList container spacing={0}>
             {topHeaderData.socialLinks.map((el, i) => (

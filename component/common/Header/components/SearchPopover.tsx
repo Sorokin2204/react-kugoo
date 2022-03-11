@@ -8,7 +8,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { currencyFormat } from './CartPopover';
+import { currencyFormat } from '../../../../utils/currencyFormat';
 import { specIcons, SpecItem } from '../../Product';
 import { productData } from '../../Catalog';
 import { useQuery } from '@apollo/client';
@@ -26,6 +26,7 @@ const SearchList = styled(Grid)(({ theme }) => ({
   borderRadius: '5px',
   boxShadow: theme.boxShadow.secondary,
   marginTop: theme.spacing(6),
+  zIndex: '1000',
 }));
 const SearchItem = styled(Grid)(({ theme }) => ({
   display: 'grid',

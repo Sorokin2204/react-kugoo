@@ -6,18 +6,32 @@ import GET_APP_CONFIG from '../graphql/query/appConfig';
 import saveAppConfig from '../graphql/saveAppConfig';
 import _ from 'lodash';
 import { createObjectId, mongoObjectId } from '../utils/createObjectId';
+import { Category } from '../types/graphql';
 
 export default function useAppConfig() {
   const { data } = useQuery(GET_APP_CONFIG);
 
   return {
+    category: data.appConfig.category,
     cartProducts: data.appConfig.cartProducts,
-    deleteInCart(cartProductId: string) {
+    setCategory(category: Category) {
       appConfigVar({
         ...data.appConfig,
-        cartProducts: data.appConfig.cartProducts.filter(
-          (prod: ProductInCartType) => prod._id !== cartProductId,
-        ),
+        category,
+      });
+      saveAppConfig();
+    },
+    deleteInCart(cartProductId: string | string[]) {
+      let updCartProducts: ProductInCartType[];
+      updCartProducts = data.appConfig.cartProducts.filter(
+        (prod: ProductInCartType) =>
+          Array.isArray(cartProductId)
+            ? !cartProductId.includes(prod._id)
+            : prod._id !== cartProductId,
+      );
+      appConfigVar({
+        ...data.appConfig,
+        cartProducts: updCartProducts,
       });
       saveAppConfig();
     },

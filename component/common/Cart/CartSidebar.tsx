@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Box, Button, styled, Typography, useTheme } from '@mui/material';
 import FilterCheckbox from '../FilterCheckbox';
 import useAppConfig from '../../../hooks/useAppConfig';
-import { currencyFormat } from '../Header/components/CartPopover';
+import { currencyFormat } from '../../../utils/currencyFormat';
 import _ from 'lodash';
 import { CREATE_ORDER } from '../../../graphql/mutation/order';
 import { useMutation } from '@apollo/client';

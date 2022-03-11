@@ -14,12 +14,19 @@ import {
 } from '@mui/material';
 import ButtonIcon from './ButtonIcon';
 import Image from 'next/image';
-import { currencyFormat } from './Header/components/CartPopover';
-import { Product } from '../../types/graphql';
+import { currencyFormat } from '../../utils/currencyFormat';
+import { AttributeOption, Product } from '../../types/graphql';
 import { useRouter } from 'next/router';
-
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
+import { useLazyQuery } from '@apollo/client';
+import { GET_DEFAULT_PRODUCT_ATTRIBUTES } from '../../graphql/query/attribute';
+import useAppConfig from '../../hooks/useAppConfig';
+import { withSnackbar } from '../../hooks/useAlert';
+import { Add, Delete } from '@mui/icons-material';
 type Props = {
   data: Product;
+  inCart: boolean;
 };
 
 export const specIcons = [
@@ -44,20 +51,75 @@ export type ProductType = {
   };
 };
 
-const Product: React.FC<Props> = ({ data }) => {
+const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
   const theme = useTheme();
   const router = useRouter();
+  const { addingInCart, cartProducts, deleteInCart } = useAppConfig();
+  const [getDefaultProductAttributes, { data: defaultProductAttrs }] =
+    useLazyQuery(GET_DEFAULT_PRODUCT_ATTRIBUTES);
+
+  const handleDeleteFromCart = (productId: string) => {
+    let cartIds: string[] = [];
+    cartProducts.map((cartProd) => {
+      if (cartProd.productId === productId) {
+        cartIds.push(cartProd._id);
+      }
+    });
+    deleteInCart(cartIds);
+    snackbarShowMessage(`Товар удален из корзины`, 'error', 2000, <Delete />);
+  };
+
+  const handleAddToCart = (
+    event: MouseEvent,
+    productId: string,
+    price: number,
+  ) => {
+    getDefaultProductAttributes({
+      variables: {
+        productId,
+      },
+    }).then((dataDefault) => {
+      let total: number = price;
+      let attributes = [];
+      dataDefault.data.getDefaultProductAttributes.map(
+        (defaultAttrOpt: AttributeOption) => {
+          console.log(defaultAttrOpt?.defaultPrice);
+          total += parseInt(defaultAttrOpt?.defaultPrice);
+          attributes.push({
+            attr: defaultAttrOpt.Attribute._id,
+            attrOpt: defaultAttrOpt._id,
+          });
+        },
+      );
+      console.log(total);
+
+      addingInCart({
+        totalPrice: total,
+        productId: productId,
+        attributes: attributes,
+        pieces: 1,
+      });
+      snackbarShowMessage(`Товар добавлен в корзину`);
+    });
+  };
   return (
     <ProductCard
       sx={{ cursor: 'pointer' }}
       onClick={() => router.push(`/catalog/${data.slug}`)}>
       <Header sx={{ '& span': { display: 'block !important' } }}>
-        <MainMedia
+        <LazyLoadImage
+          effect="blur"
+          alt={data.slug}
+          height={'182px'}
+          src={`/static/products/${data.images[data.images.length - 1]?.name}`}
+          width={'242px'}
+        />
+        {/* <MainMedia
           sx={{}}
           src={`/static/products/${data.images[data.images.length - 1]?.name}`}
           width="242"
           height="182"
-        />
+        /> */}
         {/* <Tag sx={{ backgroundColor: data.tag.color, px: 4.5, py: 2 }}>
           {data.tag.name}
         </Tag> */}
@@ -102,12 +164,20 @@ const Product: React.FC<Props> = ({ data }) => {
           )}
         </PriceBox>
         <BtnCart
+          active={inCart}
           variant="border"
           iconW={theme.spacing(9)}
           iconH={theme.spacing(9)}
           icon={'/static/icons/cart.svg'}
+          iconActive={'/static/icons/cart-fill.svg'}
           iconColor={theme.palette.primary.main}
-          sizeBtn={theme.spacing(20)}></BtnCart>
+          sizeBtn={theme.spacing(20)}
+          onClick={(e) => {
+            e.stopPropagation();
+            inCart
+              ? handleDeleteFromCart(data._id)
+              : handleAddToCart(e, data._id, data.price);
+          }}></BtnCart>
         {/* <BtnFavorite
           variant="border"
           iconW={theme.spacing(8.5)}
@@ -122,7 +192,7 @@ const Product: React.FC<Props> = ({ data }) => {
   );
 };
 
-export default Product;
+export default withSnackbar(Product);
 const ProductCard = styled(Card)(({ theme }) => ({
   border: `1.5px solid #EAEBED`,
   boxShadow: 'none',
@@ -133,7 +203,7 @@ const ProductCard = styled(Card)(({ theme }) => ({
 const Header = styled(Box)(({ theme }) => ({
   position: 'relative',
   maxHeight: '230px',
-  background: '#F0F1F5',
+  // background: '#F0F1F5',
 }));
 const Tag = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -162,13 +232,15 @@ export const SpecItem = styled(Grid)<{ icon: string; iconSize: string }>(
     color: theme.palette.grey[600],
     display: 'flex',
     alignItems: 'center',
-
+    whiteSpace: 'nowrap',
     '&::before': {
       content: '""',
       display: 'block',
       background: `url(${icon}) no-repeat 0 0/contain`,
       width: iconSize,
       height: iconSize,
+      minWidth: iconSize,
+      minHeight: iconSize,
       marginRight: theme.spacing(5),
     },
   }),

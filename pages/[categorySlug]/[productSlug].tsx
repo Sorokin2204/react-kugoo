@@ -14,7 +14,7 @@ import {
 import BreadcrumbsCustom from '../../component/common/BreadcrumbsCustom';
 import ButtonIcon from '../../component/common/ButtonIcon';
 import { productData } from '../../component/common/Catalog';
-import { currencyFormat } from '../../component/common/Header/components/CartPopover';
+import { currencyFormat } from '../../utils/currencyFormat';
 import RadioBlock, {
   SpecType,
 } from '../../component/common/Catalog/RadioBlock';
@@ -39,6 +39,7 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import useAppConfig from '../../hooks/useAppConfig';
 import _ from 'lodash';
 import { groupBy } from '../../utils/groupBy';
+import { withSnackbar } from '../../hooks/useAlert';
 type Props = {};
 
 const Content = styled(Box)(({ theme }) => ({
@@ -244,7 +245,7 @@ type IFormType = {
   attributes: Array<{ attr: string; attrOpt: string; price: number }>;
 };
 
-const ProductPage: React.FC<Props> = ({}) => {
+const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
   const theme = useTheme();
   const router = useRouter();
   const [getProduct, { data, loading }] = useLazyQuery(GET_PRODUCT);
@@ -278,7 +279,7 @@ const ProductPage: React.FC<Props> = ({}) => {
     if (!router.isReady) return;
     getProduct({
       variables: {
-        productSlug: router.query.id,
+        productSlug: router.query.productSlug,
       },
     }).then((dataSuccess) => {
       console.log('Cache Data ', cartProducts);
@@ -318,6 +319,7 @@ const ProductPage: React.FC<Props> = ({}) => {
         attributes: dataForm.attributes.map((attr) => _.omit(attr, ['price'])),
         pieces: 1,
       });
+      snackbarShowMessage('Товар добавлен в корзину');
     }
   };
   return (
@@ -373,12 +375,12 @@ const ProductPage: React.FC<Props> = ({}) => {
                 alignItems: 'center',
                 mb: 10,
               }}>
-              <Views sx={{ mr: 10 }} variant="t4">
+              {/* <Views sx={{ mr: 10 }} variant="t4">
                 Просмотров {data?.getProduct.viewsCounter}
               </Views>
               <Buyers sx={{ mr: 10 }} variant="t4">
                 Купили {productData[0].buyers} раз
-              </Buyers>
+              </Buyers> */}
               <VendorCode sx={{ mr: 10 }} variant="t4">
                 Артикул: {data?.getProduct.vendorCode}
               </VendorCode>
@@ -393,7 +395,7 @@ const ProductPage: React.FC<Props> = ({}) => {
               <InStock sx={{ mr: 21 }} variant="t3">
                 В наличии
               </InStock>
-              <BtnCompare
+              {/* <BtnCompare
                 sx={{ mr: 15 }}
                 icon="/static/icons/compare.svg"
                 iconH={theme.spacing(5.5)}
@@ -405,7 +407,7 @@ const ProductPage: React.FC<Props> = ({}) => {
                 iconH={theme.spacing(10)}
                 iconW={theme.spacing(10)}>
                 Поделиться
-              </BtnShare>
+              </BtnShare> */}
             </Box>
             <Box
               sx={{
@@ -497,13 +499,13 @@ const ProductPage: React.FC<Props> = ({}) => {
                   <TotalPrice variant="h1">
                     {currencyFormat(totalPrice)}
                   </TotalPrice>
-                  <TotalBtnFavorite
+                  {/* <TotalBtnFavorite
                     variant="border"
                     iconW={theme.spacing(8.5)}
                     iconH={theme.spacing(7.5)}
                     icon={'/static/icons/favorite.svg'}
                     iconColor={theme.palette.primary.main}
-                    sizeBtn={theme.spacing(20)}></TotalBtnFavorite>
+                    sizeBtn={theme.spacing(20)}></TotalBtnFavorite> */}
                 </Box>
 
                 <TotalDelivary sx={{ mb: 15 }}>
@@ -548,4 +550,4 @@ const ProductPage: React.FC<Props> = ({}) => {
   );
 };
 
-export default ProductPage;
+export default withSnackbar(ProductPage);
