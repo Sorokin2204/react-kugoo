@@ -32,7 +32,7 @@ const MobileMenuStyled = styled(Drawer)(({ theme }) => ({
   '& .MuiPaper-root': {
     width: '100vw',
     top: '60px',
-    height: 'calc(100% - 125px )',
+    height: 'calc(100% - 110px )',
     boxShadow: 'none',
     backgroundColor: theme.palette.common.white,
   },

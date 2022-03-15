@@ -44,11 +44,20 @@ type Props = {};
 
 const Content = styled(Box)(({ theme }) => ({
   gridColumn: '2/3',
-  gridRow: '1/3',
+  gridRow: '1/4',
   display: 'flex',
   flexDirection: 'column',
   width: '475px',
   maxWidth: '475px',
+  [theme.breakpoints.down('md')]: {
+    width: 'auto',
+    maxWidth: 'none',
+  },
+  [theme.breakpoints.down('smd')]: {
+    gridColumn: '1/3',
+    gridRow: '3/4',
+    marginTop: '10px',
+  },
 }));
 const Title = styled(Typography)(({ theme }) => ({
   display: 'block',
@@ -92,7 +101,11 @@ const OldPrice = styled(Typography)(({ theme }) => ({
   color: theme.palette.grey[600],
   textDecoration: 'line-through',
 }));
-const NewPrice = styled(Typography)(({ theme }) => ({ display: 'block' }));
+const NewPrice = styled(Typography)(({ theme }) => ({
+  display: 'block',
+
+  fontSize: '25px !important',
+}));
 const Installment = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -148,6 +161,19 @@ const ProductWrapper = styled(Box)(({ theme }) => ({
   gridTemplateColumns: '1fr 475px',
   gridTemplateRows: '500px auto',
   columnGap: theme.spacing(30),
+  [theme.breakpoints.down('md')]: {
+    gridTemplateColumns: '50% 46%',
+    columnGap: theme.spacing(15),
+    gridTemplateRows: '400px auto',
+  },
+  [theme.breakpoints.down('smd')]: {
+    gridTemplateColumns: '1fr ',
+    columnGap: theme.spacing(0),
+    rowGap: theme.spacing(5),
+  },
+  [theme.breakpoints.down('xs')]: {
+    gridTemplateRows: '300px auto',
+  },
 }));
 const ProductImageBox = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -282,7 +308,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
         productSlug: router.query.productSlug,
       },
     }).then((dataSuccess) => {
-      console.log('Cache Data ', cartProducts);
+      console.log('Product Data ', dataSuccess);
       const indexInCart = cartProducts.findIndex(
         (productInCart) =>
           productInCart.productId === dataSuccess.data.getProduct._id,
@@ -324,10 +350,30 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
   };
   return (
     <>
-      <Container sx={{ mb: 50 }}>
-        <BreadcrumbsCustom />
+      <Container
+        sx={{
+          mb: 0,
+          [theme.breakpoints.down('md')]: {
+            mb: 0,
+          },
+        }}>
+        {data && !loading && (
+            <BreadcrumbsCustom data={[{ url: '/', name: 'Главная' }, {name: `${data?.getProduct?.Category?.name}`, url: `/${data?.getProduct?.Category?.slug}`},{name: `${data?.getProduct?.name}`, url: `/${data?.getProduct?.Category?.slug}/${data?.getProduct?.slug}`}]} />,
+          )}
 
-        <ProductWrapper sx={{ mb: 70 }}>
+        <ProductWrapper
+          sx={{
+            mb: 70,
+            [theme.breakpoints.down('md')]: {
+              mb: 35,
+            },
+            [theme.breakpoints.down('smd')]: {
+              mb: 25,
+            },
+            [theme.breakpoints.down('smd')]: {
+              mb: 15,
+            },
+          }}>
           <Swiper
             style={{
               gridColumn: '1/2',
@@ -335,6 +381,9 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
               alignSelf: 'flex-start',
               '--swiper-navigation-color': '#fff',
               '--swiper-pagination-color': '#fff',
+              // `${theme.breakpoints.down('md')}`: {
+              //   display: 'none !important'
+              // }
             }}
             spaceBetween={10}
             thumbs={{ swiper: thumbsSwiper }}
@@ -415,6 +464,10 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 mb: 15,
+                [theme.breakpoints.down('xs')]: {
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                },
               }}>
               <PriceBox>
                 {data?.getProduct?.discountPrice && (
@@ -426,7 +479,14 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
                   <NewPrice variant="h3">{currencyFormat(totalPrice)}</NewPrice>
                 )}
               </PriceBox>
-              <Installment sx={{ px: 7, py: 3.5 }}>
+              <Installment
+                sx={{
+                  px: 7,
+                  py: 3.5,
+                  [theme.breakpoints.down('xs')]: {
+                    mt: 7.5,
+                  },
+                }}>
                 <InstallmentImage
                   src="/static/cart.png"
                   width="24"
@@ -452,6 +512,9 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
                     <Box
                       key={i}
                       sx={{
+                        [theme.breakpoints.down('smd')]: {
+                          width: '100%',
+                        },
                         '& + &': {
                           mt: 15,
                           pt: 15,
@@ -486,7 +549,16 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
                     </Box>
                   );
                 })}
-              <Total sx={{ px: 15, py: 14, mt: 15 }}>
+              <Total
+                sx={{
+                  px: 15,
+                  py: 14,
+                  mt: 15,
+                  [theme.breakpoints.down('md')]: {
+                    px: 13,
+                    py: 12,
+                  },
+                }}>
                 <Box
                   sx={{
                     display: 'flex',
@@ -545,7 +617,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
 
         <ProductInfo data={data?.getProduct?.SpecOptions?.edges} />
       </Container>
-      p<Box sx={{ mb: 50 }}>{/* <ProductCarusel /> */}</Box>
+      <Box sx={{ mb: 50 }}>{/* <ProductCarusel /> */}</Box>
     </>
   );
 };

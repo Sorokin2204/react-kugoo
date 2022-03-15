@@ -21,6 +21,10 @@ const BoxInput = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   borderRadius: '5px',
   maxWidth: theme.spacing(53),
+  // minWidth: theme.spacing(40),
+  [theme.breakpoints.down('xs')]: {
+    maxWidth: theme.spacing(40),
+  },
 }));
 const DecrimentButton = styled(ButtonBase)(({ theme }) => ({
   //   border: '1px solid red',

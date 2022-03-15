@@ -98,7 +98,9 @@ const RadioList = styled(RadioGroup)<{
 }>(({ theme, withContent }) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(2,minmax(auto,228px))',
-
+  [theme.breakpoints.down('smd')]: {
+    gridTemplateColumns: 'repeat(auto-fill,minmax(228px,1fr))',
+  },
   gridGap: theme.spacing(10),
   ...(withContent && { gridTemplateColumns: 'repeat(3,minmax(auto,240px))' }),
 }));
@@ -115,7 +117,10 @@ const RadioButton = styled(FormControlLabel)<{
   borderRadius: '10px',
   margin: 0,
   padding: `0 ${theme.spacing(15)}`,
-
+  [theme.breakpoints.down('md')]: {
+    padding: `0 ${theme.spacing(10)}`,
+    minHeight: '100px',
+  },
   ...(small && { height: '80px' }),
   ...(withContent && {
     height: '160px',
@@ -191,7 +196,12 @@ const RadioBlock: React.FC<Props> = ({
           {radioName}
         </RadioTitle>
 
-        <FormControl>
+        <FormControl
+          sx={{
+            [theme.breakpoints.down('smd')]: {
+              width: '100%',
+            },
+          }}>
           <RadioList
             // onChange={(e, value) => {
             //   onChange(e, value);

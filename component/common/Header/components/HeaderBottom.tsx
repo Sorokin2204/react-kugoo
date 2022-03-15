@@ -17,6 +17,7 @@ import ButtonIcon from '../../ButtonIcon';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import useAppConfig from '../../../../hooks/useAppConfig';
+import { topHeaderData } from '../../../../data/topHeaderData';
 
 type Props = {};
 
@@ -142,6 +143,8 @@ const BadgeRounded = styled(Badge)(({ theme }) => ({
   },
 }));
 
+const BurgerButton = styled(ButtonIcon)(({ theme, activeBurger }) => ({}));
+
 const HeaderBottom: React.FC<Props> = ({}) => {
   const theme = useTheme();
   const router = useRouter();
@@ -221,30 +224,40 @@ const HeaderBottom: React.FC<Props> = ({}) => {
           horizontal: 'left',
         }}
       />
-      <ButtonIcon
-        iconW={theme.spacing(8)}
-        iconH={theme.spacing(8)}
-        iconColor={theme.palette.primary.main}
-        padding={`0`}
-        icon={'/static/icons/phone.svg'}
-        sx={{
-          mr: 7,
-          ml: 'auto',
-          justifySelf: 'flex-end',
-          [theme.breakpoints.up('md')]: {
-            display: 'none',
-          },
-        }}></ButtonIcon>
-      <ButtonIcon
+      <Link
+        href={`tel:${topHeaderData.phone.replace(/\D/g, '')}`}
+        passHref={true}>
+        <ButtonIcon
+          iconW={theme.spacing(8)}
+          iconH={theme.spacing(8)}
+          iconColor={theme.palette.primary.main}
+          padding={`0`}
+          icon={'/static/icons/phone.svg'}
+          sx={{
+            mr: 7,
+            ml: 'auto',
+            justifySelf: 'flex-end',
+            [theme.breakpoints.up('md')]: {
+              display: 'none',
+            },
+          }}></ButtonIcon>
+      </Link>
+      <BurgerButton
         iconW={theme.spacing(8)}
         iconH={theme.spacing(8)}
         onClick={handleToggleMobileMenu}
         padding={`0`}
         icon={''}
+        activeBurger={openCatalog}
         sx={{
           '&::after': {
             display: 'none',
           },
+
+          ...(openMobileMenu &&
+            {
+              // backgroundColor: 'black !important',
+            }),
           '& > div': {
             display: 'flex',
             justifyContent: 'space-between',
@@ -252,6 +265,22 @@ const HeaderBottom: React.FC<Props> = ({}) => {
             alignItems: 'flex-end',
             marginRight: theme.spacing(6),
             '& > div': {
+              transition: 'all 0.4s',
+              ...(openMobileMenu && {
+                '&:nth-child(1)': {
+                  transform: 'rotate(135deg) translate(30%, -250%)',
+                },
+                '&:nth-child(2)': {
+                  // transform: 'rotate(50deg) translate(26%, 100%)',
+                  opacity: 0,
+                  // display: 'none',
+                },
+                '&:nth-child(3)': {
+                  transform: 'rotate(230deg) translate(15%, 130%)',
+                },
+                // backgroundColor: 'black !important',
+              }),
+
               transform: 'rotate(180deg)',
               borderRadius: '10px',
               backgroundColor: theme.palette.primary.main,
@@ -270,7 +299,7 @@ const HeaderBottom: React.FC<Props> = ({}) => {
           <div></div>
           <div></div>
         </div>
-      </ButtonIcon>
+      </BurgerButton>
       <Search />
       {/* <ButtonIcon
         iconW={theme.spacing(10)}

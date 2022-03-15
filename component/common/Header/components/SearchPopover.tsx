@@ -1,11 +1,13 @@
 import React from 'react';
 import {
+  Box,
   CircularProgress,
   Grid,
   Popover,
   PopoverProps,
   styled,
   Typography,
+  useMediaQuery,
   useTheme,
 } from '@mui/material';
 import { currencyFormat } from '../../../../utils/currencyFormat';
@@ -13,8 +15,11 @@ import { specIcons, SpecItem } from '../../Product';
 import { productData } from '../../Catalog';
 import { useQuery } from '@apollo/client';
 import { GET_SEARCH_PRODUCTS } from '../../../../graphql/query/product';
+import Link from 'next/link';
 
-type Props = {};
+type Props = {
+  clearSearch: () => {};
+};
 
 const SearchPopoverStyled = styled(Popover)(({ theme }) => ({}));
 const SearchList = styled(Grid)(({ theme }) => ({
@@ -48,10 +53,15 @@ const SearchImage = styled('img')(({ theme }) => ({
   borderRadius: '10px',
   objectFit: 'cover',
   marginRight: theme.spacing(10),
+  [theme.breakpoints.down('xs')]: {
+    display: 'none',
+  },
 }));
 const SearchPrice = styled(Typography)(({ theme }) => ({
   gridColumn: '11/12',
   gridRow: '1/2',
+  whiteSpace: 'nowrap',
+  marginLeft: '10px',
 }));
 const SearchTitle = styled(Typography)(({ theme }) => ({
   display: 'block',
@@ -60,41 +70,53 @@ const SearchTitle = styled(Typography)(({ theme }) => ({
   gridColumn: '2/11',
   gridRow: '1/2',
 }));
-const SpecList = styled(Grid)(({ theme }) => ({
-  gridColumn: '2/11',
+const SpecList = styled(Box)(({ theme }) => ({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(4,auto)',
+  gridGap: theme.spacing(10),
+  [theme.breakpoints.down('sm')]: {
+    gridColumn: '2/3',
+    gridGap: theme.spacing(5),
+    gridTemplateColumns: 'repeat(2,auto)',
+  },
+  gridColumn: '2/3',
   gridRow: '2/3',
 }));
 
-const SearchPopover: React.FC<Props> = ({ data }) => {
+const SearchPopover: React.FC<Props> = ({ data, clearSearch }) => {
   const theme = useTheme();
+  const matchMd = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
     <SearchList sx={{ p: 10 }}>
       {data?.searchProducts.length !== 0 ? (
         data?.searchProducts?.map((product, i) => (
-          <SearchItem key={i}>
-            <SearchImage
-              src={`/static/products/${
-                product.images[product.images.length - 1]?.name
-              }`}
-            />
-            <SearchTitle variant="t2bb">{product.name}</SearchTitle>
-            <SearchPrice variant="t3bb">
-              {currencyFormat(product.price)}
-            </SearchPrice>
-            <SpecList container spacing={10}>
-              {product.SpecOptions.edges.map((specOpt, i) => (
-                <SpecItem
-                  item
-                  key={i}
-                  icon={specIcons[i]}
-                  iconSize={theme.spacing(8)}
-                  sx={{ ...theme.typography.t4 }}>
-                  {specOpt.node.name.replace('*', '').replace('до', '')}
-                </SpecItem>
-              ))}
-            </SpecList>
-          </SearchItem>
+          <Link
+            key={product._id}
+            href={`/${product.Category.slug}/${product.slug}`}>
+            <SearchItem onClick={() => clearSearch()}>
+              <SearchImage
+                src={`/static/products/${
+                  product.images[product.images.length - 1]?.name
+                }`}
+              />
+              <SearchTitle variant="t2bb">{product.name}</SearchTitle>
+              <SearchPrice variant="t3bb">
+                {currencyFormat(product.price)}
+              </SearchPrice>
+              <SpecList>
+                {product.SpecOptions.edges.map((specOpt, i) => (
+                  <SpecItem
+                    key={i}
+                    icon={specIcons[i]}
+                    iconSize={theme.spacing(8)}
+                    sx={{ ...theme.typography.t4 }}>
+                    {specOpt.node.name.replace('*', '').replace('до', '')}
+                  </SpecItem>
+                ))}
+              </SpecList>
+            </SearchItem>
+          </Link>
         ))
       ) : (
         <div>Ничего не найдено</div>

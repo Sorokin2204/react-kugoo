@@ -134,5 +134,11 @@ const categoryQuery = {
     }).select('_id');
     return;
   },
+
+  checkExistCategory: async ({ categorySlug }) => {
+    const categoryExist = await Category.findOne({ slug: categorySlug });
+    console.log(categoryExist);
+    return !!categoryExist;
+  },
 };
 module.exports = { categoryQuery };

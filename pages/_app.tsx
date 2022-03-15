@@ -5,7 +5,7 @@ import {
   InMemoryCache,
   makeVar,
 } from '@apollo/client';
-import { CssBaseline, ThemeProvider } from '@mui/material';
+import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import Footer from '../component/common/Footer.tsx';
@@ -65,13 +65,16 @@ const ClientSide = ({ Component, pageProps, router }: AppProps) => {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Header />
-          <main
-            style={{
-              paddingBottom: '55px',
+          <Box
+            component={'main'}
+            sx={{
+              [theme.breakpoints.down('md')]: {
+                paddingBottom: '55px',
+              },
             }}>
             <Component {...pageProps} />
             <Footer />
-          </main>
+          </Box>
         </ThemeProvider>
       </ApolloProvider>
     </>

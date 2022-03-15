@@ -6,6 +6,7 @@ import {
   Grid,
   styled,
   Typography,
+  useTheme,
 } from '@mui/material';
 import Grow from '@mui/material/Grow';
 
@@ -74,30 +75,49 @@ export const productData: ProductType[] = [
 ];
 
 const CatalogBox = styled(Box)(({ theme }) => ({}));
-const CatalogHead = styled(Box)(({ theme }) => ({
+const CatalogHead = styled(Box)<CatalogType>(({ theme, type }) => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
   marginBottom: theme.spacing(25),
+  [theme.breakpoints.down('md')]: {
+    ...(type !== 'filter' && {
+      flexDirection: 'column',
+    }),
+  },
 }));
 const CatalogTitle = styled(Typography)(({ theme }) => ({
   textTransform: 'uppercase',
+  alignSelf: 'center',
+
+  [theme.breakpoints.down('lg')]: {},
 }));
 const CatalogBody = styled(Grid)<CatalogType>(({ theme, type }) => ({
   ...(type === 'filter' && {
     display: 'grid',
     gridTemplateColumns: 'minmax(auto,255px) 1fr',
-    gridColumnGap: '30px',
+    [theme.breakpoints.down('lg')]: {
+      gridTemplateColumns: ' 1fr',
+    },
+    gridGap: '30px',
   }),
 }));
-const CatalogGrid = styled(Grid)<CatalogType>(({ theme, type }) => ({
+const CatalogGrid = styled(Box)<CatalogType>(({ theme, type }) => ({
+  display: 'grid',
   alignSelf: 'flex-start',
   position: 'relative',
+  gridGap: theme.spacing(12),
+  gridTemplateColumns: `repeat(auto-fill, minmax(259px,auto))`,
+  justifyContent: 'space-evenly',
+  alignItems: 'center',
+  [theme.breakpoints.down('lg')]: {
+    // gridTemplateColumns: `repeat(3,259.5px)`,
+  },
   ...(type === 'filter' && {
     gritTemplate: '2/12',
   }),
 }));
-const CatalogGridItem = styled(Grid)(({ theme }) => ({}));
+const CatalogGridItem = styled(Box)(({ theme }) => ({}));
 const CatalogBtnMore = styled(Button)(({ theme }) => ({
   display: 'flex',
   margin: '0 auto',
@@ -131,6 +151,7 @@ type CatalogType = {
 };
 
 const Catalog: React.FC<Props> = ({ type, category }) => {
+  const theme = useTheme();
   const [getAllProductCard, getAllProductCardData] = useLazyQuery(
     GET_ALL_PRODUCTS_CARD,
   );
@@ -221,8 +242,14 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
 
       <CatalogBox>
         {type === 'full' && (
-          <CatalogHead>
-            <CatalogTitle variant="h1">
+          <CatalogHead type={type}>
+            <CatalogTitle
+              variant="h1"
+              sx={{
+                [theme.breakpoints.down('md')]: {
+                  marginBottom: theme.spacing(10),
+                },
+              }}>
               {
                 getAllProductCardData?.data?.getAllProductCard?.pageInfo
                   ?.category?.name
@@ -232,7 +259,14 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
           </CatalogHead>
         )}
         {type === 'filter' && (
-          <CatalogHead sx={{ mb: 15 }}>
+          <CatalogHead
+            type={type}
+            sx={{
+              mb: 15,
+              [theme.breakpoints.down('lg')]: {
+                mb: 10,
+              },
+            }}>
             <CatalogTitle variant="h3">Фильтр</CatalogTitle>
             <CatalogSort data={filterInlineData} onChangeSort={onChangeSort} />
           </CatalogHead>
@@ -251,7 +285,7 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
             />
           )}
 
-          <CatalogGrid container spacing={13} type={type}>
+          <CatalogGrid type={type}>
             {/* {getAllProductCardData.loading && <LoadingOverlay />} */}
             {allProductData.map((product, i) => {
               let inCart =
@@ -264,22 +298,20 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
                   style={{ transformOrigin: '0 0 0' }}
                   key={product._id}
                   timeout={400}>
-                  <CatalogGridItem item xs={type === 'filter' ? 4 : 3}>
+                  <CatalogGridItem>
                     <Product data={product} inCart={inCart} />
                   </CatalogGridItem>
                 </Grow>
               );
             })}
-            {!getAllProductCardData.loading &&
-              getAllProductCardData?.data?.getAllProductCard?.pageInfo
-                ?.hasNextPage && (
-                <CatalogGridItem item xs={12} sx={{ mb: 25 }}>
-                  <CatalogBtnMore variant="outlined" onClick={onLoadMore}>
-                    Загрузить еще
-                  </CatalogBtnMore>
-                </CatalogGridItem>
-              )}
           </CatalogGrid>
+          {!getAllProductCardData.loading &&
+            getAllProductCardData?.data?.getAllProductCard?.pageInfo
+              ?.hasNextPage && (
+              <CatalogBtnMore variant="outlined" onClick={onLoadMore}>
+                Загрузить еще
+              </CatalogBtnMore>
+            )}
         </CatalogBody>
       </CatalogBox>
     </>

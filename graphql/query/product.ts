@@ -91,6 +91,7 @@ export const GET_PRODUCT = gql`
       Category {
         _id
         name
+        slug
       }
     }
   }
@@ -153,6 +154,10 @@ export const GET_SEARCH_PRODUCTS = gql`
       discountPrice
       images {
         name
+      }
+      Category {
+        name
+        slug
       }
       SpecOptions {
         edges {

@@ -40,7 +40,7 @@ const TableHeadCustom = styled(TableHead)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   borderRadius: '5px',
   '& .MuiTableCell-root ': {
-    padding: `${theme.spacing(6)} ${theme.spacing(10)} !important`,
+    padding: `${theme.spacing(6)} ${theme.spacing(0)} !important`,
     textAlign: 'center',
     '&:first-child': {
       borderRadius: '5px 0 0 5px',
@@ -55,9 +55,12 @@ const TableHeadCustom = styled(TableHead)(({ theme }) => ({
 const TableRowCustom = styled(TableRow)(({ theme }) => ({}));
 const TableCellCustom = styled(TableCell)(({ theme }) => ({
   width: '1px',
-  whiteSpace: 'nowrap',
+  // whiteSpace: 'nowrap',
   textAlign: 'center',
   padding: `${theme.spacing(20)} 0 ${theme.spacing(17)} 0`,
+  [theme.breakpoints.down('xs')]: {
+    padding: `${theme.spacing(15)} 0 ${theme.spacing(15)} 0`,
+  },
 }));
 const TableBodyCustom = styled(TableBody)(({ theme }) => ({
   '& .MuiTableRow-root:nth-child(odd)': {
@@ -94,6 +97,9 @@ const CartItemImage = styled('img')(({ theme }) => ({
   borderRadius: '10px',
   objectFit: 'cover',
   marginRight: theme.spacing(10),
+  [theme.breakpoints.down('sm')]: {
+    display: 'none',
+  },
 }));
 const CartItemContent = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -105,6 +111,9 @@ const CartItemTitle = styled(LinkMUI)(({ theme }) => ({
   color: theme.palette.common.black,
   flexBasis: '100%',
   marginBottom: theme.spacing(2.5),
+  [theme.breakpoints.down('xs')]: {
+    ...theme.typography.t3b,
+  },
 }));
 const CartItemStock = styled(Typography)(({ theme }) => ({
   display: 'flex',
@@ -207,18 +216,26 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
         <TableCustom aria-label="simple table">
           <TableHeadCustom>
             <TableRowCustom>
-              <TableCellCustom width="25%" sx={{ minWidth: 100 }}>
+              <TableCellCustom
+                sx={{
+                  width: '100%',
+                  '&.MuiTableCell-root': { paddingLeft: '20px !important' },
+                }}>
                 Товар
               </TableCellCustom>
-              <TableCellCustom align="right" width="25%">
+              <TableCellCustom
+                align="right"
+                sx={{ maxWidth: theme.spacing(55) }}>
                 Количество
               </TableCellCustom>
-              <TableCellCustom align="right" width="25%">
+              <TableCellCustom
+                align="right"
+                sx={{ maxWidth: theme.spacing(50) }}>
                 Сумма
               </TableCellCustom>
-              <TableCellCustom align="right" width="25%">
-                Удалить все
-              </TableCellCustom>
+              <TableCellCustom
+                align="right"
+                sx={{ maxWidth: 10 }}></TableCellCustom>
             </TableRowCustom>
           </TableHeadCustom>
           <TableBodyCustom>
@@ -231,8 +248,8 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                 );
                 return (
                   <>
-                    <TableRowCustom key={product._id} sx={{}}>
-                      <TableCellCustom scope="row" width="25%">
+                    <TableRowCustom key={product._id} sx={{ width: '100%' }}>
+                      <TableCellCustom scope="row">
                         <CartItem>
                           <CartItemImage
                             src={`/static/products/${product.images[0].name}`}
@@ -254,8 +271,21 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                           </CartItemContent>
                         </CartItem>
                       </TableCellCustom>
-                      <TableCellCustom align="right" width="25%">
-                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                      <TableCellCustom
+                        align="right"
+                        sx={{
+                          // maxWidth: theme.spacing(40),
+                          px: 10,
+                          [theme.breakpoints.down('sm')]: {
+                            px: 5,
+                          },
+                        }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            minWidth: '100px',
+                          }}>
                           <QuantityInput
                             onChangeNumber={(value) => {
                               console.log('QUENTIY', value);
@@ -265,8 +295,22 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                           />
                         </Box>
                       </TableCellCustom>
-                      <TableCellCustom align="right" width="25%">
-                        <Typography variant="h4b">
+                      <TableCellCustom
+                        align="right"
+                        sx={{
+                          px: 10,
+                          [theme.breakpoints.down('sm')]: {
+                            px: 5,
+                          },
+                        }}>
+                        <Typography
+                          variant="h4b"
+                          sx={{
+                            whiteSpace: 'nowrap',
+                            [theme.breakpoints.down('xs')]: {
+                              ...theme.typography.t3b,
+                            },
+                          }}>
                           {currencyFormat(
                             cartProduct.totalPrice * cartProduct.pieces,
                             // cartProductPrice.find(
@@ -275,7 +319,14 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                           )}
                         </Typography>
                       </TableCellCustom>
-                      <TableCellCustom align="right" width="25%">
+                      <TableCellCustom
+                        align="right"
+                        sx={{
+                          px: 10,
+                          [theme.breakpoints.down('sm')]: {
+                            px: 5,
+                          },
+                        }}>
                         <ButtonIcon
                           onClick={() => {
                             deleteInCart(cartProduct._id);
@@ -294,8 +345,23 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                       </TableCellCustom>
                     </TableRowCustom>
                     <TableRowCustom>
-                      <TableCellCustom colSpan={4} sx={{ p: 0 }}>
-                        <SpecBox sx={{ px: 5, py: 8, mb: 20 }}>
+                      <TableCellCustom
+                        colSpan={4}
+                        sx={{
+                          p: 0,
+                          [theme.breakpoints.down('sm')]: {
+                            p: 0,
+                          },
+                        }}>
+                        <SpecBox
+                          sx={{
+                            px: 5,
+                            py: 8,
+                            mb: 20,
+                            [theme.breakpoints.down('sm')]: {
+                              mb: 15,
+                            },
+                          }}>
                           <SpecList>
                             {groupBy(product?.AttributeOptions?.edges).map(
                               (attr, attrIndex) => {
@@ -307,6 +373,11 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                                 return (
                                   <SpecItem key={attr._id}>
                                     <SpecSelect
+                                      sx={{
+                                        textOverflow: 'ellipsis',
+                                        overflow: 'hidden',
+                                        whiteSpace: 'pre',
+                                      }}
                                       typeSelect="rounded"
                                       beforeText={`${attr.name}:`}
                                       defaultValue={defaultOption.attrOpt}

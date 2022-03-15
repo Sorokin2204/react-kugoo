@@ -38,6 +38,9 @@ const CartGrid = styled(Box)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: '1fr 285px',
   columnGap: theme.spacing(30),
+  [theme.breakpoints.down('md')]: {
+    gridTemplateColumns: '1fr ',
+  },
 }));
 const CartContent = styled(Box)(({ theme }) => ({}));
 
@@ -96,7 +99,12 @@ const CartPage: React.FC<Props> = ({}) => {
   return (
     <>
       <Container>
-        <BreadcrumbsCustom />
+        <BreadcrumbsCustom
+          data={[
+            { url: '/', name: 'Главная' },
+            { url: '/cart', name: 'Корзина' },
+          ]}
+        />
         <Typography
           variant="h1"
           sx={{ textTransform: 'uppercase', mb: 2.5, mt: 25 }}>

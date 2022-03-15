@@ -106,8 +106,25 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
     <ProductCard
       sx={{ cursor: 'pointer' }}
       onClick={() => router.push(`/catalog/${data.slug}`)}>
-      <Header sx={{ '& span': { display: 'block !important' } }}>
+      <Header
+        sx={{
+          '& .lazy-load-image-background': {
+            display: 'block !important',
+
+            margin: '0 auto',
+          },
+        }}>
         <LazyLoadImage
+          style={{
+            img: {
+              display: 'block',
+              background: '#F0F1F5',
+              maxWidth: '100% ',
+              width: '100% ',
+              height: 'auto',
+              margin: '0 auto',
+            },
+          }}
           effect="blur"
           alt={data.slug}
           height={'182px'}
@@ -186,7 +203,15 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
           iconColor={theme.palette.primary.main}
           sizeBtn={theme.spacing(20)}></BtnFavorite> */}
 
-        <BtnBuy variant="containedSmall">Купить в 1 клик</BtnBuy>
+        <BtnBuy
+          variant="containedSmall"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleAddToCart(e, data._id, data.price);
+            router.push('/cart');
+          }}>
+          Купить в 1 клик
+        </BtnBuy>
       </Actions>
     </ProductCard>
   );
@@ -197,7 +222,8 @@ const ProductCard = styled(Card)(({ theme }) => ({
   border: `1.5px solid #EAEBED`,
   boxShadow: 'none',
   backgroundColor: theme.palette.common.white,
-  maxWidth: '255px',
+  maxWidth: '300px',
+  width: '100%',
   borderRadius: '10px',
 }));
 const Header = styled(Box)(({ theme }) => ({
@@ -233,6 +259,7 @@ export const SpecItem = styled(Grid)<{ icon: string; iconSize: string }>(
     display: 'flex',
     alignItems: 'center',
     whiteSpace: 'nowrap',
+    overflow: 'hidden',
     '&::before': {
       content: '""',
       display: 'block',

@@ -43,7 +43,7 @@ const FilterInline: React.FC<Props> = ({ data, onChangeSort }) => {
           return (
             <FilterFormControlLabel
               margin={theme.spacing(5)}
-              sx={{ px: 10, py: 5, m: 0, ml: 5 }}
+              sx={{ px: 10, py: 5, m: 0 }}
               key={i}
               value={el.value}
               control={<Radio />}
@@ -86,6 +86,7 @@ const FilterFormControlLabel = styled(FormControlLabel)<{
   }),
 }));
 const FilterRadioGroup = styled(RadioGroup)(({ theme }) => ({
-  display: 'flex',
+  display: 'inline-flex',
+  gridGap: '10px',
   flexDirection: 'row',
 }));

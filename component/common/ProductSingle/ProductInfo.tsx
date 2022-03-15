@@ -44,19 +44,30 @@ const SpecList = styled(Box)(({ theme }) => ({
   display: 'grid',
   justifyContent: 'space-between',
   gridTemplateColumns: 'repeat(2,minmax(auto,475px))',
+  columnGap: theme.spacing(30),
+  [theme.breakpoints.down('smd')]: {
+    gridTemplateColumns: 'repeat(1,minmax(auto,1fr))',
+  },
 }));
 const SpecItem = styled(Box)(({ theme }) => ({
-  display: 'flex',
+  // display: 'flex',
   alignItems: 'center',
-  justifyContent: 'space-between',
-  height: '64px',
+  // justifyContent: 'space-between',
+  minHeight: '64px',
+  padding: '10px 0',
+  display: 'grid',
+  gridTemplateColumns: 'repeat(2,1fr)',
+  columnGap: '10px',
   // paddingBottom: theme.spacing(10),
   borderBottom: `1px solid ${theme.palette.grey[200]}`,
 }));
 const SpecLabel = styled(Typography)(({ theme }) => ({}));
 const SpecValue = styled(Typography)(({ theme }) => ({
-  whiteSpace: 'pre',
+  // whiteSpace: 'pre',
   textAlign: 'right',
+  [theme.breakpoints.down('smd')]: {
+    textAlign: 'left',
+  },
 }));
 const specFullData = [
   { label: 'Масса нетто', value: '22 кг' },

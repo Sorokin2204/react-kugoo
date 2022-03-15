@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Box,
   Checkbox,
@@ -64,10 +64,20 @@ type FilterBlock = {
 const FilterList = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.grey[100],
   borderRadius: '10px',
+  [theme.breakpoints.down('lg')]: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill,minmax(215px,1fr))',
+    gridGap: '20px',
+  },
 }));
-const FilterItem = styled(Grid)(({ theme }) => ({
+const FilterItem = styled(Box)(({ theme }) => ({
   '& + &': {
     marginTop: theme.spacing(14),
+  },
+  [theme.breakpoints.down('lg')]: {
+    '& + &': {
+      marginTop: 0,
+    },
   },
 }));
 const FilterTitle = styled(Typography)(({ theme }) => ({
@@ -94,22 +104,33 @@ const FilterBlock: React.FC<Props> = ({ sx, onChangeFilter }) => {
     }
   }, [data]);
 
+  const filterRef = useRef();
+
+  const [limitCheckbox, setLimitCheckbox] = useState(false);
+
+  useEffect(() => {}, [limitCheckbox]);
   return (
     <FilterList sx={{ p: 10, ...sx }}>
-      {filterData.map((el, i) => (
-        <FilterItem key={i}>
-          <FilterTitle sx={{ mb: 7.5 }} variant="t1b">
-            {el.title}
-          </FilterTitle>
-          {el.type === 'checkbox' && (
-            <FilterCheckbox
-              data={el.data}
-              onChange={(e) => onChangeFilter(e.target.value)}
-            />
-          )}
-          {el.type === 'range' && <FilterRange data={el.data} />}
-        </FilterItem>
-      ))}
+      {filterData.map((el, i) => {
+        return (
+          <FilterItem
+            key={i}
+            ref={(fil) => {
+              // console.log(fil);
+            }}>
+            <FilterTitle sx={{ mb: 7.5 }} variant="t1b">
+              {el.title}
+            </FilterTitle>
+            {el.type === 'checkbox' && (
+              <FilterCheckbox
+                data={el.data}
+                onChange={(e) => onChangeFilter(e.target.value)}
+              />
+            )}
+            {el.type === 'range' && <FilterRange data={el.data} />}
+          </FilterItem>
+        );
+      })}
     </FilterList>
   );
 };

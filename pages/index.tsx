@@ -31,7 +31,7 @@ const Index: NextPage<Props> = ({}) => {
           <AdvSmall></AdvSmall>
         )}
 
-        {/* <Catalog type="full" category="electric-scooters"></Catalog> */}
+        <Catalog type="full" category="electric-scooters"></Catalog>
       </Container>
     </>
   );

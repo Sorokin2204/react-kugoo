@@ -3,6 +3,7 @@ const querySchema = `
 ### CATEGORY
     getCategory(id: String, withAttrOpts: Boolean!,withSpecOpts: Boolean!): Category
     getAllCategory: [Category]
+    checkExistCategory(categorySlug: String): Boolean
 ### PRODUCT
 
 searchProducts(searchText: String): [Product]

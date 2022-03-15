@@ -182,6 +182,11 @@ theme = createTheme(theme, {
       ...theme.typography.h1,
       [theme.breakpoints.down('md')]: {
         ...theme.typography.h2,
+        fontWeight: '600',
+      },
+      [theme.breakpoints.down('sm')]: {
+        ...theme.typography.h3,
+        fontWeight: '600',
       },
     },
     h2: {
@@ -197,6 +202,24 @@ theme = createTheme(theme, {
       },
       [theme.breakpoints.down('smd')]: {
         ...theme.typography.t1bb,
+      },
+    },
+    h4: {
+      ...theme.typography.h4,
+      [theme.breakpoints.down('md')]: {
+        ...theme.typography.h5,
+      },
+    },
+    h4b: {
+      ...theme.typography.h4b,
+      [theme.breakpoints.down('xs')]: {
+        ...theme.typography.t1b,
+      },
+    },
+    t1: {
+      ...theme.typography.t1,
+      [theme.breakpoints.down('md')]: {
+        ...theme.typography.t2,
       },
     },
     t2: {
@@ -259,6 +282,10 @@ theme = createTheme(theme, {
             color: theme.palette.common.white,
             padding: `${theme.spacing(7.5)} ${theme.spacing(12.5)}`,
             ...theme.typography.t2,
+            [theme.breakpoints.down('md')]: {
+              ...theme.typography.t3,
+              padding: `${theme.spacing(5)} ${theme.spacing(5)}`,
+            },
           },
         },
         containedSmall: {
@@ -277,7 +304,8 @@ theme = createTheme(theme, {
             padding: `${theme.spacing(7.5)} ${theme.spacing(12.5)}`,
             ...theme.typography.t2,
             [theme.breakpoints.down('md')]: {
-              padding: `${theme.spacing(5)} ${theme.spacing(12.5)}`,
+              ...theme.typography.t3,
+              padding: `${theme.spacing(5)} ${theme.spacing(5)}`,
             },
           },
         },
@@ -288,6 +316,10 @@ theme = createTheme(theme, {
             color: theme.palette.primary.main,
             padding: `${theme.spacing(7.5)} ${theme.spacing(12.5)}`,
             ...theme.typography.t2,
+            [theme.breakpoints.down('md')]: {
+              ...theme.typography.t3,
+              padding: `${theme.spacing(7.5)} ${theme.spacing(5)}`,
+            },
           },
         },
       },

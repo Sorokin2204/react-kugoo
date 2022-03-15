@@ -18,13 +18,29 @@ const BannerBox = styled(Box)(({ theme }) => ({
   },
   borderRadius: '10px',
   overflow: 'hidden',
-  background: `url(/static/young-scooter.png) no-repeat 100% 0/ contain`,
+  background: `url(/static/young-scooter.png) no-repeat -100% 0/ cover`,
+  [theme.breakpoints.down('md')]: {
+    paddingTop: theme.spacing(27),
+    paddingBottom: theme.spacing(27),
+  },
+  [theme.breakpoints.down('smd')]: {
+    paddingTop: theme.spacing(17),
+    paddingBottom: theme.spacing(17),
+  },
+  [theme.breakpoints.down('sm')]: {
+    paddingTop: theme.spacing(10),
+    paddingBottom: theme.spacing(10),
+  },
 }));
 const BannerTitle = styled(Typography)(({ theme }) => ({
   textTransform: 'uppercase',
   color: theme.palette.common.white,
   position: 'relative',
   zIndex: 2,
+  [theme.breakpoints.down('sm')]: {
+    ...theme.typography.h4,
+    fontWeight: '600',
+  },
 }));
 
 const CatalogBanner: React.FC<Props> = ({ title }) => {

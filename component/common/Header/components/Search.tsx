@@ -22,26 +22,25 @@ const Search: React.FC<Props> = ({}) => {
   const theme = useTheme();
   const [age, setAge] = useState('');
   const [searchText, setSearchText] = useState('');
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  };
-
   const [openSearch, setOpenSearch] = React.useState(false);
 
   const [getSearchProducts, { data, loading, previousData }] =
     useLazyQuery(GET_SEARCH_PRODUCTS);
+  const handleChange = (event) => {
+    setAge(event.target.value);
+  };
+
+  const clearSearch = () => {
+    setSearchText('');
+    // console.log('close');
+  };
 
   const handleClose = () => {
     setOpenSearch(false);
   };
 
-  useEffect(() => {
-    let timer = setTimeout(() => {
-      console.log(searchText);
-      if (!searchText) {
-        setOpenSearch(false);
-        return;
-      }
+  const fetchSearchProduct = () => {
+    if (searchText) {
       getSearchProducts({
         variables: {
           searchText: searchText,
@@ -52,6 +51,15 @@ const Search: React.FC<Props> = ({}) => {
           console.log('search data', dataS.data.searchProducts);
         })
         .catch((err) => console.log(JSON.stringify(err, null, 2)));
+    } else {
+      setOpenSearch(false);
+    }
+  };
+
+  useEffect(() => {
+    let timer = setTimeout(() => {
+      console.log('sEARC', searchText);
+      fetchSearchProduct();
     }, 500);
 
     return () => clearTimeout(timer);
@@ -86,9 +94,11 @@ const Search: React.FC<Props> = ({}) => {
             <MenuItem value={'Brest'}>Брест</MenuItem>
           </SearchSelect>
           <SearchInput
+            value={searchText}
             onChange={(e) => {
               setSearchText(e.target.value);
             }}
+            // onFocus={() => fetchSearchProduct()}
             sx={{ fontSize: theme.typography.t3 }}
             placeholder="Искать самокат KUGOO"
           />
@@ -104,7 +114,9 @@ const Search: React.FC<Props> = ({}) => {
           />
         </SearchButton>
       </SearchBox>
-      {openSearch && <SearchPopover data={dataSearch} />}
+      {openSearch && (
+        <SearchPopover data={dataSearch} clearSearch={clearSearch} />
+      )}
     </SearchWrapper>
   );
 };

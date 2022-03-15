@@ -50,9 +50,24 @@ const SelectStyled = styled(Select)<Props>(
     display: 'flex',
     alignItems: 'center',
     ...(typeSelect === 'rounded' && {
+      maxWidth: '300px',
       borderRadius: '300px',
       backgroundColor: `${theme.palette.common.white}`,
       color: theme.palette.text.primary,
+      '&::after': {
+        content: '""',
+        display: 'block',
+        backgroundColor: theme.palette.common.white,
+        width: '30px',
+        height: '30px',
+        position: 'absolute',
+        right: '2px',
+        top: '54%',
+        transform: 'translateY(-50%)',
+        zIndex: 1,
+        borderRadius: '300px',
+        pointerEvents: 'none',
+      },
     }),
     '& .MuiOutlinedInput-notchedOutline': {
       border: `1.5px solid ${theme.palette.primary.main} !important`,
@@ -73,7 +88,7 @@ const SelectStyled = styled(Select)<Props>(
         width: '9px',
         height: '5px',
         maskSize: 'contain',
-
+        zIndex: 10,
         backgroundColor: theme.palette.primary.main,
         userSelect: 'none',
         pointerEvents: 'none',

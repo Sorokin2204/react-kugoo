@@ -64,3 +64,9 @@ export const GET_ALL_CATEGORY = gql`
     }
   }
 `;
+
+export const CHECK_EXIST_CATEGORY = gql`
+  query ($categorySlug: String) {
+    checkExistCategory(categorySlug: $categorySlug)
+  }
+`;

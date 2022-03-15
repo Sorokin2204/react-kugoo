@@ -10,6 +10,7 @@ type ButtonIconStyleProps = {
   sizeBtn: string;
   iconColor?: string;
   variant?: 'border' | 'fill' | 'text';
+  reverse?: boolean;
 };
 
 type ButtonIconProps = IconButtonProps & ButtonIconStyleProps;
@@ -26,6 +27,7 @@ const ButtonIconStyle = styled(IconButton)<ButtonIconStyleProps>(
     children,
     active = false,
     iconActive,
+    reverse = false,
   }) => ({
     ...(children
       ? {
@@ -35,8 +37,7 @@ const ButtonIconStyle = styled(IconButton)<ButtonIconStyleProps>(
           flexDirection: 'row-reverse',
         }
       : { width: sizeBtn, height: sizeBtn, borderRadius: '50%' }),
-
-    '&::after': {
+    [reverse ? '&::before' : '&::after']: {
       display: 'block',
       content: '""',
       width: iconW,
@@ -49,7 +50,7 @@ const ButtonIconStyle = styled(IconButton)<ButtonIconStyleProps>(
       maskSize: 'contain',
       backgroundColor: iconColor ? iconColor : theme.palette.common.black,
       ...(children && {
-        marginRight: theme.spacing(5),
+        [reverse ? 'marginLeft' : 'marginRight']: theme.spacing(5),
       }),
     },
     ...(variant === 'border' && {

@@ -119,5 +119,7 @@ const SortBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
 }));
-const SortTitle = styled(Typography)(({ theme }) => ({}));
+const SortTitle = styled(Typography)(({ theme }) => ({
+  marginRight: '10px',
+}));
 const SortSelect = styled(Select)(({ theme }) => ({}));

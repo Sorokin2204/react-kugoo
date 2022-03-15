@@ -24,13 +24,22 @@ const productQuery = {
         {
           $match: { name: { $regex: searchText, $options: 'i' } },
         },
+        {
+          $lookup: {
+            from: Category.collection.name,
+            localField: 'Category',
+            foreignField: '_id',
+            as: 'Category',
+          },
+        },
       ],
       [{ $limit: 5 }],
       [],
     );
+    console.log(allProduct[0].data.Category);
     const allProductDto = allProduct[0].data.map((product) => ({
       ...product,
-      Category: { _id: product.Category },
+      Category: product.Category[0],
       SpecOptions: {
         edges: product.SpecOptions.map((specOpt) => ({
           node: {
@@ -184,6 +193,14 @@ const productQuery = {
       },
       {
         $lookup: {
+          from: Category.collection.name,
+          localField: 'Category',
+          foreignField: '_id',
+          as: 'Category',
+        },
+      },
+      {
+        $lookup: {
           from: Product_AttributeOption.collection.name,
           localField: '_id',
           foreignField: 'Product',
@@ -258,10 +275,9 @@ const productQuery = {
         },
       },
     ]);
-
     const productData = {
       ...findProduct[0],
-      Category: { _id: findProduct[0].Category },
+      Category: findProduct[0].Category[0],
       SpecOptions: {
         edges: findProduct[0].SpecOptions.map((specOpt) => ({
           node: {

@@ -14,7 +14,16 @@ type Props = {
 };
 const TotalConfirm = styled(Box)(({ theme }) => ({}));
 
-const CartSidebarBox = styled(Box)(({ theme }) => ({}));
+const CartSidebarBox = styled(Box)(({ theme }) => ({
+  maxWidth: '285px',
+  width: '100%',
+  [theme.breakpoints.down('md')]: {
+    justifySelf: 'flex-end',
+  },
+  [theme.breakpoints.down('xs')]: {
+    maxWidth: 'none',
+  },
+}));
 
 const Total = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,

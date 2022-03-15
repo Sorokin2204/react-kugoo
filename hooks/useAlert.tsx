@@ -34,6 +34,9 @@ export const withSnackbar = (WrappedComponent) => {
       <>
         <WrappedComponent {...props} snackbarShowMessage={showMessage} />
         <Snackbar
+          sx={{
+            zIndex: 100000,
+          }}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'right',
