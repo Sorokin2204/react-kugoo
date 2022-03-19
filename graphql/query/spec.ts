@@ -8,6 +8,7 @@ export const GET_SPEC = gql`
       slug
       type
       SpecOptions {
+        _id
         name
         slug
       }

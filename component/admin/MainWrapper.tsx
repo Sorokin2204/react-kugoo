@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -17,6 +17,11 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
+import { adminMobileNavData } from '../../data/adminMobileNavData';
+import { useRouter } from 'next/router';
+import CategoryModal from './ProductAdd/CategoryModal';
+import AttributeModal from './ProductAdd/AttributeModal';
+import SpecModal from './ProductAdd/SpecModal';
 
 const drawerWidth = 240;
 
@@ -72,8 +77,12 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 type Props = {};
 
 const MainWrapper: React.FC<Props> = ({ children }) => {
+  const router = useRouter();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const [openCategory, setOpenCategory] = useState<boolean>(false);
+  const [openAttribute, setOpenAttribute] = useState<boolean>(false);
+  const [openSpec, setOpenSpec] = useState<boolean>(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -83,6 +92,9 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
     setOpen(false);
   };
 
+  const handleSwithCategory = () => setOpenCategory(!openCategory);
+  const handleSwithAttribute = () => setOpenAttribute(!openAttribute);
+  const handleSwithSpec = () => setOpenSpec(!openSpec);
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -115,35 +127,49 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
         open={open}>
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? (
-              <ChevronLeftIcon />
-            ) : (
-              <ChevronRightIcon />
-            )}
+            <ChevronLeftIcon />
           </IconButton>
         </DrawerHeader>
         <Divider />
         <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
+          {adminMobileNavData.map((adminItem) => (
+            <>
+              <ListItem
+                button
+                key={adminItem.name}
+                onClick={() => {
+                  if (adminItem.type === 'page') {
+                    router.push(`/admin/${adminItem.slug}`);
+                  }
+                  if (adminItem.type === 'modal') {
+                    switch (adminItem.slug) {
+                      case 'attributes':
+                        handleSwithAttribute();
+                        break;
+                      case 'specs':
+                        handleSwithSpec();
+                        break;
+                      case 'categories':
+                        handleSwithCategory();
+                        break;
+
+                      default:
+                        break;
+                    }
+                  }
+                }}>
+                <ListItemIcon>{adminItem.icon}</ListItemIcon>
+                <ListItemText primary={adminItem.name} />
+              </ListItem>
+            </>
           ))}
         </List>
-        <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
-        </List>
+        <CategoryModal open={openCategory} handleClose={handleSwithCategory} />
+        <AttributeModal
+          open={openAttribute}
+          handleClose={handleSwithAttribute}
+        />
+        <SpecModal open={openSpec} handleClose={handleSwithSpec} />
       </Drawer>
       <Main open={open}>
         <DrawerHeader />

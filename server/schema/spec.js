@@ -61,10 +61,12 @@ type SpecExtraText {
 }
 
 input SpecInput {
+  _id: ID
    ${specFields}
 }
 
 input SpecOptionInput {
+  _id: ID
     ${specOptionFields}
 }
 

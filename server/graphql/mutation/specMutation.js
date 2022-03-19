@@ -1,4 +1,9 @@
-const { Spec, SpecOption, SpecExtraText } = require('../../model');
+const {
+  Spec,
+  SpecOption,
+  SpecExtraText,
+  Product_SpecOption,
+} = require('../../model');
 
 const specMutation = {
   createSpec: async ({ spec, specOpts, specExtraAfter, specExtraBefore }) => {
@@ -46,6 +51,17 @@ const specMutation = {
     await SpecOption.deleteMany({ Spec: specId });
     await SpecExtraText.deleteMany({ Spec: specId });
     return;
+  },
+  updateSpec: async ({ newOpts, updOpts, deleteIdOpts, updSpec }) => {
+    await Spec.updateOne({ _id: updSpec._id }, { ...updSpec });
+    await SpecOption.insertMany(
+      newOpts.map((newOpt) => ({ ...newOpt, Spec: updSpec._id })),
+    );
+    for (uptOpt of updOpts) {
+      await SpecOption.updateOne({ _id: uptOpt._id }, uptOpt);
+    }
+    await Product_SpecOption.deleteMany({ SpecOption: deleteIdOpts });
+    await SpecOption.deleteMany({ _id: deleteIdOpts });
   },
 };
 module.exports = { specMutation };

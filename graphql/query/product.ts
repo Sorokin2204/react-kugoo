@@ -9,6 +9,10 @@ export const GET_PRODUCT_ADMIN = gql`
       price
       discountPrice
       vendorCode
+      images {
+        _id
+        name
+      }
       SpecOptions {
         edges {
           node {

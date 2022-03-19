@@ -9,4 +9,5 @@ export const ModalBox = styled(Box)(({ theme }) => ({
   backgroundColor: 'white',
   padding: '20px',
   borderRadius: '5px',
+  height: 'calc(100vh - 40px)',
 }));

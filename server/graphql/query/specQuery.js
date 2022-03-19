@@ -30,10 +30,7 @@ const specQuery = {
 
   getSpec: async ({ specId }) => {
     const spec = await Spec.findById(specId).lean();
-    const specOpts = await SpecOption.find(
-      { Spec: specId, default: true },
-      { Spec: 0 },
-    );
+    const specOpts = await SpecOption.find({ Spec: specId }, { Spec: 0 });
     const specExtraTexts = await SpecExtraText.find(
       { Spec: specId },
       { Spec: 0 },

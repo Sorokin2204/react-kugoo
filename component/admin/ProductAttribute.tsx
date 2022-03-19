@@ -54,7 +54,7 @@ const ProductAttrLabel = styled(FormControlLabel)<{
   marginTop: '10px',
   '& .MuiFormControlLabel-label': {
     display: 'flex',
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
   },
@@ -156,6 +156,7 @@ const ProductAttribute: React.FC<Props> = ({
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
+                      marginLeft: 'auto',
                     }}>
                     <Typography
                       variant="body1"
@@ -187,7 +188,7 @@ const ProductAttribute: React.FC<Props> = ({
                   </Box>
 
                   <IconButton
-                    sx={{ p: 0 }}
+                    sx={{ p: 0, ml: 1 }}
                     onClick={() => handleEditOptionClick(opt)}>
                     <Edit />
                   </IconButton>

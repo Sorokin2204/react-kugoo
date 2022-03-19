@@ -5,3 +5,8 @@ export const CREATE_PRODUCT = gql`
     createProduct(product: $product)
   }
 `;
+export const UPDATE_PRODUCT = gql`
+  mutation ($product: ProductInput) {
+    updateProduct(product: $product)
+  }
+`;

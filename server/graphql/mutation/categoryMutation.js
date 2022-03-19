@@ -37,18 +37,31 @@ const categoryMutation = {
     return;
   },
 
-  //   changeAttributeInCategory: async ({ categoryId, attributeIds }) => {
-  //     const promisePosts = [];
-  //     attributeIds.map((attrId) => {
-  //       promisePosts.push(
-  //         fetchFakeServer('/category-attribute', 'POST', { categoryId, attrId }),
-  //       );
-  //     });
-  //     Promise.all(promisePosts).then((data) => {
-  //       console.log('All posts completed');
-  //       console.log(data);
-  //       return false;
-  //     });
-  //   },
+  updateCategory: async ({
+    updCategory,
+    deleteIdSpecs,
+    newIdSpecs,
+    deleteIdAttrs,
+    newIdAttrs,
+  }) => {
+    await Category.updateOne({ _id: updCategory._id }, updCategory);
+    await Category_Attribute.insertMany(
+      newIdAttrs.map((newAttr) => ({
+        Category: updCategory._id,
+        Attribute: newAttr,
+      })),
+    );
+    await Category_Spec.insertMany(
+      newIdSpecs.map((newSpec) => ({
+        Category: updCategory._id,
+        Spec: newSpec,
+      })),
+    );
+    console.log('updCategory', updCategory);
+    console.log('deleteIdOpts', deleteIdSpecs);
+    console.log('newIdOpts', newIdSpecs);
+    console.log('deleteIdOpts', deleteIdAttrs);
+    console.log('newIdOpts', newIdAttrs);
+  },
 };
 module.exports = { categoryMutation };

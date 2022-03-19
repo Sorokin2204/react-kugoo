@@ -24,7 +24,11 @@ import {
 } from '@mui/material';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { CREATE_SPEC, DELETE_SPEC } from '../../../graphql/mutation/spec';
+import {
+  CREATE_SPEC,
+  DELETE_SPEC,
+  UPDATE_SPEC,
+} from '../../../graphql/mutation/spec';
 import { GET_ALL_SPEC, GET_SPEC } from '../../../graphql/query/spec';
 import { ModalBox } from '../ModalBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -88,7 +92,9 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
     },
   });
   const [activeSpec, setActiveSpec] = useState(null);
+
   const [newSpec] = useMutation(CREATE_SPEC);
+  const [updateSpec] = useMutation(UPDATE_SPEC);
   const [typingNameCat, setTypingNameCat] = useState('');
   const [isNumber, setIsNumber] = useState(false);
   const [disabledSlugCat, setDisabledSlugCat] = useState(false);
@@ -132,6 +138,9 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
       })
         .then((resault) => {
           const data = resault.data.getSpec;
+          setValue('spec._id', data._id, {
+            shouldValidate: true,
+          });
           setValue('spec.name', data.name, {
             shouldValidate: true,
           });
@@ -162,6 +171,7 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
               shouldValidate: true,
             },
           );
+          console.log(data.SpecOptions);
         })
         .catch((err) => {
           console.log(err);
@@ -175,36 +185,72 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
 
   const onSubmit = (data: IFormType) => {
     console.log('Submit data ', data);
-
-    newSpec({
-      variables: {
-        spec: data.spec,
-        specOpts: data?.specOption && data?.specOption,
-        specExtraAfter:
-          data?.specExtraTextAfter &&
-          data?.specExtraTextAfter?.map((el) => ({
-            ...el,
-            type: 'after',
-          })),
-        specExtraBefore:
-          data?.specExtraTextBefore &&
-          data?.specExtraTextBefore?.map((el) => ({
-            ...el,
-            type: 'before',
-          })),
-      },
-    })
-      .then(() => {
-        reset();
-        console.log('SUCCESS SUBMIT');
-        allSpecRefetch();
-      })
-      .catch((err) => {
-        console.log('ERROR SUBMIT');
-        console.log(err.message);
-
-        console.log(JSON.stringify(err, null, 2));
+    if (activeSpec) {
+      let newSpecArr = [];
+      let updateSpecArr = [];
+      let deleteSpecArr = [];
+      data.specOption.map((specOpt) => {
+        if (specOpt.isDelete && !specOpt.isNew) deleteSpecArr.push(specOpt._id);
+        if (!specOpt.isDelete && specOpt.newSlug && specOpt.newName)
+          updateSpecArr.push({
+            _id: specOpt._id,
+            name: specOpt.newName,
+            slug: specOpt.newSlug,
+          });
+        if (!specOpt.isDelete && specOpt.isNew)
+          newSpecArr.push({
+            name: specOpt.name,
+            slug: specOpt.slug,
+          });
       });
+      console.log('newSpecArr', newSpecArr);
+      console.log('updateSpecArr', updateSpecArr);
+      console.log('deleteSpecArr', deleteSpecArr);
+      updateSpec({
+        variables: {
+          updSpec: data.spec,
+          newOpts: newSpecArr,
+          updOpts: updateSpecArr,
+          deleteIdOpts: deleteSpecArr,
+        },
+      })
+        .then((dataSucc) => {
+          allSpecRefetch();
+          setActiveSpec(null);
+          reset();
+        })
+        .catch((err) => console.log(JSON.stringify(err, null, 2)));
+    } else {
+      newSpec({
+        variables: {
+          spec: data.spec,
+          specOpts: data?.specOption && data?.specOption,
+          specExtraAfter:
+            data?.specExtraTextAfter &&
+            data?.specExtraTextAfter?.map((el) => ({
+              ...el,
+              type: 'after',
+            })),
+          specExtraBefore:
+            data?.specExtraTextBefore &&
+            data?.specExtraTextBefore?.map((el) => ({
+              ...el,
+              type: 'before',
+            })),
+        },
+      })
+        .then(() => {
+          reset();
+          console.log('SUCCESS SUBMIT');
+          allSpecRefetch();
+        })
+        .catch((err) => {
+          console.log('ERROR SUBMIT');
+          console.log(err.message);
+
+          console.log(JSON.stringify(err, null, 2));
+        });
+    }
   };
 
   useEffect(() => {
@@ -235,12 +281,21 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
   return (
     <>
       <Modal open={open} onClose={handleClose}>
-        <ModalBox>
+        <ModalBox
+          sx={{
+            display: 'grid',
+            gridTemplateRows: 'min-content 1fr 40px',
+            gridTemplateColumns: '1fr 1fr',
+            gridGap: '20px',
+            overflowY: 'scroll',
+          }}>
           <Box
             sx={{
               display: 'flex',
-              alignItems: 'center',
-              mb: 3,
+              alignItems: 'flex-start',
+              height: 'min-content',
+              gridColumn: '1/2',
+              gridRow: '1/2',
             }}>
             <Typography variant="h6" component="h2" sx={{ display: 'block' }}>
               {activeSpec
@@ -268,128 +323,159 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
               ''
             )}
           </Box>
-
-          <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-            <Controller
-              control={control}
-              name="spec.name"
-              rules={{
-                required: { value: true, message: 'Обязательное поле' },
-              }}
-              render={({ field }) => (
-                <>
-                  <TextField
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    label="Название"
-                    error={errors?.spec?.name?.message !== undefined}
-                    helperText={errors?.spec?.name?.message}
-                    {...field}
-                    {...register('spec.name')}
-                    onChange={(e) => {
-                      setTypingNameCat(e.target.value);
-                      setDisabledSlugCat(true);
-                      field.onChange(e.target.value);
-                    }}
-                  />
-                </>
-              )}
-            />
-            <Controller
-              control={control}
-              name="spec.slug"
-              rules={{
-                required: { value: true, message: 'Обязательное поле' },
-              }}
-              render={({ field }) => (
-                <>
-                  <TextField
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    label="Псевдоним"
-                    error={errors?.spec?.slug?.message !== undefined}
-                    helperText={errors?.spec?.slug?.message}
-                    disabled={disabledSlugCat}
-                    {...field}
-                    {...register('spec.slug')}
-                  />
-                </>
-              )}
-            />
-            <FormControl component="fieldset">
+          <Box
+            sx={{
+              gridColumn: '1/2',
+              gridRow: '2/3',
+            }}>
+            <form
+              autoComplete="off"
+              style={{
+                height: '100%',
+                display: 'grid',
+                gridTemplateRows: 'auto auto 1fr',
+                gridGap: '10px',
+              }}>
               <Controller
                 control={control}
-                name="spec.type"
+                name="spec.name"
+                rules={{
+                  required: { value: true, message: 'Обязательное поле' },
+                }}
                 render={({ field }) => (
                   <>
-                    <RadioGroup
-                      defaultValue="string"
+                    <TextField
+                      sx={{
+                        gridRow: '1/2',
+                        gridColumn: '1/2',
+                      }}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      label="Название"
+                      error={errors?.spec?.name?.message !== undefined}
+                      helperText={errors?.spec?.name?.message}
                       {...field}
+                      {...register('spec.name')}
                       onChange={(e) => {
+                        setTypingNameCat(e.target.value);
+                        setDisabledSlugCat(true);
                         field.onChange(e.target.value);
-                        setIsNumber(e.target.value === 'number');
-                      }}>
-                      <FormControlLabel
-                        value="string"
-                        control={<Radio />}
-                        label="Строка"
-                      />
-                      <FormControlLabel
-                        value="number"
-                        control={<Radio />}
-                        label="Число"
-                      />
-                    </RadioGroup>
+                      }}
+                    />
                   </>
                 )}
-              />{' '}
-            </FormControl>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3,1fr)',
-              }}>
-              <SubTableModal
-                title={'Префикс'}
-                isNumber={isNumber}
-                parent={'specExtraTextBefore'}
-                firstChild={'name'}
-                secondChild={'slug'}
-                fieldArray={specExtraTextBeforeFieldArray}
               />
-              <SubTableModal
-                title={'Значения'}
-                isNumber={isNumber}
-                parent={'specOption'}
-                firstChild={'name'}
-                secondChild={'slug'}
-                fieldArray={specOptionFieldArray}
-                errorForm={{
-                  trigger: trigger,
-                  clearErrors: clearErrors,
-                  watch: watch,
-                  errors: errors,
-                  setError: setError,
+              <Controller
+                control={control}
+                name="spec.slug"
+                rules={{
+                  required: { value: true, message: 'Обязательное поле' },
                 }}
+                render={({ field }) => (
+                  <>
+                    <TextField
+                      sx={{
+                        gridRow: '2/3',
+                        gridColumn: '1/2',
+                      }}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      label="Псевдоним"
+                      error={errors?.spec?.slug?.message !== undefined}
+                      helperText={errors?.spec?.slug?.message}
+                      disabled={disabledSlugCat}
+                      {...field}
+                      {...register('spec.slug')}
+                    />
+                  </>
+                )}
               />
-              <SubTableModal
-                title={'Постфикс'}
-                isNumber={isNumber}
-                parent={'specExtraTextAfter'}
-                firstChild={'name'}
-                secondChild={'slug'}
-                fieldArray={specExtraTextAfterFieldArray}
-              />
-            </Box>
+              <FormControl
+                component="fieldset"
+                sx={{
+                  gridRow: '1/3',
+                  gridColumn: '2/3',
+                }}>
+                <Controller
+                  control={control}
+                  name="spec.type"
+                  render={({ field }) => (
+                    <>
+                      <RadioGroup
+                        defaultValue="string"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          setIsNumber(e.target.value === 'number');
+                        }}>
+                        <FormControlLabel
+                          value="string"
+                          control={<Radio />}
+                          label="Строка"
+                        />
+                        <FormControlLabel
+                          value="number"
+                          control={<Radio />}
+                          label="Число"
+                        />
+                      </RadioGroup>
+                    </>
+                  )}
+                />{' '}
+              </FormControl>
+              <Box
+                sx={{
+                  gridColumn: '1/3',
+                  gridRow: '3/4',
 
-            <Button type="submit" disabled={!isValid}>
-              {activeSpec ? 'Сохранить' : 'Добавить'}
-            </Button>
-          </form>
+                  // display: 'grid',
+                  // gridTemplateColumns: 'repeat(3,1fr)',
+                }}>
+                {/* <SubTableModal
+                  title={'Префикс'}
+                  isNumber={isNumber}
+                  parent={'specExtraTextBefore'}
+                  firstChild={'name'}
+                  secondChild={'slug'}
+                  fieldArray={specExtraTextBeforeFieldArray}
+                /> */}
+                <SubTableModal
+                  title={'Новая опция'}
+                  isNumber={isNumber}
+                  parent={'specOption'}
+                  firstChild={'name'}
+                  secondChild={'slug'}
+                  fieldArray={specOptionFieldArray}
+                  setValue={setValue}
+                  activeSpec={activeSpec}
+                  errorForm={{
+                    trigger: trigger,
+                    clearErrors: clearErrors,
+                    watch: watch,
+                    errors: errors,
+                    setError: setError,
+                  }}
+                />
+                {/* <SubTableModal
+                  title={'Постфикс'}
+                  isNumber={isNumber}
+                  parent={'specExtraTextAfter'}
+                  firstChild={'name'}
+                  secondChild={'slug'}
+                  fieldArray={specExtraTextAfterFieldArray}
+                /> */}
+              </Box>
+            </form>
+          </Box>
           {!allSpecLoading && (
-            <TableContainer component={Paper}>
+            <TableContainer
+              component={Paper}
+              sx={{
+                gridColumn: '2/3',
+                gridRow: '1/3',
+              }}>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -416,6 +502,16 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
               </Table>
             </TableContainer>
           )}
+          <Button
+            onClick={handleSubmit(onSubmit)}
+            variant={'contained'}
+            disabled={!isValid}
+            sx={{
+              gridColumn: '1/3',
+              gridRow: '3/4',
+            }}>
+            {activeSpec ? 'Сохранить' : 'Добавить'}
+          </Button>
         </ModalBox>
       </Modal>
     </>

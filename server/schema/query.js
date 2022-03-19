@@ -5,7 +5,6 @@ const querySchema = `
     getAllCategory: [Category]
     checkExistCategory(categorySlug: String): Boolean
 ### PRODUCT
-
 searchProducts(searchText: String): [Product]
     getProduct(productSlug: String): Product
     getAllProductFromCart(productsFromCart: [ProductsFromCartInput]): [Product]
@@ -20,6 +19,7 @@ getDefaultProductAttributes(productId: String): [AttributeOption]
     getAllSpec: [Spec]
     getSpec(specId: String): Spec
    getAllSpecWithOptions: [Spec]
+ 
   }
 `;
 module.exports = { querySchema };

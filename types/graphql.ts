@@ -50,8 +50,6 @@ export type Product_SpecOption_Edge = {
 
 export type ProductImage = {
   __typename?: 'ProductImage';
-  path?: Maybe<Scalars['String']>;
-  type?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
 };
 

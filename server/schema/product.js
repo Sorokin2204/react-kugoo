@@ -1,4 +1,5 @@
 const productImageFields = `
+_id: ID
     path: String
     type: String
     name: String    
@@ -68,6 +69,7 @@ type ProductsFromCart {
   }
 
     input ProductInput {
+      _id: ID
     ${productFields}
     category: String!
     images: [ProductImageInput]

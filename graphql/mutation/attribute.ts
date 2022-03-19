@@ -18,11 +18,23 @@ export const CREATE_ATTRIBUTE_OPTION_IN_ATTRIBUTE = gql`
   }
 `;
 
+export const UPDATE_ATTRIBUTE = gql`
+  mutation updateAttribute($updAttr: AttributeInput) {
+    updateAttribute(updAttr: $updAttr)
+  }
+`;
+
 export const UPDATE_ATTRIBUTE_OPTION = gql`
   mutation updateAttributeOption(
     $attrOptId: String
     $newAttrOpt: AttributeOptionInput
   ) {
     updateAttributeOption(attrOptId: $attrOptId, newAttrOpt: $newAttrOpt)
+  }
+`;
+
+export const DELETE_ATTRIBUTE_OPTION = gql`
+  mutation deleteAttributeOption($attrOptId: String) {
+    deleteAttributeOption(attrOptId: $attrOptId)
   }
 `;

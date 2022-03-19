@@ -24,6 +24,7 @@ import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import {
   CREATE_CATEGORY,
   DELETE_CATEGORY,
+  UPDATE_CATEGORY,
 } from '../../../graphql/mutation/category';
 import {
   GET_ALL_CATEGORY,
@@ -75,8 +76,11 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
   const [activeCategory, setActiveCategory] = useState(null);
   const [newCategory] = useMutation(CREATE_CATEGORY);
   const [deleteCategory] = useMutation(DELETE_CATEGORY);
+  const [updateCategory] = useMutation(UPDATE_CATEGORY);
   const [autocompleteAttr, setAutocompleteAttr] = useState([]);
+  const [autocompleteAttrDefault, setAutocompleteAttrDefault] = useState([]);
   const [autocompleteSpec, setAutocompleteSpec] = useState([]);
+  const [autocompleteSpecDefault, setAutocompleteSpecDefault] = useState([]);
   const {
     data: allCategoryData,
     loading: allCategoryLoading,
@@ -129,6 +133,7 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
               name: attr.node.name,
             }));
             setAutocompleteAttr(Attribute);
+            setAutocompleteAttrDefault(Attribute);
           } else {
             setAutocompleteAttr([]);
           }
@@ -139,6 +144,7 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
               name: spec.node.name,
             }));
             setAutocompleteSpec(Spec);
+            setAutocompleteSpecDefault(Spec);
           } else {
             setAutocompleteSpec([]);
           }
@@ -173,20 +179,60 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
 
   const onSubmit = (data: IFormType) => {
     console.log('Submit data ', data);
+    if (activeCategory) {
+      let diffDeletedSpecs = _.differenceWith(
+        autocompleteSpecDefault,
+        data.Specs,
+        _.isEqual,
+      );
+      let diffAddedSpecs = _.differenceWith(
+        data.Specs,
+        autocompleteSpecDefault,
+        _.isEqual,
+      );
+      let diffDeletedAttrs = _.differenceWith(
+        autocompleteAttrDefault,
+        data.Attributes,
+        _.isEqual,
+      );
+      let diffAddedAttrs = _.differenceWith(
+        data.Attributes,
+        autocompleteAttrDefault,
+        _.isEqual,
+      );
 
-    newCategory({
-      variables: {
-        cat: { name: data.name, slug: data.slug },
-        catAttrIds: data.Attributes.map((attr) => attr._id),
-        catSpecIds: data.Specs.map((spec) => spec._id),
-      },
-    })
-      .then(() => {
-        allCategoryRefetch();
+      console.log('diffDeletedSpecs', diffDeletedSpecs);
+
+      console.log('diffAddedSpecs', diffAddedSpecs);
+
+      console.log('diffDeletedAttrs', diffDeletedAttrs);
+
+      console.log('diffAddedAttrs', diffAddedAttrs);
+
+      updateCategory({
+        variables: {
+          updCategory: _.omit(activeCategory, '__typename'),
+          deleteIdSpecs: diffDeletedSpecs.map((delSpec) => delSpec._id),
+          newIdSpecs: diffAddedSpecs.map((addedSpec) => addedSpec._id),
+          deleteIdAttrs: diffDeletedAttrs.map((delAttr) => delAttr._id),
+          newIdAttrs: diffAddedAttrs.map((addedAttr) => addedAttr._id),
+        },
+      }).catch((err) => console.log(JSON.stringify(err, null, 2)));
+    } else {
+      newCategory({
+        variables: {
+          cat: { name: data.name, slug: data.slug },
+          catAttrIds: data.Attributes.map((attr) => attr._id),
+          catSpecIds: data.Specs.map((spec) => spec._id),
+        },
       })
-      .catch((err) => console.log(err.message));
+        .then(() => {
+          allCategoryRefetch();
+        })
+        .catch((err) => console.log(err.message));
+    }
 
-    reset();
+    // reset();
   };
 
   const [typingNameCat, setTypingNameCat] = useState('');
@@ -319,13 +365,15 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
                       isOptionEqualToValue={(option, value) =>
                         option._id == value._id
                       }
-                      onChange={(e, data) => {
+                      onChange={(e, data, reason, detail) => {
                         const attrIds = data.map((attr) => ({
                           _id: attr._id,
                           name: attr.name,
                         }));
                         setAutocompleteAttr(attrIds);
                         setValue('Attributes', attrIds);
+                        console.log(reason, detail);
+
                         // field.onChange(attrIds);
                       }}
                       renderOption={(props, option, { selected }) => (

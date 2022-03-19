@@ -148,6 +148,11 @@ var AttributeOptionSchema = new Schema({
     type: Number,
     required: false,
   },
+  isDelete: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
   Attribute: {
     type: Schema.Types.ObjectId,
     required: true,

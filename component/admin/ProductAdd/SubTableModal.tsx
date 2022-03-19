@@ -13,9 +13,17 @@ import {
   Typography,
 } from '@mui/material';
 import { FieldArray } from 'react-hook-form';
-import { Add, Delete } from '@mui/icons-material';
+import {
+  Add,
+  Close,
+  Delete,
+  RestartAltOutlined,
+  Restore,
+  Save,
+} from '@mui/icons-material';
 import slugify from 'slugify';
 import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
+import { createObjectId } from '../../../utils/createObjectId';
 type Props = {
   firstChild: string;
   secondChild: string;
@@ -24,6 +32,7 @@ type Props = {
   isNumber?: boolean;
   parent: string;
   errorForm?: object;
+  activeSpec: object;
 };
 
 const SubTableModal: React.FC<Props> = ({
@@ -33,13 +42,17 @@ const SubTableModal: React.FC<Props> = ({
   fieldArray,
   title,
   isNumber = false,
-
+  activeSpec,
   errorForm,
 }) => {
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [disabledSlug, setDisabledSlug] = useState(false);
-  const fieldArrayMemo = useMemo(() => renderTableRows(), [fieldArray]);
+  const [activeSpecOption, setActiveSpecOption] = useState(null);
+  const fieldArrayMemo = useMemo(
+    () => renderTableRows(),
+    [fieldArray, activeSpecOption],
+  );
 
   const fieldArrayWatch = errorForm?.watch(parent);
   const specType = errorForm?.watch('spec.type');
@@ -65,12 +78,63 @@ const SubTableModal: React.FC<Props> = ({
 
   const addAfterText = () => {
     fieldArray.append({
+      _id: createObjectId(),
       [firstChild]: name,
       [secondChild]: slug,
+      ...(activeSpec && {
+        isNew: true,
+      }),
     });
+    setActiveSpecOption(null);
     setSlug('');
     setName('');
   };
+
+  const addUpdateSpecOpt = () => {
+    const indexUpdSpecOpt = fieldArray.fields.findIndex(
+      (field) => field._id === activeSpecOption._id,
+    );
+    fieldArray.update(indexUpdSpecOpt, {
+      ...activeSpecOption,
+      ...(activeSpecOption.isNew
+        ? { slug, name }
+        : { newName: name, newSlug: slug }),
+    });
+    setActiveSpecOption(null);
+    setName('');
+    setSlug('');
+  };
+
+  const removeSpecOpt = (specId: string) => {
+    setActiveSpecOption(null);
+    setName('');
+    setSlug('');
+    const indexUpdSpecOpt = fieldArray.fields.findIndex(
+      (field) => field._id === specId,
+    );
+    fieldArray.update(indexUpdSpecOpt, {
+      ...fieldArray.fields[indexUpdSpecOpt],
+      isDelete: true,
+    });
+  };
+  const resetSpecOpt = (specId: string) => {
+    setActiveSpecOption(null);
+    setName('');
+    setSlug('');
+    const indexUpdSpecOpt = fieldArray.fields.findIndex(
+      (field) => field._id === specId,
+    );
+    fieldArray.update(indexUpdSpecOpt, {
+      ...fieldArray.fields[indexUpdSpecOpt],
+      isDelete: false,
+    });
+  };
+
+  useEffect(() => {
+    setActiveSpecOption(null);
+    setName('');
+    setSlug('');
+  }, [activeSpec]);
 
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -95,10 +159,50 @@ const SubTableModal: React.FC<Props> = ({
       const isIntError = errorForm?.errors?.[parent] && isNaN(field.name);
       return (
         <>
-          <TableRow key={field.id}>
-            <TableCell align="center">
+          <TableRow
+            key={field.id}
+            onClick={() => {
+              if (field._id !== activeSpecOption?._id && !field.isDelete) {
+                setActiveSpecOption(field);
+                if (field.newName && field.newSlug) {
+                  setName(field.newName);
+                  setSlug(field.newSlug);
+                } else {
+                  setName(field.name);
+                  setSlug(field.slug);
+                }
+              }
+            }}
+            selected={activeSpecOption?._id === field?._id}
+            sx={(theme) => ({
+              ...(field.newName &&
+                field.newSlug && {
+                  backgroundColor: theme.palette.primary.main,
+                  color: theme.palette.common.white,
+                }),
+              ...(field.isNew && {
+                backgroundColor: theme.palette.success.main,
+                color: theme.palette.common.white,
+              }),
+              ...(field.isDelete && {
+                backgroundColor: `${theme.palette.error.main}`,
+                color: theme.palette.common.white,
+              }),
+            })}>
+            <TableCell align="center" sx={{ color: 'inherit' }}>
               <Box sx={{ display: 'inline-block', position: 'relative' }}>
-                {field?.[firstChild]}
+                <Typography
+                  sx={(theme) => ({
+                    ...(field?.['newSlug'] && {
+                      textDecoration: 'line-through',
+                      color: theme.palette.grey[300],
+                    }),
+                  })}
+                  variant="t4">
+                  {field?.[firstChild]}
+                </Typography>
+                {field?.['newSlug'] && <br />}
+                <Typography variant="t4">{field?.['newName']}</Typography>
                 {isIntError && (
                   <ReportGmailerrorredIcon
                     sx={{
@@ -113,21 +217,58 @@ const SubTableModal: React.FC<Props> = ({
                 )}
               </Box>
             </TableCell>
-            <TableCell align="center">{field?.[secondChild]}</TableCell>
-            <TableCell align="center">
-              <IconButton
-                sx={{
-                  p: 0,
-                }}
-                onClick={() => removeAfterText(index)}>
-                <Delete
+            <TableCell align="center" sx={{ color: 'inherit' }}>
+              <Typography
+                sx={(theme) => ({
+                  ...(field?.['newSlug'] && {
+                    textDecoration: 'line-through',
+                    color: theme.palette.grey[300],
+                  }),
+                })}
+                variant="t4">
+                {field?.[secondChild]}
+              </Typography>
+              {field?.['newSlug'] && <br />}
+              <Typography variant="t4">{field?.['newSlug']}</Typography>
+            </TableCell>
+            <TableCell align="center" sx={{ color: 'inherit' }}>
+              {!field.isDelete ? (
+                <IconButton
                   sx={{
-                    ...(isIntError && {
-                      color: 'error.main',
-                    }),
+                    p: 0,
+                    color: 'inherit',
                   }}
-                />
-              </IconButton>
+                  onClick={(e) => {
+                    // removeAfterText(index);
+                    e.stopPropagation();
+                    if (activeSpec) {
+                      console.log('ESXIT SPEC');
+                      removeSpecOpt(field._id);
+                    } else {
+                      console.log('NEW SPEC');
+                    }
+                  }}>
+                  <Delete
+                    sx={{
+                      ...(isIntError && {
+                        color: 'error.main',
+                      }),
+                    }}
+                  />
+                </IconButton>
+              ) : (
+                <IconButton
+                  sx={{
+                    p: 0,
+                    color: 'inherit',
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    resetSpecOpt(field._id);
+                  }}>
+                  <RestartAltOutlined />
+                </IconButton>
+              )}
             </TableCell>
           </TableRow>
         </>
@@ -136,13 +277,47 @@ const SubTableModal: React.FC<Props> = ({
   }
 
   return (
-    <Box>
-      <Typography
-        sx={{ mb: 2, textAlign: 'center', fontWeight: '600' }}
-        variant="body1">
-        {title}
-      </Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto' }}>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateRows: 'auto auto 1fr',
+        gridGap: '10px',
+      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Typography
+          sx={{ textAlign: 'center', fontWeight: '600' }}
+          variant="body1">
+          {activeSpecOption
+            ? `Изменить опцию "${
+                activeSpecOption.newName ?? activeSpecOption.name
+              }"`
+            : title}
+        </Typography>
+        {activeSpecOption ? (
+          <IconButton
+            sx={{ p: 0 }}
+            onClick={() => {
+              setActiveSpecOption(null);
+              setName('');
+              setSlug('');
+            }}>
+            <Close />
+          </IconButton>
+        ) : (
+          ''
+        )}
+      </Box>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr auto',
+          gridGap: '10px',
+        }}>
         <TextField
           size="small"
           InputLabelProps={{
@@ -167,16 +342,31 @@ const SubTableModal: React.FC<Props> = ({
             setSlug(e.target.value);
           }}
         />
-
-        <IconButton
-          sx={{ p: 0 }}
-          onClick={addAfterText}
-          disabled={!name || !slug}>
-          <Add />
-        </IconButton>
+        {activeSpecOption ? (
+          <IconButton
+            sx={{ p: 0 }}
+            onClick={addUpdateSpecOpt}
+            disabled={!name || !slug}>
+            <Save />
+          </IconButton>
+        ) : (
+          <IconButton
+            sx={{ p: 0 }}
+            onClick={addAfterText}
+            disabled={!name || !slug}>
+            <Add />
+          </IconButton>
+        )}
       </Box>
-      <TableContainer component={Paper}>
-        <Table>
+      <TableContainer
+        component={Paper}
+        sx={
+          {
+            // height: 'calc(67vh - 40px)',
+            // overflowY: 'scroll',
+          }
+        }>
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell align="center">Название</TableCell>

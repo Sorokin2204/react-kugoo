@@ -8,6 +8,7 @@ const {
   SpecOption,
   AttributeOption,
   Product_AttributeOption,
+  Category,
 } = require('../../model');
 
 const createProductSpecs = (specs, productId) => {
@@ -52,6 +53,49 @@ const createProductAttributes = (attributes, productId) => {
   });
 };
 
+const updateSpecOptions = async (product) => {
+  const updSpecOpts = product.specs
+    .filter((spec) => spec.specOptId)
+    .map((specMap) => specMap.specOptId);
+  await Product_SpecOption.deleteMany({
+    SpecOption: { $nin: updSpecOpts },
+    Product: product._id,
+  });
+  const updProductSpecOpts = updSpecOpts.map((updSpecOpt) => ({
+    SpecOption: updSpecOpt,
+    Product: product._id,
+  }));
+  for (updProductSpecOpt of updProductSpecOpts) {
+    await Product_SpecOption.updateOne(updProductSpecOpt, updProductSpecOpt, {
+      upsert: true,
+    });
+  }
+};
+const updateAttributeOptions = async (product) => {
+  await Product_AttributeOption.deleteMany({
+    AttributeOption: { $nin: product.attributes.map((attr) => attr._id) },
+    Product: product._id,
+  });
+  const updProductAttributeOpts = product.attributes.map((updAttrOpt) => ({
+    AttributeOption: updAttrOpt._id,
+    Product: product._id,
+    customPrice: updAttrOpt.customPrice,
+    customSublabel: updAttrOpt.customSublabel,
+  }));
+  for (updProductAttributeOpt of updProductAttributeOpts) {
+    await Product_AttributeOption.updateOne(
+      {
+        AttributeOption: updProductAttributeOpt.AttributeOption,
+        Product: updProductAttributeOpt.Product,
+      },
+      updProductAttributeOpt,
+      {
+        upsert: true,
+      },
+    );
+  }
+};
+
 const productMutation = {
   createProduct: async ({ product }) => {
     try {
@@ -74,6 +118,20 @@ const productMutation = {
     }
 
     // console.log(product);
+  },
+  updateProduct: async ({ product }) => {
+    let { attributes, specs, ...productRest } = product;
+    const { category, ...productRestNoCat } = productRest;
+    console.log({ ...productRestNoCat, Category: category });
+    updateSpecOptions(product);
+    updateAttributeOptions(product);
+    // console.log(product.specs.length);
+    // console.log(product.attributes.length);
+    await Product.updateOne(
+      { _id: product._id },
+      { ...productRestNoCat, Category: category },
+    );
+    // console.log(productRest);
   },
 };
 

@@ -1,4 +1,8 @@
-const { AttributeOption, Attribute } = require('../../model');
+const {
+  AttributeOption,
+  Attribute,
+  Product_AttributeOption,
+} = require('../../model');
 
 const attributeMutation = {
   createAttributeWithOptions: async ({ attr, attrOpt }) => {
@@ -36,6 +40,22 @@ const attributeMutation = {
         { _id: attrOptId },
         newAttrOpt,
       );
+    } catch (error) {
+      console.log(error.message);
+    }
+  },
+  deleteAttributeOption: async ({ attrOptId }) => {
+    try {
+      await AttributeOption.updateOne({ _id: attrOptId }, { isDelete: true });
+      await Product_AttributeOption.deleteMany({ AttributeOption: attrOptId });
+      console.log('delete', attrOptId);
+    } catch (error) {
+      console.log(error.message);
+    }
+  },
+  updateAttribute: async ({ updAttr }) => {
+    try {
+      await Attribute.updateOne({ _id: updAttr }, { ...updAttr });
     } catch (error) {
       console.log(error.message);
     }

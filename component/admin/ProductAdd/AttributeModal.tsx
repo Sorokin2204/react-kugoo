@@ -28,6 +28,8 @@ import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import {
   CREATE_ATTRIBUTE_OPTION_IN_ATTRIBUTE,
   CREATE_ATTRIBUTE_WITH_OPTIONS,
+  DELETE_ATTRIBUTE_OPTION,
+  UPDATE_ATTRIBUTE,
   UPDATE_ATTRIBUTE_OPTION,
 } from '../../../graphql/mutation/attribute';
 import {
@@ -35,7 +37,7 @@ import {
   GET_ATTRIBUTE,
 } from '../../../graphql/query/attribute';
 import { ModalBox } from '../ModalBox';
-import { CheckCircle, CheckOutlined, Close } from '@mui/icons-material';
+import { CheckCircle, CheckOutlined, Close, Delete } from '@mui/icons-material';
 import _ from 'lodash';
 import NumberFormat from 'react-number-format';
 import translate from 'translate';
@@ -63,6 +65,8 @@ type IFormType = {
 const AttributeOptionList = styled(Box)(({ theme }) => ({
   display: 'inline-flex',
   gridGap: '10px',
+  flexWrap: 'wrap',
+  width: '100%',
 }));
 
 const AttributOption = styled(Box)<{ active: boolean }>(
@@ -108,7 +112,7 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
     setValue,
     getValues,
   } = useForm<IFormType>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: {
       attributeOption: {
         label: '',
@@ -122,7 +126,6 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
   });
   const [activeAttribute, setActiveAttribute] = useState(null);
   const [activeAttributeOption, setActiveAttributeOption] = useState(null);
-  const [disabledAttrName, setDisabledAttrName] = useState(false);
   const [disabledAttrSlug, setDisabledAttrSlug] = useState(false);
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [newAttribute] = useMutation(CREATE_ATTRIBUTE_WITH_OPTIONS);
@@ -130,6 +133,8 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
     CREATE_ATTRIBUTE_OPTION_IN_ATTRIBUTE,
   );
   const [updateAttributeOption] = useMutation(UPDATE_ATTRIBUTE_OPTION);
+  const [updateAttribute] = useMutation(UPDATE_ATTRIBUTE);
+  const [deleteAttributeOption] = useMutation(DELETE_ATTRIBUTE_OPTION);
 
   // ATTRIBUTE SLUG
   const [disabledSlugField, setDisabledSlugField] = useState(false);
@@ -176,8 +181,6 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
 
   useEffect(() => {
     if (activeAttribute) {
-      setDisabledAttrName(true);
-      setDisabledAttrSlug(true);
       setValue('attribute.name', activeAttribute.name, {
         shouldValidate: true,
       });
@@ -185,8 +188,6 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
         shouldValidate: true,
       });
     } else {
-      setDisabledAttrName(false);
-      setDisabledAttrSlug(false);
       reset();
     }
   }, [activeAttribute]);
@@ -286,7 +287,10 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
   return (
     <>
       <Modal open={open} onClose={handleClose}>
-        <ModalBox>
+        <ModalBox
+          sx={{
+            overflowY: 'scroll',
+          }}>
           <Box
             sx={{
               display: 'flex',
@@ -329,7 +333,6 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
                 render={({ field }) => (
                   <>
                     <TextField
-                      disabled={disabledAttrName}
                       InputLabelProps={{
                         shrink: true,
                       }}
@@ -369,6 +372,29 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
                   </>
                 )}
               />
+              {activeAttribute && (
+                <Button
+                  disabled={errors?.attribute?.name || errors?.attribute?.slug}
+                  onClick={() => {
+                    console.log(getValues('attribute'));
+
+                    updateAttribute({
+                      variables: {
+                        updAttr: {
+                          _id: activeAttribute._id,
+                          name: getValues('attribute.name'),
+                          slug: getValues('attribute.slug'),
+                        },
+                      },
+                    }).then(() => {
+                      allAttributeRefetch();
+                      reset();
+                      setActiveAttribute(null);
+                    });
+                  }}>
+                  Сохранить
+                </Button>
+              )}
             </Box>
             <Box>
               <Box
@@ -386,13 +412,27 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
                     : 'Добавить опцию'}
                 </Typography>
                 {activeAttributeOption !== null ? (
-                  <IconButton
-                    sx={{ p: 0, ml: 1 }}
-                    onClick={() => {
-                      setActiveAttributeOption(null);
-                    }}>
-                    <Close />
-                  </IconButton>
+                  <>
+                    <IconButton
+                      sx={{ p: 0, ml: 1 }}
+                      onClick={() => {
+                        setActiveAttributeOption(null);
+                      }}>
+                      <Close />
+                    </IconButton>
+                    <IconButton
+                      sx={{ p: 0, ml: 1 }}
+                      onClick={() => {
+                        deleteAttributeOption({
+                          variables: { attrOptId: activeAttributeOption._id },
+                        }).then(() => {
+                          setActiveAttributeOption(null);
+                          allAttributeRefetch();
+                        });
+                      }}>
+                      <Delete />
+                    </IconButton>
+                  </>
                 ) : (
                   ''
                 )}
@@ -538,7 +578,7 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell align="left">Название</TableCell>
+                    <TableCell align="center">Название</TableCell>
                     <TableCell align="center">Слаг</TableCell>
                     <TableCell align="center">Опции</TableCell>
                   </TableRow>
@@ -555,11 +595,11 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
                       sx={{
                         '&:last-child td, &:last-child th': { border: 0 },
                       }}>
-                      <TableCell component="th" scope="row">
+                      <TableCell component="th" scope="row" align="left">
                         {attribute.name}
                       </TableCell>
-                      <TableCell align="right">{attribute.slug}</TableCell>
-                      <TableCell align="right">
+                      <TableCell align="left">{attribute.slug}</TableCell>
+                      <TableCell align="left">
                         <AttributeOptionList>
                           {attribute.AttributeOptions.map((option) => (
                             <AttributOption

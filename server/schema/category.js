@@ -12,6 +12,7 @@ const categorySchema = `
   }
 
     input CategoryInput {
+      _id: ID
     ${categoryFields}
     parentCategory: CategoryInput
     Products: [ProductInput] #@relationship

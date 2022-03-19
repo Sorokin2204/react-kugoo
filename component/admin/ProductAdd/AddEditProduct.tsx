@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
+  Divider,
   FormControl,
   FormHelperText,
   IconButton,
@@ -23,7 +24,10 @@ import {
 } from 'react-hook-form';
 import InputMask from 'react-input-mask';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { CREATE_PRODUCT } from '../../../graphql/mutation/product';
+import {
+  CREATE_PRODUCT,
+  UPDATE_PRODUCT,
+} from '../../../graphql/mutation/product';
 import { Add, Category } from '@mui/icons-material';
 import CategoryModal from '../ProductAdd/CategoryModal';
 import {
@@ -44,9 +48,10 @@ import PriceInputForm from '../inputs/PriceInputForm';
 import NumberInputForm from '../inputs/NumberInputForm';
 import SelectForm from '../inputs/SelectForm';
 import translationToSlug from '../../../utils/translateToSlug';
-import { Product } from '../../../types/graphql';
+import { Product, ProductImage } from '../../../types/graphql';
 import { ProductDto } from '../../../types/graphqlDto';
-
+import Masonry from 'react-masonry-css';
+import ImageGallery from '../ImageGallery';
 interface IFormInput {
   name: string;
   price: number;
@@ -63,8 +68,12 @@ interface IFormInput {
 }
 
 type Props = {
-  product?: ProductDto;
+  product?: Product;
 };
+
+function listener(data) {
+  console.log(data);
+}
 
 const AddEditProduct: React.FC<Props> = ({ product }) => {
   const productForm = useForm<IFormInput>({
@@ -80,12 +89,17 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
     control: productForm.control,
     name: 'specs',
   });
+  const imagesFieldArray = useFieldArray({
+    control: productForm.control,
+    name: 'images',
+  });
+
   // MUTATION
   const [newProduct] = useMutation(CREATE_PRODUCT);
+  const [updateProduct] = useMutation(UPDATE_PRODUCT);
   //   STATE
-  const [openCategory, setOpenCategory] = useState<boolean>(false);
-  const [openAttribute, setOpenAttribute] = useState<boolean>(false);
-  const [openSpec, setOpenSpec] = useState<boolean>(false);
+  const imagesRef = useRef(product?.images);
+  // const [images, setImages] = useState<ProductImage>(product?.images);
   const [openAttrs, setOpenAttrs] = useState<boolean[]>([]);
   const [attrOptions, setAttrOptions] = useState([]);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
@@ -118,10 +132,6 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
 
   useEffect(() => {}, [editedOption]);
 
-  const handleSwithCategory = () => setOpenCategory(!openCategory);
-  const handleSwithAttribute = () => setOpenAttribute(!openAttribute);
-  const handleSwithSpec = () => setOpenSpec(!openSpec);
-
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
     console.log(data);
 
@@ -132,18 +142,31 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
     );
     const productData = { ...data, attributes: result };
 
-    console.log(result);
-    newProduct({
-      variables: {
-        product: productData,
-      },
-    })
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((err) => {
-        console.error(JSON.stringify(err, null, 2));
-      });
+    console.log('New ', productData);
+    if (product) {
+      updateProduct({
+        variables: {
+          product: _.omit(productData, [
+            '__typename',
+            'AttributeOptions',
+            'SpecOptions',
+            'Category',
+          ]),
+        },
+      }).catch((err) => console.log(JSON.stringify(err, null, 2)));
+    } else {
+      // newProduct({
+      //   variables: {
+      //     product: productData,
+      //   },
+      // })
+      //   .then((data) => {
+      //     console.log(data);
+      //   })
+      //   .catch((err) => {
+      //     console.error(JSON.stringify(err, null, 2));
+      //   });
+    }
   };
 
   useEffect(() => {
@@ -155,10 +178,14 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
   }, []);
 
   useEffect(() => {
+    console.log('ATTR OPTIONS');
+
     productForm.setValue('attributes', attrOptions);
   }, [attrOptions]);
 
   useEffect(() => {
+    console.log('categoryData');
+
     if (categoryData) productForm.setValue(`specs`, []);
   }, [categoryData]);
 
@@ -260,23 +287,10 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
     }
   }, [activeCategoryId]);
 
-  const ProductAttributeBox = styled(Box)(({ theme }) => ({
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2,1fr)',
-    gridGap: '10px',
-  }));
-  const [typingName, setTypingName] = useState('');
+  const ProductAttributeBox = styled(Masonry)(({ theme }) => ({}));
+  const timer = useRef('');
+  // const disabledSlug = useRef(false);
   const [disabledSlug, setDisabledSlug] = useState(false);
-  useEffect(() => {
-    const timer = translationToSlug(
-      'name',
-      'slug',
-      productForm.getValues,
-      productForm.setValue,
-      setDisabledSlug,
-    );
-    return () => clearTimeout(timer);
-  }, [typingName]);
 
   function checkAttribute(attrOptId, customPrice, customLabel) {
     setAttrOptions((prev) => {
@@ -300,10 +314,27 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
       return arr;
     });
   }
+
+  useEffect(() => {
+    console.log('FIELD AR');
+  }, [imagesFieldArray]);
+
   return (
     <>
       <MainWrapper>
         <form onSubmit={productForm.handleSubmit(onSubmit)}>
+          <ImageGallery images={imagesRef} />
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: '20px',
+              fontWeight: '600',
+              display: 'block',
+              //
+            }}>
+            Шаг 1 - Категоря
+          </Typography>
+          <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
           <SelectForm
             name={'category'}
             label={'Категория'}
@@ -322,8 +353,21 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
                 <MenuItem value={category._id}>{category.name}</MenuItem>
               ))}
           </SelectForm>
-
-          <ProductAttributeBox>
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: '20px',
+              fontWeight: '600',
+              display: 'block',
+              marginTop: '10px',
+            }}>
+            Шаг 2 - Аттрибуты
+          </Typography>
+          <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
+          <ProductAttributeBox
+            breakpointCols={2}
+            className="my-masonry-grid"
+            columnClassName="my-masonry-grid_column">
             {attrOptions.lenght !== 0
               ? attrOptions.map((attr, i) => (
                   <>
@@ -357,7 +401,29 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
                 ))
               : ''}
           </ProductAttributeBox>
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)' }}>
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: '20px',
+              fontWeight: '600',
+              display: 'block',
+              //
+            }}>
+            Шаг 2 - Характеристики
+          </Typography>
+          <Divider
+            sx={{
+              marginBottom: '10px',
+              marginTop: '5px',
+            }}
+          />
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2,1fr)',
+              gridGap: '15px',
+              marginBottom: '15px',
+            }}>
             {!categoryLoading &&
               categoryData &&
               categoryData?.getCategory?.specs?.edges?.map((spec, index) => {
@@ -381,10 +447,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
                             name={`specs[${index}].beforeId`}
                             label={''}
                             rules={{
-                              required: {
-                                value: false,
-                                message: 'Обязательное поле',
-                              },
+                              required: false,
                             }}
                             form={productForm}>
                             <MenuItem value={''}>Не выбранно</MenuItem>
@@ -405,10 +468,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
                             name={`specs[${index}].specOptId`}
                             label={''}
                             rules={{
-                              required: {
-                                value: true,
-                                message: 'Обязательное поле',
-                              },
+                              required: false,
                             }}
                             form={productForm}>
                             <MenuItem value={''}>Не выбранно</MenuItem>
@@ -443,10 +503,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
                             label={''}
                             name={`specs[${index}].customValue`}
                             rules={{
-                              required: {
-                                value: true,
-                                message: 'Обязательное поле',
-                              },
+                              required: false,
                             }}
                             form={productForm}
                           />
@@ -461,10 +518,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
                             name={`specs[${index}].afterId`}
                             label={''}
                             rules={{
-                              required: {
-                                value: false,
-                                message: 'Обязательное поле',
-                              },
+                              required: false,
                             }}
                             form={productForm}>
                             <MenuItem value={''}>Не выбранно</MenuItem>
@@ -483,55 +537,89 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
                 );
               })}
           </Box>
-          <TextInputForm
-            label={'Название'}
-            name={'name'}
-            rules={{
-              required: { value: true, message: 'Поле не должно быть пустым' },
-              maxLength: { value: 40, message: 'Не более 40 символов' },
-              minLength: { value: 5, message: 'Не менее 5 символов' },
-            }}
-            inputProps={{
-              onChange: (e) => {
-                setDisabledSlug(true);
-                setTypingName(e.target.value);
-                productForm.setValue('name', e.target.value);
-              },
-            }}
-            form={productForm}
-          />
-          <TextInputForm
-            label={'Слаг'}
-            name={'slug'}
-            rules={{
-              required: { value: true, message: 'Поле не должно быть пустым' },
-              maxLength: { value: 40, message: 'Не более 40 символов' },
-              minLength: { value: 5, message: 'Не менее 5 символов' },
-            }}
-            inputProps={{
-              disabled: disabledSlug,
-            }}
-            form={productForm}
-          />
-          <PriceInputForm
-            label={'Акционная цена'}
-            rules={{ required: false }}
-            name={'discountPrice'}
-            form={productForm}
-          />
-          <PriceInputForm label={'Цена'} name={'price'} form={productForm} />
-          <NumberInputForm
-            label={'Артикул'}
-            name={'vendorCode'}
-            rules={{ required: false }}
-            inputProps={{
-              format: '#### #### #### ####',
-              onValueChange: (v) => {
-                productForm.setValue('vendorCode', v.value);
-              },
-            }}
-            form={productForm}
-          />
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: '20px',
+              fontWeight: '600',
+              display: 'block',
+              //
+            }}>
+            Шаг 3 - Общая информация
+          </Typography>
+          <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gridGap: '20px',
+            }}>
+            <TextInputForm
+              label={'Название'}
+              name={'name'}
+              rules={{
+                required: {
+                  value: true,
+                  message: 'Поле не должно быть пустым',
+                },
+                maxLength: { value: 40, message: 'Не более 40 символов' },
+                minLength: { value: 5, message: 'Не менее 5 символов' },
+              }}
+              inputProps={{
+                onChange: (e) => {
+                  setDisabledSlug(true);
+                  if (timer.current) {
+                    clearTimeout(timer.current);
+                    timer.current = null;
+                  }
+                  timer.current = translationToSlug(
+                    'name',
+                    'slug',
+                    productForm.getValues,
+                    productForm.setValue,
+                    setDisabledSlug,
+                  );
+                  productForm.setValue('name', e.target.value);
+                },
+              }}
+              form={productForm}
+            />
+            <TextInputForm
+              label={'Слаг'}
+              name={'slug'}
+              rules={{
+                required: {
+                  value: true,
+                  message: 'Поле не должно быть пустым',
+                },
+                maxLength: { value: 40, message: 'Не более 40 символов' },
+                minLength: { value: 5, message: 'Не менее 5 символов' },
+              }}
+              inputProps={{
+                disabled: disabledSlug,
+              }}
+              form={productForm}
+            />
+            <PriceInputForm
+              label={'Акционная цена'}
+              rules={{ required: false }}
+              name={'discountPrice'}
+              form={productForm}
+            />
+            <PriceInputForm label={'Цена'} name={'price'} form={productForm} />
+            <NumberInputForm
+              label={'Артикул'}
+              name={'vendorCode'}
+              rules={{ required: false }}
+              inputProps={{
+                format: '#### #### #### ####',
+                onValueChange: (v) => {
+                  productForm.setValue('vendorCode', v.value);
+                },
+              }}
+              form={productForm}
+            />
+          </Box>
           {/* <Controller
             name="image"
             control={control}
@@ -553,7 +641,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
           </Button>
         </form>
 
-        <IconButton
+        {/* <IconButton
           onClick={handleSwithCategory}
           sx={{ backgroundColor: 'primary.main', color: 'common.white' }}>
           <Add />
@@ -573,7 +661,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
           open={openAttribute}
           handleClose={handleSwithAttribute}
         />
-        <SpecModal open={openSpec} handleClose={handleSwithSpec} />
+        <SpecModal open={openSpec} handleClose={handleSwithSpec} /> */}
       </MainWrapper>
       {openEditOptionModal ? (
         <EditOptionModal

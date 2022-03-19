@@ -21,3 +21,18 @@ export const DELETE_SPEC = gql`
     deleteSpec(specId: $specId)
   }
 `;
+export const UPDATE_SPEC = gql`
+  mutation updateSpec(
+    $updSpec: SpecInput
+    $newOpts: [SpecOptionInput]
+    $updOpts: [SpecOptionInput]
+    $deleteIdOpts: [String]
+  ) {
+    updateSpec(
+      updSpec: $updSpec
+      newOpts: $newOpts
+      updOpts: $updOpts
+      deleteIdOpts: $deleteIdOpts
+    )
+  }
+`;

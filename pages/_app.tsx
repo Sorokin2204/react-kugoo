@@ -13,8 +13,8 @@ import Header from '../component/common/Header';
 import cache from '../graphql/cache';
 import theme from '../theme';
 import themeAdmin from '../themeAdmin';
-import './[categorySlug]/[id].css';
-
+import '../styles/[id].css';
+import '../styles/masonry-style.css';
 // interface AppConfig {
 //   cartProducts: boolean;
 // }

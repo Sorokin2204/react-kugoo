@@ -17,3 +17,21 @@ export const DELETE_CATEGORY = gql`
     deleteCategory(catId: $catId)
   }
 `;
+
+export const UPDATE_CATEGORY = gql`
+  mutation updateCategory(
+    $updCategory: CategoryInput
+    $deleteIdSpecs: [String]
+    $newIdSpecs: [String]
+    $deleteIdAttrs: [String]
+    $newIdAttrs: [String]
+  ) {
+    updateCategory(
+      updCategory: $updCategory
+      deleteIdSpecs: $deleteIdSpecs
+      newIdSpecs: $newIdSpecs
+      deleteIdAttrs: $deleteIdAttrs
+      newIdAttrs: $newIdAttrs
+    )
+  }
+`;

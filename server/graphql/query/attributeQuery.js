@@ -49,7 +49,7 @@ const attributeQuery = {
             from: AttributeOption.collection.name,
             localField: '_id',
             foreignField: 'Attribute',
-            pipeline: [],
+            pipeline: [{ $match: { isDelete: { $ne: true } } }],
             as: 'AttributeOptions',
           },
         },

@@ -18,6 +18,7 @@ const attributeSchema = `
   }
 
   input AttributeInput {
+    _id: ID
    ${attributeFields}
   }
 
