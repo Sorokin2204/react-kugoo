@@ -9,11 +9,19 @@ import { createObjectId, mongoObjectId } from '../utils/createObjectId';
 import { Category } from '../types/graphql';
 
 export default function useAppConfig() {
-  const { data } = useQuery(GET_APP_CONFIG);
+  let { data } = useQuery(GET_APP_CONFIG);
 
   return {
     category: data.appConfig.category,
     cartProducts: data.appConfig.cartProducts,
+    adminHeaderTitle: data.appConfig.adminHeaderTitle,
+    setAdminHeaderTitle(newTitle: string) {
+      appConfigVar({
+        ...data.appConfig,
+        adminHeaderTitle: newTitle,
+      });
+      saveAppConfig();
+    },
     setCategory(category: Category) {
       appConfigVar({
         ...data.appConfig,

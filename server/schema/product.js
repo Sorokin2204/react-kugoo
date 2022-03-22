@@ -1,8 +1,7 @@
 const productImageFields = `
 _id: ID
-    path: String
-    type: String
     name: String    
+  order: Int
 `;
 const productFields = `
   name: String!
@@ -51,6 +50,7 @@ type ProductsFromCart {
 
  type ProductImage {
      ${productImageFields}
+     
   }
 
   type Product {
@@ -65,7 +65,8 @@ type ProductsFromCart {
 
 
   input ProductImageInput {
-    ${productImageFields}
+     ${productImageFields}
+    file: Upload
   }
 
     input ProductInput {

@@ -21,7 +21,7 @@ const CartDeliveryInfo: React.FC<Props> = ({ form }) => {
   const [inputValue, setInputValue] = useState('');
   return (
     <>
-      <CartGridInput container spacing={10}>
+      <CartGridInput container columnSpacing={10} rowSpacing={20}>
         <InputBox item xs={6} sx={{ gridColumn: '1/3' }}>
           <TextInputForm
             CustomTag={InputText}

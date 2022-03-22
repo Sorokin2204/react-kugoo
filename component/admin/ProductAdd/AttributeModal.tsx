@@ -22,6 +22,7 @@ import {
   TableRow,
   TextField,
   Typography,
+  useTheme,
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
@@ -74,11 +75,14 @@ const AttributOption = styled(Box)<{ active: boolean }>(
     cursor: 'default',
     display: 'flex',
     userSelect: 'none',
-    whiteSpace: 'nowrap',
+    // width: '100%',
+    // whiteSpace: 'nowrap',
     alignItems: 'center',
     borderRadius: '5px',
     border: `2px solid ${theme.palette.grey[400]}`,
     padding: '4px',
+    maxWidth: '300px',
+
     ...(active && {
       color: theme.palette.primary.main,
       border: `2px solid ${theme.palette.primary.main}`,
@@ -284,6 +288,7 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
     return isFormDataChanged;
   };
 
+  const theme = useTheme();
   return (
     <>
       <Modal open={open} onClose={handleClose}>
@@ -291,11 +296,19 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
           sx={{
             overflowY: 'scroll',
           }}>
+          <IconButton
+            sx={{ p: 0, position: 'absolute', top: 15, right: 15 }}
+            onClick={handleClose}>
+            <Close sx={{ fontSize: '30px' }} />
+          </IconButton>
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
               mb: 3,
+              [theme.breakpoints.down('sm')]: {
+                alignItems: 'flex-end',
+              },
             }}>
             <Typography variant="h6" component="h2" sx={{ display: 'block' }}>
               {activeAttribute !== null
@@ -391,7 +404,12 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
                       reset();
                       setActiveAttribute(null);
                     });
-                  }}>
+                  }}
+                  sx={{
+                    gridColumn: '1/3',
+                    marginBottom: '10px',
+                  }}
+                  variant="contained">
                   Сохранить
                 </Button>
               )}
@@ -569,18 +587,47 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
               </Box>
             </Box>
 
-            <Button type="submit" disabled={!isValid || isFormChanged}>
+            <Button
+              sx={{ width: '100%' }}
+              type="submit"
+              variant="contained"
+              disabled={!isValid || isFormChanged}>
               {activeAttributeOption ? 'Сохранить' : 'Добавить'}
             </Button>
           </form>
           {!allAttributeLoading && (
-            <TableContainer component={Paper}>
+            <TableContainer
+              component={Paper}
+              sx={{
+                mt: '20px',
+              }}>
               <Table>
                 <TableHead>
-                  <TableRow>
+                  <TableRow
+                    sx={{
+                      [theme.breakpoints.down('sm')]: {
+                        visibility: 'hidden',
+                      },
+                    }}>
                     <TableCell align="center">Название</TableCell>
-                    <TableCell align="center">Слаг</TableCell>
-                    <TableCell align="center">Опции</TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        [theme.breakpoints.down('sm')]: {
+                          display: 'none',
+                        },
+                      }}>
+                      Слаг
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        [theme.breakpoints.down('sm')]: {
+                          display: 'none',
+                        },
+                      }}>
+                      Опции
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -593,13 +640,39 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
                       selected={attribute._id === activeAttribute?._id}
                       key={attribute._id}
                       sx={{
-                        '&:last-child td, &:last-child th': { border: 0 },
+                        [theme.breakpoints.down('sm')]: {
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          width: '100%',
+                        },
                       }}>
-                      <TableCell component="th" scope="row" align="left">
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        align="left"
+                        sx={{
+                          [theme.breakpoints.down('sm')]: {
+                            border: '0 !important',
+                          },
+                        }}>
                         {attribute.name}
                       </TableCell>
-                      <TableCell align="left">{attribute.slug}</TableCell>
-                      <TableCell align="left">
+                      <TableCell
+                        align="left"
+                        sx={{
+                          [theme.breakpoints.down('sm')]: {
+                            border: '0 !important',
+                          },
+                        }}>
+                        {attribute.slug}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        sx={{
+                          [theme.breakpoints.down('sm')]: {
+                            gridColumn: '1/3',
+                          },
+                        }}>
                         <AttributeOptionList>
                           {attribute.AttributeOptions.map((option) => (
                             <AttributOption

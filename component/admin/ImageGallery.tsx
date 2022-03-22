@@ -43,12 +43,11 @@ const GalleryList = styled(Box)(({ theme }) => ({
   justifyContent: 'center',
   gridGap: '20px',
 }));
-// const GalleryImg = styled('img')(({ theme }) => ({
-//   display: 'block',
-//   width: '100%',
-//   height: 'auto',
-//   borderRadius: '10px',
-// }));
+const GalleryImg = styled('img')(({ theme }) => ({
+  display: 'block',
+  width: 'auto',
+  height: '100%',
+}));
 const GalleryItemBox = styled(Box)(({ theme }) => ({
   position: 'relative',
   maxWidth: '200px',
@@ -103,129 +102,107 @@ type Props = {
     | UseFieldArrayReturn
     | React.MutableRefObject<Maybe<Maybe<ProductImage>[]> | undefined>;
   setImages: Dispatch<SetStateAction<ProductImage>>;
-  //   form: UseFormReturn;
 };
 
-const ImageGallery: React.FC<Props> = ({ images, setImages }) => {
-  console.log('render');
-  const [imagesState, setImagesState] = useState(
-    images.current.map((img) => ({
-      ...img,
-      id: (Math.random() * 10000).toString(36),
-    })),
+const DragHandle = sortableHandle(() => (
+  <GalleryMove>
+    <ZoomOutMap
+      sx={{
+        fontSize: '35px',
+        color: 'primary.main',
+      }}
+    />
+  </GalleryMove>
+));
+const SortableItem = SortableElement(({ value, onDelete }) => {
+  return (
+    <GalleryItem
+      imgName={value.objectUrl ?? `/static/products/${value.name}`}
+      onDelete={onDelete}
+    />
   );
+});
 
-  const onDrop = useCallback((acceptedFiles) => {
-    // console.log(acceptedFiles);
-    const objectUrl = URL.createObjectURL(acceptedFiles[0]);
-    setImagesState((prev) => [...prev, { newName: objectUrl }]);
-    console.log(objectUrl);
+const SortableList = SortableContainer(({ items, onDelete }) => {
+  return (
+    <GalleryList>
+      {items?.map((value, index) => (
+        <SortableItem
+          key={`item-${value.name}`}
+          index={index}
+          value={value}
+          onDelete={() => onDelete(index)}
+        />
+      ))}
+    </GalleryList>
+  );
+});
 
-    // Do something with the files
-  }, []);
+const GalleryItem: React.FC<{ imgName: string }> = ({ imgName, onDelete }) => {
+  const [hover, setHover] = useState(false);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-  });
+  return (
+    <GalleryItemBox
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}>
+      <GalleryImg src={imgName} />
+      <GalleryBackdrop sx={{ ...(!hover && { display: 'none' }) }}>
+        <DragHandle />
+        <GalleryDelete
+          onClick={() => {
+            onDelete();
+          }}>
+          <Delete color="error" sx={{ fontSize: '35px' }} />
+        </GalleryDelete>
+      </GalleryBackdrop>
+    </GalleryItemBox>
+  );
+};
+const ImageGallery: React.FC<Props> = ({ images, setImages }) => {
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      let newFiles = [];
+      // let lengthImages = images.length;
+      // console.log(images.length);
 
-  const DragHandle = sortableHandle(() => (
-    <GalleryMove>
-      <ZoomOutMap
-        sx={{
-          fontSize: '35px',
-          color: 'primary.main',
-        }}
-      />
-    </GalleryMove>
-  ));
+      acceptedFiles.map((acceptedFile) => {
+        if (images.length + newFiles.length <= 20) {
+          const objectUrl = URL.createObjectURL(acceptedFile);
+          newFiles.push({
+            name: acceptedFile.name,
+            objectUrl: objectUrl,
+            file: acceptedFile,
+          });
+        }
+      });
 
-  const ImageMemo = function ImageMemo({ src }) {
-    return (
-      <img
-        style={{
-          display: 'block',
-          width: 'auto',
-          // width: '100%',
-          height: '100%',
-          // height: 'auto',
-          // borderRadius: '10px',
-        }}
-        src={src}
-      />
-    );
-  };
-
-  const GalleryItem: React.FC<{ imgName: string }> = ({
-    imgName,
-    onDelete,
-  }) => {
-    const [hover, setHover] = useState(false);
-
-    return (
-      <GalleryItemBox
-        key={imgName}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}>
-        <ImageMemo src={imgName} />
-        <GalleryBackdrop sx={{ ...(!hover && { display: 'none' }) }}>
-          <DragHandle />
-          <GalleryDelete
-            onClick={() => {
-              onDelete();
-            }}>
-            <Delete color="error" sx={{ fontSize: '35px' }} />
-          </GalleryDelete>
-        </GalleryBackdrop>
-      </GalleryItemBox>
-    );
-  };
-  const SortableItem = useMemo(
-    () =>
-      SortableElement(({ value, onDelete }) => {
-        return (
-          <GalleryItem
-            key={value.name}
-            imgName={
-              value.name ? `/static/products/${value.name}` : value.newName
-            }
-            onDelete={onDelete}
-          />
-        );
-      }),
+      setImages((prev) => [...prev, ...newFiles]);
+    },
     [images],
   );
 
-  const SortableList = SortableContainer(({ items }) => {
-    return (
-      <GalleryList>
-        {items.map((value, index) => (
-          <SortableItem
-            key={value.id}
-            index={index}
-            value={value}
-            onDelete={() => {
-              //   images.remove(index);
-              //   images.current = images.current.filter((item, i) => i !== index);
-              setImagesState((prev) => prev.filter((item, i) => i !== index));
-            }}
-          />
-        ))}
-      </GalleryList>
-    );
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: 'image/jpeg,image/png',
+    maxFiles: 20,
+    maxSize: 10486000,
+    onDrop,
   });
 
+  const handlerDelete = (index) => {
+    setImages((prev) => prev.filter((item, i) => i !== index));
+  };
+
   const onSortEnd = ({ oldIndex, newIndex }) => {
-    // images.swap(oldIndex, newIndex);
-    // images.current = arrayMoveImmutable(images.current, oldIndex, newIndex);
-    setImagesState((prev) => arrayMoveImmutable(prev, oldIndex, newIndex));
+    setImages((prev) => arrayMoveImmutable(prev, oldIndex, newIndex));
   };
 
   return (
     <GalleryBox>
       <SortableList
-        items={imagesState}
+        items={images}
         axis="xy"
         onSortEnd={onSortEnd}
+        onDelete={handlerDelete}
         useDragHandle
       />{' '}
       <GalleryDrop>
@@ -236,7 +213,9 @@ const ImageGallery: React.FC<Props> = ({ images, setImages }) => {
               {!isDragActive ? (
                 <>
                   Перетащите сюда картинку, которую хотите добавить или кликните
-                  для выбора файла
+                  для выбора файла.
+                  <br /> <br /> Макс.размер файла - 5 МБ
+                  <br /> Макс.количество файлов - 20
                 </>
               ) : (
                 <>Поместить картинку сюда ...</>

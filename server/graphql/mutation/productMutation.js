@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb');
 const { Mongoose } = require('mongoose');
 const {
   Spec,
@@ -10,6 +11,9 @@ const {
   Product_AttributeOption,
   Category,
 } = require('../../model');
+const fs = require('fs');
+const path = require('path');
+const appDir = path.dirname(require.main.filename);
 
 const createProductSpecs = (specs, productId) => {
   specs.map(async (spec) => {
@@ -95,9 +99,77 @@ const updateAttributeOptions = async (product) => {
     );
   }
 };
+const saveFile = async (img) => {
+  const { createReadStream, filename } = await img.file;
+  const stream = createReadStream();
+  const pathName = path.join(
+    appDir,
+    '../public/static/products',
+    `/${getValidFileName(img.name)}`,
+  );
+  await stream.pipe(fs.createWriteStream(pathName));
+  return filename;
+};
+
+const deleteFile = async (filename) => {
+  const pathFile = path.join(
+    appDir,
+    '../public/static/products',
+    `/${filename}`,
+  );
+  try {
+    if (fs.existsSync(pathFile)) {
+      fs.unlinkSync(pathFile);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+const deleteImages = async (product) => {
+  let oldImages = await Product.findOne({
+    _id: product._id,
+  }).select('images');
+  let deleteImages = oldImages.images.filter(
+    (imgOld) =>
+      product.images.findIndex(
+        (imgNew) => imgNew._id === imgOld._id.toString(),
+      ) == -1,
+  );
+  if (deleteImages.lenght !== 0) {
+    for (deleteImg of deleteImages) {
+      await deleteFile(deleteImg.name);
+    }
+  }
+};
+
+const addImages = async (product) => {
+  let addedImages = product.images.filter((addedImg) => addedImg.file);
+  if (addedImages.lenght !== 0) {
+    for (addedImg of addedImages) {
+      await saveFile(addedImg);
+    }
+  }
+};
+
+const saveImages = async (product) => {
+  let images = product.images.map((img, index) => ({
+    name: getValidFileName(img.name),
+    order: index,
+  }));
+  await Product.updateOne({ _id: product._id }, { images: images });
+};
+
+const getValidFileName = (filename) =>
+  filename.toLowerCase().replace(/\s+/g, '-').replace(/\-\-+/g, '-');
+
+const updateImages = async (product) => {
+  await deleteImages(product);
+  await addImages(product);
+  await saveImages(product);
+};
 
 const productMutation = {
-  createProduct: async ({ product }) => {
+  createProduct: async (parent, { product }) => {
     try {
       const { attributes, specs, category, ...productData } = product;
       const newProduct = await new Product({
@@ -119,18 +191,20 @@ const productMutation = {
 
     // console.log(product);
   },
-  updateProduct: async ({ product }) => {
-    let { attributes, specs, ...productRest } = product;
-    const { category, ...productRestNoCat } = productRest;
-    console.log({ ...productRestNoCat, Category: category });
-    updateSpecOptions(product);
-    updateAttributeOptions(product);
-    // console.log(product.specs.length);
-    // console.log(product.attributes.length);
-    await Product.updateOne(
-      { _id: product._id },
-      { ...productRestNoCat, Category: category },
-    );
+  updateProduct: async (parent, { product }) => {
+    // console.log(product);
+    // let { attributes, specs, ...productRest } = product;
+    // const { category, ...productRestNoCat } = productRest;
+    // console.log({ ...productRestNoCat, Category: category });
+    // updateSpecOptions(product);
+    // updateAttributeOptions(product);
+    await updateImages(product);
+    // // console.log(product.specs.length);
+    // // console.log(product.attributes.length);
+    // await Product.updateOne(
+    //   { _id: product._id },
+    //   { ...productRestNoCat, Category: category },
+    // );
     // console.log(productRest);
   },
 };

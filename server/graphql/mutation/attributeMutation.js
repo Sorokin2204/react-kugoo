@@ -5,7 +5,7 @@ const {
 } = require('../../model');
 
 const attributeMutation = {
-  createAttributeWithOptions: async ({ attr, attrOpt }) => {
+  createAttributeWithOptions: async (parent, { attr, attrOpt }) => {
     try {
       let newAttr = new Attribute(attr);
       const newAttrOpt = new AttributeOption({
@@ -19,7 +19,7 @@ const attributeMutation = {
       console.log('[ERR] Create Attribute', error.message);
     }
   },
-  createAttributeOptionInAttribute: async ({ attrId, attrOpt }) => {
+  createAttributeOptionInAttribute: async (parent, { attrId, attrOpt }) => {
     try {
       const newAttrOpt = await new AttributeOption({
         ...attrOpt,
@@ -34,7 +34,7 @@ const attributeMutation = {
     }
   },
 
-  updateAttributeOption: async ({ attrOptId, newAttrOpt }) => {
+  updateAttributeOption: async (parent, { attrOptId, newAttrOpt }) => {
     try {
       const findAttr = await AttributeOption.updateOne(
         { _id: attrOptId },
@@ -44,7 +44,7 @@ const attributeMutation = {
       console.log(error.message);
     }
   },
-  deleteAttributeOption: async ({ attrOptId }) => {
+  deleteAttributeOption: async (parent, { attrOptId }) => {
     try {
       await AttributeOption.updateOne({ _id: attrOptId }, { isDelete: true });
       await Product_AttributeOption.deleteMany({ AttributeOption: attrOptId });
@@ -53,7 +53,7 @@ const attributeMutation = {
       console.log(error.message);
     }
   },
-  updateAttribute: async ({ updAttr }) => {
+  updateAttribute: async (parent, { updAttr }) => {
     try {
       await Attribute.updateOne({ _id: updAttr }, { ...updAttr });
     } catch (error) {

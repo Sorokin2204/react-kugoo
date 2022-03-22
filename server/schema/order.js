@@ -15,6 +15,8 @@ const orderSchema = `
   type Order {
     _id: ID!
   ${orderFields}
+  OrderProducts: [OrderProduct]
+  total: Int
   }
 
    input OrderInput {
@@ -27,6 +29,7 @@ const orderSchema = `
   Order: Order
   Product: Product
   AttributeOptions: [AttributeOption]
+  total: Int
   }
  
 

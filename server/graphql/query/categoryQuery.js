@@ -12,7 +12,7 @@ const {
 } = require('../../model');
 
 const categoryQuery = {
-  getCategory: async ({ id, withAttrOpts, withSpecOpts }) => {
+  getCategory: async (parent, { id, withAttrOpts, withSpecOpts }) => {
     try {
       // const attributes = await Category_Attribute.find({
       //   Category: id,
@@ -128,14 +128,14 @@ const categoryQuery = {
   getAllCategory: async () => {
     return await Category.find();
   },
-  getAllAttributeInCategory: async ({ categoryId }) => {
+  getAllAttributeInCategory: async (parent, { categoryId }) => {
     const attributeIds = await Category_Attribute.find({
       categoryId: categoryId,
     }).select('_id');
     return;
   },
 
-  checkExistCategory: async ({ categorySlug }) => {
+  checkExistCategory: async (parent, { categorySlug }) => {
     const categoryExist = await Category.findOne({ slug: categorySlug });
     console.log(categoryExist);
     return !!categoryExist;

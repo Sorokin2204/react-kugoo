@@ -10,7 +10,7 @@ let themeAdmin = createTheme({
   breakpoints: {
     values: {
       xs: 0,
-      sm: 640,
+      sm: 840,
       md: 1024,
       lg: 1170,
       xl: 1440,
@@ -32,6 +32,15 @@ themeAdmin = createTheme(themeAdmin, {
               appearance: 'none',
               margin: 0,
             },
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': {},
+            '&:hover fieldset': {
+              borderColor: themeAdmin.palette.grey[400],
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: themeAdmin.palette.primary.main,
+            },
+          },
         },
       },
     },
@@ -51,6 +60,9 @@ themeAdmin = createTheme(themeAdmin, {
           },
           '& .MuiTableCell-root': {
             padding: '4px',
+            [themeAdmin.breakpoints.down('sm')]: {
+              padding: '10px',
+            },
           },
         },
       },
@@ -71,10 +83,29 @@ themeAdmin = createTheme(themeAdmin, {
         },
       },
     },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          boxShadow: 'none',
+          '&:hover': {
+            backgroundColor: `${themeAdmin.palette.primary.main} !important`,
+            boxShadow: 'none',
+          },
+        },
+      },
+    },
     MuiButtonBase: {
       defaultProps: {
         disableRipple: true,
       },
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            backgroundColor: 'transparent !important',
+          },
+        },
+      },
+      MuiIconButton: {},
     },
     MuiMenuItem: {
       styleOverrides: {

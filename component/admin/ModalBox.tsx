@@ -10,4 +10,5 @@ export const ModalBox = styled(Box)(({ theme }) => ({
   padding: '20px',
   borderRadius: '5px',
   height: 'calc(100vh - 40px)',
+  overflowY: 'scroll',
 }));

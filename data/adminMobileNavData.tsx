@@ -42,7 +42,7 @@ export const adminMobileNavData: AdminMobileNavData[] = [
   },
   {
     name: 'Заказы',
-    slug: 'orders',
+    slug: 'order-list',
     icon: <Receipt />,
     type: 'page',
   },

@@ -144,6 +144,9 @@ export const GET_ALL_PRODUCTS = gql`
       price
       discountPrice
       vendorCode
+      Category {
+        slug
+      }
     }
   }
 `;

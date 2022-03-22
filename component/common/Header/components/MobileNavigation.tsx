@@ -1,15 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   ButtonBase,
   ButtonUnstyled,
   Link as LinkMUI,
   styled,
+  useTheme,
 } from '@mui/material';
 import { mobileNavData } from '../../../../data/mobileNavData';
 import Link from 'next/link';
 import LinkCustom from './LinkCustom';
 import { useRouter } from 'next/router';
+import { BadgeRounded } from './HeaderBottom';
+import useAppConfig from '../../../../hooks/useAppConfig';
+import _ from 'lodash';
 
 type Props = {};
 
@@ -58,21 +62,59 @@ const MobileLink = styled(LinkCustom)<{ icon: string; active: boolean }>(
 
 const MobileNavigation: React.FC<Props> = ({}) => {
   const router = useRouter();
+  const theme = useTheme();
+  const { cartProducts } = useAppConfig();
+  const [cartCount, setCartCount] = useState(null);
   useEffect(() => {
     console.log(router);
   }, [router]);
+
+  useEffect(() => {
+    setCartCount(_.sumBy(cartProducts, 'pieces'));
+  }, [cartProducts]);
 
   return (
     <MobileNav>
       <MobileList>
         {mobileNavData.map((navData) => (
-          <MobileItem key={navData.name}>
-            <MobileLink
-              href={navData.url}
-              icon={navData.icon}
-              active={router.asPath === navData.url}>
-              {navData.name}
-            </MobileLink>
+          <MobileItem
+            key={navData.name}
+            sx={{
+              ...(navData.url === '/cart' && {
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }),
+            }}>
+            {navData.url === '/cart' ? (
+              <BadgeRounded
+                badgeContent={cartCount}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                sx={{
+                  '& .MuiBadge-badge': {
+                    left: 'auto',
+                    top: '10%',
+                    right: '25%',
+                  },
+                }}>
+                <MobileLink
+                  href={navData.url}
+                  icon={navData.icon}
+                  active={router.asPath === navData.url}>
+                  {navData.name}
+                </MobileLink>
+              </BadgeRounded>
+            ) : (
+              <MobileLink
+                href={navData.url}
+                icon={navData.icon}
+                active={router.asPath === navData.url}>
+                {navData.name}
+              </MobileLink>
+            )}
           </MobileItem>
         ))}
       </MobileList>

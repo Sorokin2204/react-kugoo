@@ -14,6 +14,7 @@ const CartGridInput = styled(Box)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(2,1fr)',
   gridGap: '20px',
+  rowGap: theme.spacing(20),
 }));
 const InputBox = styled(Box)(({ theme }) => ({
   display: 'flex',

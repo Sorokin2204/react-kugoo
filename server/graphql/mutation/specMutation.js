@@ -6,7 +6,10 @@ const {
 } = require('../../model');
 
 const specMutation = {
-  createSpec: async ({ spec, specOpts, specExtraAfter, specExtraBefore }) => {
+  createSpec: async (
+    parent,
+    { spec, specOpts, specExtraAfter, specExtraBefore },
+  ) => {
     const newSpec = await new Spec(spec).save();
     if (SpecOption.length !== 0) {
       await SpecOption.insertMany(
@@ -46,13 +49,13 @@ const specMutation = {
     // );
     // return newCat;
   },
-  deleteSpec: async ({ specId }) => {
+  deleteSpec: async (parent, { specId }) => {
     await Spec.deleteOne({ _id: specId });
     await SpecOption.deleteMany({ Spec: specId });
     await SpecExtraText.deleteMany({ Spec: specId });
     return;
   },
-  updateSpec: async ({ newOpts, updOpts, deleteIdOpts, updSpec }) => {
+  updateSpec: async (parent, { newOpts, updOpts, deleteIdOpts, updSpec }) => {
     await Spec.updateOne({ _id: updSpec._id }, { ...updSpec });
     await SpecOption.insertMany(
       newOpts.map((newOpt) => ({ ...newOpt, Spec: updSpec._id })),

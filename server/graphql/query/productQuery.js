@@ -18,7 +18,7 @@ const browserObject = require('../../scrapper/browser');
 const scraperController = require('../../scrapper/pageController');
 
 const productQuery = {
-  searchProducts: async ({ searchText }) => {
+  searchProducts: async (parent, { searchText }) => {
     const allProduct = await getProductsCard(
       [
         {
@@ -58,9 +58,23 @@ const productQuery = {
 
     // Pass the browser instance to the scraper controller
     // scraperController(browserInstance);
-    return await Product.find();
+    return await Product.aggregate([
+      {
+        $lookup: {
+          from: Category.collection.name,
+          localField: 'Category',
+          foreignField: '_id',
+          as: 'Category',
+        },
+      },
+      {
+        $addFields: {
+          Category: { $arrayElemAt: ['$Category', 0] },
+        },
+      },
+    ]);
   },
-  getAllProductFromCart: async ({ productsFromCart }) => {
+  getAllProductFromCart: async (parent, { productsFromCart }) => {
     const attrsFromCart = [];
     productsFromCart.map((prod) =>
       prod.attributes.map((attr) => attrsFromCart.push(ObjectId(attr.attrOpt))),
@@ -135,7 +149,10 @@ const productQuery = {
     }));
     return allProductDto;
   },
-  getAllProductCard: async ({ category, filter, sort, offset, limit }) => {
+  getAllProductCard: async (
+    parent,
+    { category, filter, sort, offset, limit },
+  ) => {
     let aggregateAfter = [];
     switch (sort) {
       case 'popular':
@@ -182,13 +199,18 @@ const productQuery = {
       pageInfo: { hasNextPage, category: { name: categoryFind.name } },
     };
   },
-  getProduct: async ({ productSlug }) => {
+  getProduct: async (parent, { productSlug }) => {
     // const findProduct = await Product.findOne({ slug: productSlug });
 
     const findProduct = await Product.aggregate([
       {
         $match: {
           slug: productSlug,
+        },
+      },
+      {
+        $sort: {
+          'images.order': 1,
         },
       },
       {
@@ -275,6 +297,7 @@ const productQuery = {
         },
       },
     ]);
+    console.log(findProduct[0].images);
     const productData = {
       ...findProduct[0],
       Category: findProduct[0].Category[0],

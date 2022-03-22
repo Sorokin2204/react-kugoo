@@ -9,7 +9,7 @@ const {
 } = require('../../model');
 
 const orderMutation = {
-  createOrder: async ({ orderInfo, productsInfo }) => {
+  createOrder: async (parent, { orderInfo, productsInfo }) => {
     const newOrder = await new Order(orderInfo).save();
     const newOrderProducts = productsInfo.map((prodInfo) => {
       const newOrderProd = {

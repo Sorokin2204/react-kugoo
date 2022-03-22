@@ -5,6 +5,7 @@ const GET_APP_CONFIG = gql`
     appConfig @client {
       cartProducts
       category
+      adminHeaderTitle
     }
   }
 `;

@@ -15,6 +15,8 @@ import theme from '../theme';
 import themeAdmin from '../themeAdmin';
 import '../styles/[id].css';
 import '../styles/masonry-style.css';
+import { createUploadLink } from 'apollo-upload-client';
+
 // interface AppConfig {
 //   cartProducts: boolean;
 // }
@@ -38,7 +40,7 @@ import '../styles/masonry-style.css';
 const client = new ApolloClient({
   ssrMode: true,
   connectToDevTools: true, // uri: 'http://localhost:5000/graphql',
-  link: createHttpLink({
+  link: createUploadLink({
     uri: 'http://localhost:5000/graphql',
     credentials: 'same-origin',
   }),

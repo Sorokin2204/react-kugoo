@@ -119,7 +119,7 @@ const HeaderBox = styled(Box)(({ theme }) => ({
   },
 }));
 
-const BadgeRounded = styled(Badge)(({ theme }) => ({
+export const BadgeRounded = styled(Badge)(({ theme }) => ({
   // height: '15px',
   // width: '15px',
   // minHeight: '15px',
@@ -160,7 +160,7 @@ const HeaderBottom: React.FC<Props> = ({}) => {
   };
 
   useEffect(() => {
-    setCartCount(cartProducts.length);
+    setCartCount(_.sumBy(cartProducts, 'pieces'));
   }, [cartProducts]);
 
   const handleClickCatalog = (event) => {

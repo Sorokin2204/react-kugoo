@@ -19,7 +19,9 @@ getDefaultProductAttributes(productId: String): [AttributeOption]
     getAllSpec: [Spec]
     getSpec(specId: String): Spec
    getAllSpecWithOptions: [Spec]
- 
+ ### ORDER
+ getAllOrders: [Order]
+ getOrder(orderId: String): Order
   }
 `;
 module.exports = { querySchema };

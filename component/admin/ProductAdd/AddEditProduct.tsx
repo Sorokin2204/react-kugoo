@@ -98,8 +98,11 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
   const [newProduct] = useMutation(CREATE_PRODUCT);
   const [updateProduct] = useMutation(UPDATE_PRODUCT);
   //   STATE
-  const imagesRef = useRef(product?.images);
-  // const [images, setImages] = useState<ProductImage>(product?.images);
+  // const imagesRef = useRef(product?.images);
+  const [images, setImages] = useState<ProductImage>(
+    product?.images || [],
+    // _.sortBy(product?.images, 'order'),
+  );
   const [openAttrs, setOpenAttrs] = useState<boolean[]>([]);
   const [attrOptions, setAttrOptions] = useState([]);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
@@ -140,9 +143,13 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
     result = _.map(result, (e) =>
       _.pick(e, ['_id', 'customPrice', 'customSublabel']),
     );
-    const productData = { ...data, attributes: result };
+    const productData = {
+      ...data,
+      attributes: result,
+      images: images.map((img) => _.omit(img, ['__typename', 'objectUrl'])),
+    };
+    console.log(images);
 
-    console.log('New ', productData);
     if (product) {
       updateProduct({
         variables: {
@@ -323,7 +330,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
     <>
       <MainWrapper>
         <form onSubmit={productForm.handleSubmit(onSubmit)}>
-          <ImageGallery images={imagesRef} />
+          <ImageGallery images={images} setImages={setImages} />
           <Typography
             variant="body1"
             sx={{
@@ -636,7 +643,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
               />
             )}
           /> */}
-          <Button type="submit" disabled={!productForm.formState.isValid}>
+          <Button type="submit" variant='contained' disabled={!productForm.formState.isValid}>
             Сохранить
           </Button>
         </form>

@@ -1,4 +1,5 @@
-const { buildSchema } = require('graphql');
+const { gql } = require('apollo-server-express');
+const { buildSchema } = require('type-graphql');
 const { attributeSchema } = require('./attribute');
 const { categorySchema } = require('./category');
 const { connectionsSchema } = require('./connections');
@@ -8,24 +9,25 @@ const productSchema = require('./product');
 const { querySchema } = require('./query');
 const { specSchema } = require('./spec');
 
-const sch = `
-#### CONNECTIONS-EDGES ####
-${connectionsSchema}
-#### PRODUCT ####
+const sch = gql`
+  scalar Upload
+  #### CONNECTIONS-EDGES ####
+  ${connectionsSchema}
+  #### PRODUCT ####
   ${productSchema}
-#### CATEGORY ####
-${categorySchema}
-#### ATTRIBUTE ####
- ${attributeSchema}
-#### SPEC ####
+  #### CATEGORY ####
+  ${categorySchema}
+  #### ATTRIBUTE ####
+  ${attributeSchema}
+  #### SPEC ####
   ${specSchema}
-#### ORDER ####
+  #### ORDER ####
   ${orderSchema}
   #### QUERIES ####
-${querySchema}
+  ${querySchema}
   #### MUTATIONS ####
-${mutationSchema}
+  ${mutationSchema}
 `;
-const schema = buildSchema(sch);
+// const schema = buildSchema(sch);
 
-module.exports = schema;
+module.exports = sch;

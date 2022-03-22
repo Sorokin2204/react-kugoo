@@ -23,14 +23,7 @@ var ProductSchema = new Schema({
   },
   images: [
     {
-      path: {
-        type: String,
-        required: false,
-      },
-      type: {
-        type: String,
-        required: false,
-      },
+      order: { type: Number, required: true },
       name: {
         type: String,
         required: true,

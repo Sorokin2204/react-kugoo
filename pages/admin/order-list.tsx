@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, styled, useTheme } from '@mui/material';
+
 import MainWrapper from '../../component/admin/MainWrapper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -9,88 +9,92 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { useLazyQuery, useQuery } from '@apollo/client';
-import {
-  GET_ALL_PRODUCTS,
-  GET_PRODUCT_ADMIN,
-} from '../../graphql/query/product';
-import { Edit, OpenInNew } from '@mui/icons-material';
+import { GET_ALL_ORDERS } from '../../graphql/query/order';
+import useAppConfig from '../../hooks/useAppConfig';
+import { IconButton, useTheme } from '@mui/material';
 import Link from 'next/link';
 import { currencyFormat } from '../../utils/currencyFormat';
-import useAppConfig from '../../hooks/useAppConfig';
+import { OpenInNew } from '@mui/icons-material';
+import { phoneFormat } from '../../utils/phoneFormat';
+import OrderModal from '../../component/admin/ProductAdd/OrderModal';
 
 type Props = {};
 
-const ProductListAdminPage: React.FC<Props> = ({}) => {
+const OrderListPage: React.FC<Props> = ({}) => {
   const theme = useTheme();
-  const [activeProduct, setActiveProduct] = useState(null);
-  const [getProduct, getAllProduct] = useLazyQuery(GET_ALL_PRODUCTS);
+  const [getOrder, getAllOrders] = useLazyQuery(GET_ALL_ORDERS);
+  const [openOrderModal, setOpenOrderModal] = useState(false);
+
+  const [activeOrder, setActiveOrder] = useState(null);
   const { setAdminHeaderTitle } = useAppConfig();
   useEffect(() => {
-    setAdminHeaderTitle('Список товаров');
-    getProduct()
+    setAdminHeaderTitle('Список заказов');
+    getOrder()
       .then((data) => {
         console.log('SUCCES', data);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(JSON.stringify(err, null, 2)));
   }, []);
+
+  const handlerClickOrder = (e, orderId: string) => {
+    setActiveOrder(orderId);
+    setOpenOrderModal(true);
+  };
+
+  const switchOrderModal = () => {
+    setOpenOrderModal(!openOrderModal);
+    setActiveOrder(null);
+  };
 
   return (
     <MainWrapper>
-      {/* {!loading && data.getAllProducts.map((el, i) => <div>{el.name}</div>)} */}
-
-      {!getAllProduct.loading && (
+      {!getAllOrders.loading && (
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: '600' }} align="left">
-                  Название
+                  Телефон
                 </TableCell>
                 <TableCell sx={{ fontWeight: '600' }} align="left">
-                  Слаг
+                  Имя
                 </TableCell>
                 <TableCell sx={{ fontWeight: '600' }} align="left">
-                  Цена
+                  Фамилия
                 </TableCell>
                 <TableCell sx={{ fontWeight: '600' }} align="left">
-                  Артикул
+                  Стоимость заказа
                 </TableCell>
-                <TableCell sx={{ fontWeight: '600' }} align="left"></TableCell>
+                <TableCell sx={{ fontWeight: '600' }} align="left">
+                  Город
+                </TableCell>
                 <TableCell sx={{ fontWeight: '600' }} align="left"></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {getAllProduct.data?.getAllProduct?.map((product) => (
+              {getAllOrders.data?.getAllOrders?.map((order) => (
                 <TableRow
-                  // onClick={(event) => handleTableRowClick(event, product)}
-                  // selected={product._id === activeProduct}
-                  key={product._id}
+                  key={order._id}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 },
                   }}>
                   <TableCell component="th" scope="row">
-                    {product.name}
+                    {phoneFormat(order.phone)}
                   </TableCell>
-                  <TableCell align="left">{product.slug}</TableCell>
+                  <TableCell align="left"> {order.name}</TableCell>
+
                   <TableCell align="left" sx={{ whiteSpace: 'nowrap' }}>
-                    {currencyFormat(product.price)}
+                    {order.surname}
                   </TableCell>
                   <TableCell align="left" sx={{ whiteSpace: 'nowrap' }}>
-                    {product.vendorCode}
+                    {currencyFormat(order.total)}
                   </TableCell>
+                  <TableCell align="left"> {order.city}</TableCell>
                   <TableCell align="left">
-                    <Link href={`/${product.Category.slug}/${product.slug}`}>
-                      <a style={{ color: theme.palette.primary.main }}>
-                        <OpenInNew />
-                      </a>
-                    </Link>
-                  </TableCell>
-                  <TableCell align="left">
-                    <Link href={`/admin/product-edit/${product.slug}`}>
-                      <a style={{ color: theme.palette.primary.main }}>
-                        <Edit />
-                      </a>
-                    </Link>
+                    <IconButton
+                      onClick={(e) => handlerClickOrder(e, order._id)}>
+                      <OpenInNew />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
@@ -98,8 +102,15 @@ const ProductListAdminPage: React.FC<Props> = ({}) => {
           </Table>
         </TableContainer>
       )}
+      {openOrderModal ? (
+        <OrderModal
+          orderId={activeOrder}
+          open={openOrderModal}
+          handleClose={switchOrderModal}
+        />
+      ) : null}
     </MainWrapper>
   );
 };
 
-export default ProductListAdminPage;
+export default OrderListPage;

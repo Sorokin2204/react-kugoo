@@ -380,7 +380,7 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                                       }}
                                       typeSelect="rounded"
                                       beforeText={`${attr.name}:`}
-                                      defaultValue={defaultOption.attrOpt}
+                                      defaultValue={defaultOption?.attrOpt}
                                       attrId={attr._id}
                                       onChange={(event) => {
                                         let totalPrice;

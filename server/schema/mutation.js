@@ -14,7 +14,6 @@ const mutationSchema = `
     updateAttributeOption(attrOptId: String, newAttrOpt: AttributeOptionInput ): String
     createAttributeOptionInAttribute(attrId: String, attrOpt: AttributeOptionInput): String
     deleteAttributeOption(attrOptId: String): String
-
 ### SPEC
       createSpec(spec: SpecInput, specOpts: [SpecOptionInput], specExtraAfter: [SpecExtraTextInput], specExtraBefore: [SpecExtraTextInput]): String
       deleteSpec(specId: String): String

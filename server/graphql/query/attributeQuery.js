@@ -6,7 +6,7 @@ const {
 } = require('../../model');
 
 const attributeQuery = {
-  getDefaultProductAttributes: async ({ productId }) => {
+  getDefaultProductAttributes: async (parent, { productId }) => {
     const productAttrs = await Product_AttributeOption.find({
       Product: productId,
     }).select('AttributeOption  -_id');
@@ -59,7 +59,7 @@ const attributeQuery = {
       console.log(error.message);
     }
   },
-  getAttribute: async ({ attrId, attrOptId }) => {
+  getAttribute: async (parent, { attrId, attrOptId }) => {
     try {
       if (attrOptId) {
         return await Attribute.aggregate([

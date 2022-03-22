@@ -4,13 +4,14 @@ import { useRouter } from 'next/router';
 import AddEditProduct from '../../../component/admin/ProductAdd/AddEditProduct';
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { GET_PRODUCT_ADMIN } from '../../../graphql/query/product';
+import useAppConfig from '../../../hooks/useAppConfig';
 
 type Props = {};
 
 const ProductEdit: React.FC<Props> = ({}) => {
   const router = useRouter();
   const [getProduct, getProductData] = useLazyQuery(GET_PRODUCT_ADMIN);
-
+  const { setAdminHeaderTitle } = useAppConfig();
   useEffect(() => {
     if (!router.isReady) return;
     console.log(router.query.productId);
@@ -19,7 +20,12 @@ const ProductEdit: React.FC<Props> = ({}) => {
         productSlug: router.query.productId,
       },
     })
-      .then((prod) => console.log('SUCC', prod))
+      .then((prod) => {
+        setAdminHeaderTitle(
+          `Редактирование товара - "${prod.data.getProduct.name}"`,
+        );
+        console.log('SUCC', prod);
+      })
       .catch((err) => console.error(JSON.stringify(err, null, 2)));
   }, [router]);
 

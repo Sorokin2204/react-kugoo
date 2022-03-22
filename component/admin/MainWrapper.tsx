@@ -22,6 +22,7 @@ import { useRouter } from 'next/router';
 import CategoryModal from './ProductAdd/CategoryModal';
 import AttributeModal from './ProductAdd/AttributeModal';
 import SpecModal from './ProductAdd/SpecModal';
+import useAppConfig from '../../hooks/useAppConfig';
 
 const drawerWidth = 240;
 
@@ -83,6 +84,7 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
   const [openCategory, setOpenCategory] = useState<boolean>(false);
   const [openAttribute, setOpenAttribute] = useState<boolean>(false);
   const [openSpec, setOpenSpec] = useState<boolean>(false);
+  const { adminHeaderTitle } = useAppConfig();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -109,7 +111,7 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Persistent drawer
+            {adminHeaderTitle}
           </Typography>
         </Toolbar>
       </AppBar>

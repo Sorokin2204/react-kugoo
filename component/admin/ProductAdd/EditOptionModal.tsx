@@ -60,6 +60,7 @@ const EditOptionModal: React.FC<Props> = ({
             }}
           />
           <Button
+            variant="contained"
             onClick={() =>
               handleSaveEditedOption(opt, customPrice, customSublabel)
             }>

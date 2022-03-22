@@ -21,6 +21,7 @@ import {
   TableRow,
   TextField,
   Typography,
+  useTheme,
 } from '@mui/material';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
@@ -277,7 +278,7 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
       })
       .catch((err) => console.log(err.message));
   };
-
+  const theme = useTheme();
   return (
     <>
       <Modal open={open} onClose={handleClose}>
@@ -285,19 +286,41 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
           sx={{
             display: 'grid',
             gridTemplateRows: 'min-content 1fr 40px',
+
             gridTemplateColumns: '1fr 1fr',
             gridGap: '20px',
             overflowY: 'scroll',
+            [theme.breakpoints.down('sm')]: {
+              gridTemplateRows:
+                'min-content auto minmax(min-content, auto) 40px',
+            },
           }}>
+          <IconButton
+            sx={{ p: 0, position: 'absolute', top: 15, right: 15 }}
+            onClick={handleClose}>
+            <Close sx={{ fontSize: '30px' }} />
+          </IconButton>
           <Box
             sx={{
               display: 'flex',
-              alignItems: 'flex-start',
+              alignItems: 'center',
               height: 'min-content',
               gridColumn: '1/2',
               gridRow: '1/2',
+              [theme.breakpoints.down('sm')]: {
+                alignItems: 'flex-end',
+                gridColumn: '1/3',
+              },
             }}>
-            <Typography variant="h6" component="h2" sx={{ display: 'block' }}>
+            <Typography
+              variant="h6"
+              component="h2"
+              sx={{
+                display: 'block',
+                [theme.breakpoints.down('sm')]: {
+                  fontSize: '18px !important',
+                },
+              }}>
               {activeSpec
                 ? `Изменить характеристку '${activeSpec.name}'`
                 : 'Добавить характеристку'}
@@ -327,6 +350,9 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
             sx={{
               gridColumn: '1/2',
               gridRow: '2/3',
+              [theme.breakpoints.down('sm')]: {
+                gridColumn: '1/3',
+              },
             }}>
             <form
               autoComplete="off"
@@ -475,6 +501,12 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
               sx={{
                 gridColumn: '2/3',
                 gridRow: '1/3',
+                mt: '40px',
+                [theme.breakpoints.down('sm')]: {
+                  gridRow: '3/4',
+                  gridColumn: '1/3',
+                  mt: '10px',
+                },
               }}>
               <Table>
                 <TableHead>
@@ -502,6 +534,7 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
               </Table>
             </TableContainer>
           )}
+
           <Button
             onClick={handleSubmit(onSubmit)}
             variant={'contained'}
@@ -509,6 +542,10 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
             sx={{
               gridColumn: '1/3',
               gridRow: '3/4',
+
+              [theme.breakpoints.down('sm')]: {
+                gridRow: '4/5',
+              },
             }}>
             {activeSpec ? 'Сохранить' : 'Добавить'}
           </Button>
