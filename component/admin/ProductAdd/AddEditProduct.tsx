@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import {
   Box,
   Button,
@@ -8,9 +8,11 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import MainWrapper from '../MainWrapper';
-import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import _ from 'lodash';
+import { useRouter } from 'next/router';
+import React, { useEffect, useRef, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import Masonry from 'react-masonry-css';
 import {
   CREATE_PRODUCT,
   DELETE_PRODUCT,
@@ -20,20 +22,18 @@ import {
   GET_ALL_CATEGORY,
   GET_CATEGORY,
 } from '../../../graphql/query/category';
-import ProductAttribute from '../ProductAttribute';
-import _ from 'lodash';
-import EditOptionModal from '../ProductAdd/EditOptionModal';
-import TextInputForm from '../inputs/TextInputForm';
-import PriceInputForm from '../inputs/PriceInputForm';
-import NumberInputForm from '../inputs/NumberInputForm';
-import SelectForm from '../inputs/SelectForm';
-import translationToSlug from '../../../utils/translateToSlug';
-import { Product, ProductImage } from '../../../types/graphql';
-import Masonry from 'react-masonry-css';
-import ImageGallery from '../ImageGallery';
-import AlertDelete from '../AlertDelete';
 import useModal from '../../../hooks/useModal';
-import { useRouter } from 'next/router';
+import { Product, ProductImage } from '../../../types/graphql';
+import translationToSlug from '../../../utils/translateToSlug';
+import AlertDelete from '../AlertDelete';
+import ImageGallery from '../ImageGallery';
+import NumberInputForm from '../inputs/NumberInputForm';
+import PriceInputForm from '../inputs/PriceInputForm';
+import SelectForm from '../inputs/SelectForm';
+import TextInputForm from '../inputs/TextInputForm';
+import MainWrapper from '../MainWrapper';
+import EditOptionModal from '../ProductAdd/EditOptionModal';
+import ProductAttribute from '../ProductAttribute';
 interface IFormInput {
   name: string;
   price: number;
@@ -46,16 +46,28 @@ interface IFormInput {
     specOpt: string;
   }>;
   attributes: [];
-  // image: FileList;
 }
+
+const ProductAttributeBox = styled(Masonry)(({ theme }) => ({}));
 
 type Props = {
   product?: Product;
 };
 
 const AddEditProduct: React.FC<Props> = ({ product }) => {
+  // MUTATION
+  const [newProduct] = useMutation(CREATE_PRODUCT);
+  const [updateProduct] = useMutation(UPDATE_PRODUCT);
+  const [deleteProduct] = useMutation(DELETE_PRODUCT);
+  // STATE
   const theme = useTheme();
   const router = useRouter();
+  const [images, setImages] = useState<ProductImage>(product?.images || []);
+  const [openDelete, handleToggleDelete] = useModal();
+  const [openEditOption, handleToggleEditOption] = useModal();
+  const [openAttrs, setOpenAttrs] = useState<boolean[]>([]);
+  const [attrOptions, setAttrOptions] = useState([]);
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const productForm = useForm<IFormInput>({
     mode: 'onBlur',
     defaultValues: {
@@ -64,43 +76,16 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
         : { specs: [] }),
     },
   });
-
-  // MUTATION
-  const [newProduct] = useMutation(CREATE_PRODUCT);
-  const [updateProduct] = useMutation(UPDATE_PRODUCT);
-  const [deleteProduct] = useMutation(DELETE_PRODUCT);
-  //   STATE
-  const [images, setImages] = useState<ProductImage>(product?.images || []);
-
-  const [openDelete, handleToggleDelete] = useModal();
-  const [openEditOption, handleToggleEditOption] = useModal();
-
-  const [openAttrs, setOpenAttrs] = useState<boolean[]>([]);
-  const [attrOptions, setAttrOptions] = useState([]);
-  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
-  // const [editedOption, setEditedOption] = useState(null);
-  // const [openEditOptionModal, setOpenEditOptionModal] = useState(false);
   // QUERY
   const [getCategory, { data: categoryData, loading: categoryLoading }] =
     useLazyQuery(GET_CATEGORY);
   const { data: allCategoryData, loading: allCategoryLoading } =
     useQuery(GET_ALL_CATEGORY);
-
-  const ProductAttributeBox = styled(Masonry)(({ theme }) => ({}));
-  const timer = useRef('');
   const [disabledSlug, setDisabledSlug] = useState(false);
-  //EDIT OPTION MODAL
-  // const handleEditOptionClick = (opt) => {
-  //   setEditedOption(opt);
-  //   setOpenEditOptionModal(true);
-  // };
-  // const handleCloseEditOptionModal = () => {
-  //   setOpenEditOptionModal(false);
-  // };
+  // REFS
+  const timer = useRef('');
 
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    console.log(data);
-
     var result = _.flatten(_.map(data.attributes, 'opts'));
     result = _.filter(result, { checked: true });
     result = _.map(result, (e) =>
@@ -111,7 +96,6 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
       attributes: result,
       images: images.map((img) => _.omit(img, ['__typename', 'objectUrl'])),
     };
-    console.log(images);
 
     if (product) {
       updateProduct({
@@ -134,13 +118,9 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
             'Category',
           ]),
         },
-      })
-        .then((data) => {
-          console.log(data);
-        })
-        .catch((err) => {
-          console.error(JSON.stringify(err, null, 2));
-        });
+      }).catch((err) => {
+        console.error(JSON.stringify(err, null, 2));
+      });
     }
   };
 
@@ -155,14 +135,6 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
   }, [attrOptions]);
 
   useEffect(() => {
-    // if (categoryData) productForm.setValue(`specs`, []);
-  }, [categoryData]);
-
-  useEffect(() => {
-    console.log('ACTIVE CATEGORY CHANGE');
-    // productForm.setValue('specs', []);
-    productForm.clearErrors('specs');
-
     if (activeCategoryId) {
       getCategory({
         variables: {
@@ -174,7 +146,6 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
         .then((resault) => {
           const attrOpts = resault?.data?.getCategory?.attributes?.edges;
           const specOpts = resault?.data?.getCategory?.specs?.edges;
-          console.log('Attribut Resault', attrOpts);
           if (attrOpts) {
             const length = attrOpts.leght;
             const attrOptIds = attrOpts.map((attr) => {
@@ -213,23 +184,6 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
             setAttrOptions([]);
             setOpenAttrs([]);
           }
-
-          // attrOpts?.map((attr, index) => {
-          //   const findAttr = product?.AttributeOptions?.edges.find(
-          //     (attrOpt) => attrOpt.node.Attribute._id == attr.node._id,
-          //   );
-          //   checkAttribute(findAttr.node._id, null, null);
-
-          //   // productForm.setValue(
-          //   //   `attributes[${index}].specOptId`,
-          //   //   findSpec.node._id,
-          //   // );
-
-          //   // productForm.setValue(
-          //   //   `specs[${index}].customValue`,
-          //   //   findSpec.node.name,
-          //   // );
-          // });
           specOpts?.map((spec, index) => {
             const findSpec = product?.SpecOptions?.edges.find(
               (specc) => specc.node.Spec._id == spec.node._id,
@@ -250,8 +204,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
           });
         })
         .catch((err) => {
-          console.log(err);
-          // console.error(JSON.stringify(err, null, 2));
+          console.error(JSON.stringify(err, null, 2));
         });
     }
   }, [activeCategoryId]);
@@ -289,7 +242,6 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
               fontSize: '20px',
               fontWeight: '600',
               display: 'block',
-              //
             }}>
             Шаг 1 - Изображения
           </Typography>
@@ -302,7 +254,6 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
               fontSize: '20px',
               fontWeight: '600',
               display: 'block',
-              //
             }}>
             Шаг 2 - Категоря
           </Typography>
@@ -382,7 +333,6 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
               fontSize: '20px',
               fontWeight: '600',
               display: 'block',
-              //
             }}>
             Шаг 4 - Характеристики
           </Typography>
@@ -521,7 +471,6 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
               fontSize: '20px',
               fontWeight: '600',
               display: 'block',
-              //
             }}>
             Шаг 5 - Общая информация
           </Typography>
@@ -631,7 +580,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
                 color="error">
                 Удалить
               </Button>
-            )}{' '}
+            )}
           </Box>
         </form>
       </MainWrapper>

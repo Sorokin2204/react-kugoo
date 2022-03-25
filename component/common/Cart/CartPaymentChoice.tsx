@@ -1,5 +1,5 @@
+import { styled, Typography } from '@mui/material';
 import React from 'react';
-import { Box, styled, Typography } from '@mui/material';
 import RadioBlock from '../Catalog/RadioBlock';
 import {
   PayImage,
@@ -27,16 +27,16 @@ const deliveryChoiceData = [
                 <PayImage src="/static/icons/google-pay.svg" />
               </PayItem>
               <PayItem>
-                <PayImage src="/static/icons/apple-pay.svg" />{' '}
+                <PayImage src="/static/icons/apple-pay.svg" />
               </PayItem>
               <PayItem>
-                <PayImage src="/static/icons/visa.svg" />{' '}
+                <PayImage src="/static/icons/visa.svg" />
               </PayItem>
               <PayItem>
-                <PayImage src="/static/icons/mastercard.svg" />{' '}
+                <PayImage src="/static/icons/mastercard.svg" />
               </PayItem>
               <PayItem>
-                <PayImage src="/static/icons/maestro.svg" />{' '}
+                <PayImage src="/static/icons/maestro.svg" />
               </PayItem>
             </PayList>
           </>

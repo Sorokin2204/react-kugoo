@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { Close, Delete } from '@mui/icons-material';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import {
-  Autocomplete,
   Box,
   Button,
-  Checkbox,
   FormControl,
   FormControlLabel,
   IconButton,
   Modal,
-  ModalUnstyled,
   Paper,
   Radio,
   RadioGroup,
-  styled,
   Table,
   TableBody,
   TableCell,
@@ -23,24 +22,19 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import {
   CREATE_SPEC,
   DELETE_SPEC,
   UPDATE_SPEC,
 } from '../../../graphql/mutation/spec';
 import { GET_ALL_SPEC, GET_SPEC } from '../../../graphql/query/spec';
-import { ModalBox } from '../ModalBox';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import { GET_ALL_ATTRIBUTE } from '../../../graphql/query/attribute';
-import _ from 'lodash';
-import { Add, Close, Delete } from '@mui/icons-material';
-import translationToSlug from '../../../utils/translateToSlug';
-import SubTableModal from './SubTableModal';
-import AlertDelete from '../AlertDelete';
 import useModal from '../../../hooks/useModal';
+import translationToSlug from '../../../utils/translateToSlug';
+import AlertDelete from '../AlertDelete';
+import { ModalBox } from '../ModalBox';
+import SubTableModal from './SubTableModal';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -72,6 +66,33 @@ type IFormType = {
 };
 
 const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
+  // MUTATIONS
+  const [newSpec] = useMutation(CREATE_SPEC);
+  const [updateSpec] = useMutation(UPDATE_SPEC);
+  const [deleteSpec] = useMutation(DELETE_SPEC);
+  // QUERIES
+  const {
+    data: allSpecData,
+    loading: allSpecLoading,
+    error: allSpecError,
+    refetch: allSpecRefetch,
+  } = useQuery(GET_ALL_SPEC);
+  const [
+    getSpec,
+    {
+      data: specData,
+      loading: specLoading,
+      error: specError,
+      refetch: specRefetch,
+    },
+  ] = useLazyQuery(GET_SPEC);
+  // STATES
+  const theme = useTheme();
+  const [openDelete, handleToggleDelete] = useModal();
+  const [activeSpec, setActiveSpec] = useState(null);
+  const [typingNameCat, setTypingNameCat] = useState('');
+  const [isNumber, setIsNumber] = useState(false);
+  const [disabledSlugCat, setDisabledSlugCat] = useState(false);
   const {
     handleSubmit,
     control,
@@ -94,46 +115,25 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
       specExtraTextBefore: [],
     },
   });
-
-  const [openDelete, handleToggleDelete] = useModal();
-
-  const [activeSpec, setActiveSpec] = useState(null);
-
-  const [newSpec] = useMutation(CREATE_SPEC);
-  const [updateSpec] = useMutation(UPDATE_SPEC);
-  const [typingNameCat, setTypingNameCat] = useState('');
-  const [isNumber, setIsNumber] = useState(false);
-  const [disabledSlugCat, setDisabledSlugCat] = useState(false);
   const specOptionFieldArray = useFieldArray({
     name: 'specOption',
     control,
   });
-  const specExtraTextAfterFieldArray = useFieldArray({
-    name: 'specExtraTextAfter',
-    control,
-  });
-  const specExtraTextBeforeFieldArray = useFieldArray({
-    name: 'specExtraTextBefore',
-    control,
-  });
-  const [deleteSpec] = useMutation(DELETE_SPEC);
-  // const [autocompleteAttr, setAutocompleteAttr] = useState([]);
-  const {
-    data: allSpecData,
-    loading: allSpecLoading,
-    error: allSpecError,
-    refetch: allSpecRefetch,
-  } = useQuery(GET_ALL_SPEC);
-  const [
-    getSpec,
-    {
-      data: specData,
-      loading: specLoading,
-      error: specError,
-      refetch: specRefetch,
-    },
-  ] = useLazyQuery(GET_SPEC);
-
+  // EFFECTS
+  useEffect(() => {
+    const timer = translationToSlug(
+      'spec.name',
+      'spec.slug',
+      getValues,
+      setValue,
+      setDisabledSlugCat,
+    );
+    return () => clearTimeout(timer);
+  }, [typingNameCat]);
+  useEffect(() => {
+    if (!activeSpec) reset();
+  }, [activeSpec]);
+  // FUNCTIONS
   const handleTableRowClick = (event, spec) => {
     if (spec._id !== activeSpec?._id) {
       setActiveSpec(spec);
@@ -177,7 +177,6 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
               shouldValidate: true,
             },
           );
-          console.log(data.SpecOptions);
         })
         .catch((err) => {
           console.log(err);
@@ -185,12 +184,7 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
     }
   };
 
-  useEffect(() => {
-    if (!activeSpec) reset();
-  }, [activeSpec]);
-
   const onSubmit = (data: IFormType) => {
-    console.log('Submit data ', data);
     if (activeSpec) {
       let newSpecArr = [];
       let updateSpecArr = [];
@@ -209,9 +203,7 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
             slug: specOpt.slug,
           });
       });
-      console.log('newSpecArr', newSpecArr);
-      console.log('updateSpecArr', updateSpecArr);
-      console.log('deleteSpecArr', deleteSpecArr);
+
       updateSpec({
         variables: {
           updSpec: data.spec,
@@ -247,28 +239,13 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
       })
         .then(() => {
           reset();
-          console.log('SUCCESS SUBMIT');
           allSpecRefetch();
         })
         .catch((err) => {
-          console.log('ERROR SUBMIT');
-          console.log(err.message);
-
           console.log(JSON.stringify(err, null, 2));
         });
     }
   };
-
-  useEffect(() => {
-    const timer = translationToSlug(
-      'spec.name',
-      'spec.slug',
-      getValues,
-      setValue,
-      setDisabledSlugCat,
-    );
-    return () => clearTimeout(timer);
-  }, [typingNameCat]);
 
   const handleDeleteSpecClick = () => {
     deleteSpec({
@@ -283,7 +260,7 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
       })
       .catch((err) => console.log(err.message));
   };
-  const theme = useTheme();
+
   return (
     <>
       <Modal open={open} onClose={handleClose}>
@@ -452,24 +429,13 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
                       </RadioGroup>
                     </>
                   )}
-                />{' '}
+                />
               </FormControl>
               <Box
                 sx={{
                   gridColumn: '1/3',
                   gridRow: '3/4',
-
-                  // display: 'grid',
-                  // gridTemplateColumns: 'repeat(3,1fr)',
                 }}>
-                {/* <SubTableModal
-                  title={'Префикс'}
-                  isNumber={isNumber}
-                  parent={'specExtraTextBefore'}
-                  firstChild={'name'}
-                  secondChild={'slug'}
-                  fieldArray={specExtraTextBeforeFieldArray}
-                /> */}
                 <SubTableModal
                   title={'Новая опция'}
                   isNumber={isNumber}
@@ -487,14 +453,6 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
                     setError: setError,
                   }}
                 />
-                {/* <SubTableModal
-                  title={'Постфикс'}
-                  isNumber={isNumber}
-                  parent={'specExtraTextAfter'}
-                  firstChild={'name'}
-                  secondChild={'slug'}
-                  fieldArray={specExtraTextAfterFieldArray}
-                /> */}
               </Box>
             </form>
           </Box>

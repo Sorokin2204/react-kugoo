@@ -1,18 +1,15 @@
-import React from 'react';
 import { Grid, styled, useMediaQuery, useTheme } from '@mui/material';
-import FooterLinks from './FooterLinks';
+import React from 'react';
 import { menuData } from '../../Header/components/Nav';
-import { catalogData } from '../../Header/components/CatalogPopover';
 import FooterContacts from './FooterContacts';
+import FooterLinks from './FooterLinks';
 
 type Props = {};
 
 const FooterTop: React.FC<Props> = ({}) => {
   const theme = useTheme();
   const matchLg = useMediaQuery(theme.breakpoints.down('lg'));
-  let firstColData = [
-    // ...catalogData.map((el, i) => ({ name: el.name, path: el.path })),
-  ];
+
   const linksFooter = [
     ...menuData.map((el, i) => {
       if (el.inFooter) {

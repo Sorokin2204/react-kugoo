@@ -1,9 +1,9 @@
+import { Container, Divider, useTheme } from '@mui/material';
 import React from 'react';
-import { Container, Divider, styled, useTheme } from '@mui/material';
-import HeaderTop from './components/HeaderTop';
 import HeaderBottom from './components/HeaderBottom';
-import Nav from './components/Nav';
+import HeaderTop from './components/HeaderTop';
 import MobileNavigation from './components/MobileNavigation';
+import Nav from './components/Nav';
 type Props = {};
 
 const Header: React.FC<Props> = ({}) => {
@@ -11,7 +11,7 @@ const Header: React.FC<Props> = ({}) => {
   return (
     <>
       <Container>
-        <HeaderTop />{' '}
+        <HeaderTop />
       </Container>
       <Divider sx={{ backgroundColor: '#ECF3FF' }} />
       <Container

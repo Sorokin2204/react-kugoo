@@ -1,5 +1,5 @@
-import React from 'react';
 import { Box, Button, Container, styled, Typography } from '@mui/material';
+import React from 'react';
 import InputText from '../../InputText';
 
 type Props = {};

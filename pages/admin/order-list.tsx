@@ -29,11 +29,7 @@ const OrderListPage: React.FC<Props> = ({}) => {
   const { setAdminHeaderTitle } = useAppConfig();
   useEffect(() => {
     setAdminHeaderTitle('Список заказов');
-    getOrder()
-      .then((data) => {
-        console.log('SUCCES', data);
-      })
-      .catch((err) => console.log(JSON.stringify(err, null, 2)));
+    getOrder().catch((err) => console.log(JSON.stringify(err, null, 2)));
   }, []);
 
   const handlerClickOrder = (e, orderId: string) => {
@@ -85,7 +81,6 @@ const OrderListPage: React.FC<Props> = ({}) => {
                     {phoneFormat(order.phone)}
                   </TableCell>
                   <TableCell align="left" sx={{ whiteSpace: 'nowrap' }}>
-                    {' '}
                     {order.name}
                   </TableCell>
 

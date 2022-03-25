@@ -1,36 +1,15 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { styled, Box, IconButton, Typography } from '@mui/material';
+import { AddPhotoAlternate, Delete, ZoomOutMap } from '@mui/icons-material';
+import { Box, IconButton, styled, Typography } from '@mui/material';
+import { arrayMoveImmutable } from 'array-move';
+import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { UseFieldArrayReturn } from 'react-hook-form';
 import {
   SortableContainer,
   SortableElement,
   sortableHandle,
 } from 'react-sortable-hoc';
 import { ProductImage } from '../../types/graphql';
-import { arrayMoveImmutable } from 'array-move';
-import {
-  AddCircle,
-  AddCircleOutline,
-  AddCircleOutlined,
-  AddPhotoAlternate,
-  AddRounded,
-  Delete,
-  DragIndicator,
-  MoveDown,
-  PlusOneRounded,
-  ZoomOutMap,
-} from '@mui/icons-material';
-import Image from 'next/image';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
-import { UseFieldArrayReturn } from 'react-hook-form';
-import { useDropzone } from 'react-dropzone';
 
 const GalleryBox = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.grey[100],
@@ -177,9 +156,6 @@ const ImageGallery: React.FC<Props> = ({ images, setImages }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
       let newFiles = [];
-      // let lengthImages = images.length;
-      // console.log(images.length);
-
       acceptedFiles.map((acceptedFile) => {
         if (images.length + newFiles.length <= 20) {
           const objectUrl = URL.createObjectURL(acceptedFile);
@@ -219,7 +195,7 @@ const ImageGallery: React.FC<Props> = ({ images, setImages }) => {
         onSortEnd={onSortEnd}
         onDelete={handlerDelete}
         useDragHandle
-      />{' '}
+      />
       <GalleryDrop>
         <div {...getRootProps()}>
           <input {...getInputProps()} />

@@ -1,29 +1,18 @@
-import React, { useState } from 'react';
-import {
-  Container,
-  Drawer,
-  DrawerProps,
-  styled,
-  useTheme,
-} from '@mui/material';
 import { SentimentVeryDissatisfied } from '@mui/icons-material';
+import { Drawer, DrawerProps, styled, useTheme } from '@mui/material';
+import React from 'react';
 import { topHeaderData } from '../../../../data/topHeaderData';
-import {
-  LinkItem,
-  LinkList,
-  SocialLinkItem,
-  SocialLinkList,
-} from './HeaderTop';
-import LinkCustom from './LinkCustom';
-import SocialLinkCustom from './SocialLinkCustom';
 import { withSnackbar } from '../../../../hooks/useAlert';
-import Nav from './Nav';
 import {
   Chat,
   ChatItem,
   ChatList,
   ChatText,
 } from '../../Footer.tsx/components/FooterBottom';
+import { LinkItem, LinkList } from './HeaderTop';
+import LinkCustom from './LinkCustom';
+import Nav from './Nav';
+import SocialLinkCustom from './SocialLinkCustom';
 
 type Props = {};
 const MobileMenuStyled = styled(Drawer)(({ theme }) => ({
@@ -65,17 +54,7 @@ const MobileMenu: React.FC<Props & DrawerProps> = (props) => {
             </LinkItem>
           ))}
         </LinkList>
-        {/* <SocialLinkList container spacing={0}>
-            {topHeaderData.socialLinks.map((el, i) => (
-              <SocialLinkItem item key={i}>
-                <SocialLinkCustom
-                  sizeIcon={theme.spacing(6)}
-                  href={el.url}
-                  icon={el.iconUrl}
-                />
-              </SocialLinkItem>
-            ))}
-          </SocialLinkList> */}
+
         <Chat sx={{ justifyContent: 'center', mt: 7.5, mb: 10 }}>
           <ChatText variant="t3">Online чат:</ChatText>
           <ChatList container spacing={0}>

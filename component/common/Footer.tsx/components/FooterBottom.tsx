@@ -1,8 +1,8 @@
-import React from 'react';
 import { Box, styled, Typography, useTheme } from '@mui/material';
+import React from 'react';
+import { topHeaderData } from '../../../../data/topHeaderData';
 import LinkCustom from '../../Header/components/LinkCustom';
 import SocialLinkCustom from '../../Header/components/SocialLinkCustom';
-import { topHeaderData } from '../../../../data/topHeaderData';
 
 type Props = {};
 
@@ -97,22 +97,22 @@ const FooterBottom: React.FC<Props> = ({}) => {
             <PayImage src="/static/icons/google-pay.svg" />
           </PayItem>
           <PayItem>
-            <PayImage src="/static/icons/apple-pay.svg" />{' '}
+            <PayImage src="/static/icons/apple-pay.svg" />
           </PayItem>
           <PayItem>
-            <PayImage src="/static/icons/visa.svg" />{' '}
+            <PayImage src="/static/icons/visa.svg" />
           </PayItem>
           <PayItem>
-            <PayImage src="/static/icons/mastercard.svg" />{' '}
+            <PayImage src="/static/icons/mastercard.svg" />
           </PayItem>
           <PayItem>
-            <PayImage src="/static/icons/maestro.svg" />{' '}
+            <PayImage src="/static/icons/maestro.svg" />
           </PayItem>
           <PayItem>
-            <PayImage src="/static/icons/webmoney.svg" />{' '}
+            <PayImage src="/static/icons/webmoney.svg" />
           </PayItem>
           <PayItem>
-            <PayImage src="/static/icons/qiwi.svg" />{' '}
+            <PayImage src="/static/icons/qiwi.svg" />
           </PayItem>
         </PayList>
         <Chat

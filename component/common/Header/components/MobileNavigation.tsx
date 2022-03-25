@@ -1,19 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  ButtonBase,
-  ButtonUnstyled,
-  Link as LinkMUI,
-  styled,
-  useTheme,
-} from '@mui/material';
-import { mobileNavData } from '../../../../data/mobileNavData';
-import Link from 'next/link';
-import LinkCustom from './LinkCustom';
-import { useRouter } from 'next/router';
-import { BadgeRounded } from './HeaderBottom';
-import useAppConfig from '../../../../hooks/useAppConfig';
+import { Box, styled, useTheme } from '@mui/material';
 import _ from 'lodash';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { mobileNavData } from '../../../../data/mobileNavData';
+import useAppConfig from '../../../../hooks/useAppConfig';
+import { BadgeRounded } from './HeaderBottom';
+import LinkCustom from './LinkCustom';
 
 type Props = {};
 
@@ -67,9 +59,6 @@ const MobileNavigation: React.FC<Props> = ({}) => {
   const theme = useTheme();
   const { cartProducts } = useAppConfig();
   const [cartCount, setCartCount] = useState(null);
-  useEffect(() => {
-    console.log(router);
-  }, [router]);
 
   useEffect(() => {
     setCartCount(_.sumBy(cartProducts, 'pieces'));

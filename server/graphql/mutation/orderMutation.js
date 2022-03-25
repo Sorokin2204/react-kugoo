@@ -22,7 +22,6 @@ const orderMutation = {
       return new OrderProduct(newOrderProd).save();
     });
     await Promise.all(newOrderProducts);
-    console.log('Order created');
   },
 };
 module.exports = { orderMutation };

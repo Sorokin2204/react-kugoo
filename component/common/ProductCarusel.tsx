@@ -1,9 +1,8 @@
+import { Container, Typography } from '@mui/material';
 import React from 'react';
-import { Container, styled, Typography } from '@mui/material';
-import { Swiper, SwiperSlide } from 'swiper/react';
-
 // Import Swiper styles
 import 'swiper/css';
+import { Swiper, SwiperSlide } from 'swiper/react';
 import { productData } from './Catalog';
 import Product from './Product';
 

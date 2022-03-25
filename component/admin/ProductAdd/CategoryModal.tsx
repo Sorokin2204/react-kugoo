@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { Close, Delete } from '@mui/icons-material';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import {
   Autocomplete,
   Box,
@@ -7,9 +10,7 @@ import {
   FormControl,
   IconButton,
   Modal,
-  ModalUnstyled,
   Paper,
-  styled,
   Table,
   TableBody,
   TableCell,
@@ -20,27 +21,24 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import {
   CREATE_CATEGORY,
   DELETE_CATEGORY,
   UPDATE_CATEGORY,
 } from '../../../graphql/mutation/category';
+import { GET_ALL_ATTRIBUTE } from '../../../graphql/query/attribute';
 import {
   GET_ALL_CATEGORY,
   GET_CATEGORY,
 } from '../../../graphql/query/category';
-import { ModalBox } from '../ModalBox';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import { GET_ALL_ATTRIBUTE } from '../../../graphql/query/attribute';
-import _ from 'lodash';
-import { Close, Delete } from '@mui/icons-material';
-import translationToSlug from '../../../utils/translateToSlug';
 import { GET_ALL_SPEC } from '../../../graphql/query/spec';
 import useModal from '../../../hooks/useModal';
+import translationToSlug from '../../../utils/translateToSlug';
 import AlertDelete from '../AlertDelete';
+import { ModalBox } from '../ModalBox';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -48,8 +46,6 @@ type Props = {
   open: boolean;
   handleClose();
 };
-
-const style = {};
 
 type IFormType = {
   name: string;
@@ -59,33 +55,11 @@ type IFormType = {
 };
 
 const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
-  const {
-    handleSubmit,
-    control,
-    reset,
-    register,
-    formState: { isValid, errors },
-    setValue,
-    getValues,
-  } = useForm<IFormType>({
-    mode: 'onBlur',
-    defaultValues: {
-      name: '',
-      slug: '',
-      Attributes: [],
-      Specs: [],
-    },
-  });
-
-  const [openDelete, handleToggleDelete] = useModal();
-  const [activeCategory, setActiveCategory] = useState(null);
+  // MUTATIONS
   const [newCategory] = useMutation(CREATE_CATEGORY);
   const [deleteCategory] = useMutation(DELETE_CATEGORY);
   const [updateCategory] = useMutation(UPDATE_CATEGORY);
-  const [autocompleteAttr, setAutocompleteAttr] = useState([]);
-  const [autocompleteAttrDefault, setAutocompleteAttrDefault] = useState([]);
-  const [autocompleteSpec, setAutocompleteSpec] = useState([]);
-  const [autocompleteSpecDefault, setAutocompleteSpecDefault] = useState([]);
+  // QUERIES
   const {
     data: allCategoryData,
     loading: allCategoryLoading,
@@ -115,9 +89,63 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
     error: allSpecError,
     refetch: allSpecRefetch,
   } = useQuery(GET_ALL_SPEC);
+  // STATES
+  const theme = useTheme();
+  const [openDelete, handleToggleDelete] = useModal();
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [autocompleteAttr, setAutocompleteAttr] = useState([]);
+  const [autocompleteAttrDefault, setAutocompleteAttrDefault] = useState([]);
+  const [autocompleteSpec, setAutocompleteSpec] = useState([]);
+  const [autocompleteSpecDefault, setAutocompleteSpecDefault] = useState([]);
+  const [typingNameCat, setTypingNameCat] = useState('');
+  const [disabledSlugCat, setDisabledSlugCat] = useState(false);
+  const {
+    handleSubmit,
+    control,
+    reset,
+    register,
+    formState: { isValid, errors },
+    setValue,
+    getValues,
+  } = useForm<IFormType>({
+    mode: 'onBlur',
+    defaultValues: {
+      name: '',
+      slug: '',
+      Attributes: [],
+      Specs: [],
+    },
+  });
 
-  useEffect(() => {}, []);
+  //HOOKS
+  useEffect(() => {
+    if (!activeCategory) reset();
+  }, [activeCategory]);
 
+  useEffect(() => {
+    setValue('Attributes', autocompleteAttr, {
+      shouldValidate: true,
+    });
+  }, [autocompleteAttr]);
+
+  useEffect(() => {
+    setValue('Specs', autocompleteSpec, {
+      shouldValidate: true,
+    });
+  }, [autocompleteSpec]);
+
+  useEffect(() => {
+    const timer = translationToSlug(
+      'name',
+      'slug',
+      getValues,
+      setValue,
+      setDisabledSlugCat,
+    );
+    return () => clearTimeout(timer);
+  }, [typingNameCat]);
+
+  // FUNCTIONS
   const handleTableRowClick = (event, category) => {
     if (category._id !== activeCategory?._id) {
       setActiveCategory(category);
@@ -130,7 +158,6 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
       })
         .then((resault) => {
           const data = resault.data.getCategory;
-          console.log('CATEGORY DATA', data);
 
           if (data.attributes) {
             const Attribute = data.attributes.edges.map((attr) => ({
@@ -166,24 +193,7 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
         });
     }
   };
-
-  useEffect(() => {
-    if (!activeCategory) reset();
-  }, [activeCategory]);
-
-  useEffect(() => {
-    setValue('Attributes', autocompleteAttr, {
-      shouldValidate: true,
-    });
-  }, [autocompleteAttr]);
-  useEffect(() => {
-    setValue('Specs', autocompleteSpec, {
-      shouldValidate: true,
-    });
-  }, [autocompleteSpec]);
-
   const onSubmit = (data: IFormType) => {
-    console.log('Submit data ', data);
     if (activeCategory) {
       let diffDeletedSpecs = _.differenceWith(
         autocompleteSpecDefault,
@@ -205,14 +215,6 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
         autocompleteAttrDefault,
         _.isEqual,
       );
-
-      console.log('diffDeletedSpecs', diffDeletedSpecs);
-
-      console.log('diffAddedSpecs', diffAddedSpecs);
-
-      console.log('diffDeletedAttrs', diffDeletedAttrs);
-
-      console.log('diffAddedAttrs', diffAddedAttrs);
 
       updateCategory({
         variables: {
@@ -237,23 +239,7 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
         })
         .catch((err) => console.log(err.message));
     }
-
-    // reset();
   };
-
-  const [typingNameCat, setTypingNameCat] = useState('');
-  const [disabledSlugCat, setDisabledSlugCat] = useState(false);
-  const theme = useTheme();
-  useEffect(() => {
-    const timer = translationToSlug(
-      'name',
-      'slug',
-      getValues,
-      setValue,
-      setDisabledSlugCat,
-    );
-    return () => clearTimeout(timer);
-  }, [typingNameCat]);
 
   const handleDeleteCategoryClick = (e) => {
     deleteCategory({
@@ -413,9 +399,6 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
                             }));
                             setAutocompleteAttr(attrIds);
                             setValue('Attributes', attrIds);
-                            console.log(reason, detail);
-
-                            // field.onChange(attrIds);
                           }}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>

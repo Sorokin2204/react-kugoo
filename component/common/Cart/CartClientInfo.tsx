@@ -1,10 +1,9 @@
+import { Box, styled, useTheme } from '@mui/material';
 import React, { useState } from 'react';
-import { Box, FormLabel, styled, Typography, useTheme } from '@mui/material';
-import InputText from '../InputText';
-import FilterCheckbox from '../FilterCheckbox';
 import { UseFormReturn } from 'react-hook-form';
-import TextInputForm from '../../admin/inputs/TextInputForm';
 import NumberInputForm from '../../admin/inputs/NumberInputForm';
+import TextInputForm from '../../admin/inputs/TextInputForm';
+import InputText from '../InputText';
 
 type Props = {
   form: UseFormReturn;
@@ -103,17 +102,6 @@ const CartClientInfo: React.FC<Props> = ({ form }) => {
               gridColumn: '1/2',
             },
           }}>
-          {/* <Typography variant="t4" sx={{ mb: 3.5 }}>
-            Комментрий
-          </Typography>
-          <InputText
-            multiline
-            
-            value={inputValue}
-            placeholder={'Оставьте пожелание или комментарий к заказу '}
-            onInput={(event) => setInputValue(event.target.value)}
-          /> */}
-
           <TextInputForm
             CustomTag={InputText}
             label={'Комментрий'}
@@ -130,55 +118,6 @@ const CartClientInfo: React.FC<Props> = ({ form }) => {
             form={form}
           />
         </InputBox>
-        {/* <InputBox>
-          <Typography variant="t4" sx={{ mb: 3.5 }}>
-            Ваше имя
-          </Typography>
-          <InputText
-            value={inputValue}
-            placeholder={'Введите имя'}
-            onInput={(event) => setInputValue(event.target.value)}
-          />
-        </InputBox>
-        <InputBox>
-          <Typography variant="t4" sx={{ mb: 3.5 }}>
-            Ваш телефона*
-          </Typography>
-          <InputText
-            value={inputValue}
-            placeholder={'+7 (___) __ - __ - __'}
-            onInput={(event) => setInputValue(event.target.value)}
-          />
-        </InputBox>
-        <InputBox>
-          <Typography variant="t4" sx={{ mb: 3.5 }}>
-            Ваш email
-          </Typography>
-          <InputText
-            value={inputValue}
-            placeholder={'Введите email'}
-            onInput={(event) => setInputValue(event.target.value)}
-          />
-          <FilterCheckbox
-            sx={{
-              marginTop: theme.spacing(5),
-              '& .MuiTypography-root': {
-                ...theme.typography.t4,
-              },
-              '& .MuiCheckbox-root': {
-                '& span:before': {
-                  marginRight: '12px',
-                },
-              },
-            }}
-            data={[
-              {
-                value: 'discount',
-                label: 'Сообщать мне об акциях и скидках',
-              },
-            ]}
-          />
-        </InputBox> */}
       </CartGridInput>
     </>
   );

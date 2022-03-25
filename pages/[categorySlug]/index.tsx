@@ -16,15 +16,11 @@ const CatalogPage: React.FC<Props> = ({}) => {
 
   useEffect(() => {
     if (!router.isReady) return;
-    console.log('Router', router);
+
     checkCategory({
       variables: {
         categorySlug: router.query.categorySlug,
       },
-    }).then((dataCategory) => {
-      console.log('succ', dataCategory.data.checkExistCategory);
-      if (dataCategory.data.checkExistCategory === false) {
-      }
     });
   }, [router]);
 
@@ -36,7 +32,6 @@ const CatalogPage: React.FC<Props> = ({}) => {
     if (data?.checkExistCategory) {
       return (
         <>
-          <Container>{/* <BreadcrumbsCustom /> */}</Container>
           <Container>
             <Catalog type="filter" category={router.query.categorySlug} />
           </Container>
@@ -50,17 +45,6 @@ const CatalogPage: React.FC<Props> = ({}) => {
       );
     }
   }
-
-  // if (!loading && data?.checkExistCategory) {
-  //   return (
-  //     <>
-  //       <Container>{/* <BreadcrumbsCustom /> */}</Container>
-  //       <Container>
-  //         <Catalog type="filter" category={router.query.categorySlug} />
-  //       </Container>
-  //     </>
-  //   );
-  // }
   return <></>;
 };
 

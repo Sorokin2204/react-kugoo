@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
 import {
   Box,
-  Button,
   ButtonBase,
   InputBase,
   InputBaseProps,
   styled,
 } from '@mui/material';
-import ButtonIcon from './ButtonIcon';
+import React, { useState } from 'react';
 import NumberFormat, { NumberFormatProps } from 'react-number-format';
 
 type Props = {
@@ -21,13 +19,12 @@ const BoxInput = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   borderRadius: '5px',
   maxWidth: theme.spacing(53),
-  // minWidth: theme.spacing(40),
+
   [theme.breakpoints.down('xs')]: {
     maxWidth: theme.spacing(40),
   },
 }));
 const DecrimentButton = styled(ButtonBase)(({ theme }) => ({
-  //   border: '1px solid red',
   '&::after': {
     content: '""',
     display: 'block',
@@ -37,14 +34,11 @@ const DecrimentButton = styled(ButtonBase)(({ theme }) => ({
   },
 }));
 const InputCustom = styled(NumberFormat)(({ theme }) => ({
-  //   border: '1px solid red',
-
   '& .MuiInputBase-input': {
     textAlign: 'center',
   },
 }));
 const IncrimentButton = styled(ButtonBase)(({ theme }) => ({
-  //   border: '1px solid red',
   '&::after,&::before': {
     content: '""',
     display: 'block',

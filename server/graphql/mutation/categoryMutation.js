@@ -15,7 +15,7 @@ const { fetchFakeServer } = require('../../utils/fetchFakeServer');
 const categoryMutation = {
   createCategory: async (parent, { cat, catAttrIds, catSpecIds }) => {
     const newCat = await new Category(cat).save();
-    console.log(catSpecIds);
+
     const newCatAttrs = await Category_Attribute.insertMany(
       catAttrIds.map((attrId) => ({
         Category: newCat._id,
@@ -169,12 +169,6 @@ const categoryMutation = {
       });
       await Category_Attribute.deleteMany({ Attribute: deleteIdAttrs });
     }
-
-    console.log('updCategory', updCategory);
-    console.log('deleteIdOpts', deleteIdSpecs);
-    console.log('newIdOpts', newIdSpecs);
-    console.log('deleteIdOpts', deleteIdAttrs);
-    console.log('newIdOpts', newIdAttrs);
   },
 };
 module.exports = { categoryMutation };

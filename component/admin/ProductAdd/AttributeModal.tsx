@@ -1,16 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { Close, Delete } from '@mui/icons-material';
 import {
-  Autocomplete,
   Box,
   Button,
-  Checkbox,
-  FormControl,
   FormControlLabel,
-  FormGroup,
   IconButton,
-  InputLabel,
   Modal,
-  ModalUnstyled,
   Paper,
   styled,
   Switch,
@@ -24,8 +19,10 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import NumberFormat from 'react-number-format';
 import {
   CREATE_ATTRIBUTE_OPTION_IN_ATTRIBUTE,
   CREATE_ATTRIBUTE_WITH_OPTIONS,
@@ -37,31 +34,8 @@ import {
   GET_ALL_ATTRIBUTE,
   GET_ATTRIBUTE,
 } from '../../../graphql/query/attribute';
-import { ModalBox } from '../ModalBox';
-import { CheckCircle, CheckOutlined, Close, Delete } from '@mui/icons-material';
-import _ from 'lodash';
-import NumberFormat from 'react-number-format';
-import translate from 'translate';
-import slugify from 'slugify';
 import translationToSlug from '../../../utils/translateToSlug';
-type Props = {
-  open: boolean;
-  handleClose();
-};
-
-type IFormType = {
-  attribute: {
-    name: string;
-    slug: string;
-  };
-  attributeOption: {
-    label: string;
-    slug: string;
-    subLabel: string;
-    defaultPrice: number;
-    defaultChecked: boolean;
-  };
-};
+import { ModalBox } from '../ModalBox';
 
 const AttributeOptionList = styled(Box)(({ theme }) => ({
   display: 'inline-flex',
@@ -75,8 +49,7 @@ const AttributOption = styled(Box)<{ active: boolean }>(
     cursor: 'default',
     display: 'flex',
     userSelect: 'none',
-    // width: '100%',
-    // whiteSpace: 'nowrap',
+
     alignItems: 'center',
     borderRadius: '5px',
     border: `2px solid ${theme.palette.grey[400]}`,
@@ -104,6 +77,25 @@ const AttributeOptionChecked = styled(Box)(({ theme }) => ({
   marginBottom: '2px',
 }));
 
+type Props = {
+  open: boolean;
+  handleClose();
+};
+
+type IFormType = {
+  attribute: {
+    name: string;
+    slug: string;
+  };
+  attributeOption: {
+    label: string;
+    slug: string;
+    subLabel: string;
+    defaultPrice: number;
+    defaultChecked: boolean;
+  };
+};
+
 const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
   const {
     handleSubmit,
@@ -128,11 +120,7 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
       attribute: { name: '', slug: '' },
     },
   });
-
-  const [activeAttribute, setActiveAttribute] = useState(null);
-  const [activeAttributeOption, setActiveAttributeOption] = useState(null);
-  const [disabledAttrSlug, setDisabledAttrSlug] = useState(false);
-  const [isFormChanged, setIsFormChanged] = useState(false);
+  //  MUTATIONS
   const [newAttribute] = useMutation(CREATE_ATTRIBUTE_WITH_OPTIONS);
   const [newAttributeOption] = useMutation(
     CREATE_ATTRIBUTE_OPTION_IN_ATTRIBUTE,
@@ -140,34 +128,7 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
   const [updateAttributeOption] = useMutation(UPDATE_ATTRIBUTE_OPTION);
   const [updateAttribute] = useMutation(UPDATE_ATTRIBUTE);
   const [deleteAttributeOption] = useMutation(DELETE_ATTRIBUTE_OPTION);
-
-  // ATTRIBUTE SLUG
-  const [disabledSlugField, setDisabledSlugField] = useState(false);
-  const [typingLabelField, setTypingLabelField] = useState('');
-  const [typingLabelAttrField, setTypingLabelAttrField] = useState('');
-  useEffect(() => {
-    const timer = translationToSlug(
-      'attributeOption.label',
-      'attributeOption.slug',
-      getValues,
-      setValue,
-      setDisabledSlugField,
-    );
-
-    return () => clearTimeout(timer);
-  }, [typingLabelField]);
-
-  useEffect(() => {
-    const timer = translationToSlug(
-      'attribute.name',
-      'attribute.slug',
-      getValues,
-      setValue,
-      setDisabledAttrSlug,
-    );
-    return () => clearTimeout(timer);
-  }, [typingLabelAttrField]);
-
+  // QUERIES
   const {
     data: allAttributeData,
     loading: allAttributeLoading,
@@ -183,6 +144,37 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
       refetch: attributeRefetch,
     },
   ] = useLazyQuery(GET_ATTRIBUTE);
+  // STATE
+  const theme = useTheme();
+  const [activeAttribute, setActiveAttribute] = useState(null);
+  const [activeAttributeOption, setActiveAttributeOption] = useState(null);
+  const [disabledAttrSlug, setDisabledAttrSlug] = useState(false);
+  const [isFormChanged, setIsFormChanged] = useState(false);
+  const [disabledSlugField, setDisabledSlugField] = useState(false);
+  const [typingLabelField, setTypingLabelField] = useState('');
+  const [typingLabelAttrField, setTypingLabelAttrField] = useState('');
+  // EFFECTS
+  useEffect(() => {
+    const timer = translationToSlug(
+      'attributeOption.label',
+      'attributeOption.slug',
+      getValues,
+      setValue,
+      setDisabledSlugField,
+    );
+    return () => clearTimeout(timer);
+  }, [typingLabelField]);
+
+  useEffect(() => {
+    const timer = translationToSlug(
+      'attribute.name',
+      'attribute.slug',
+      getValues,
+      setValue,
+      setDisabledAttrSlug,
+    );
+    return () => clearTimeout(timer);
+  }, [typingLabelAttrField]);
 
   useEffect(() => {
     if (activeAttribute) {
@@ -226,9 +218,8 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
     }
     checkFormChange();
   }, [activeAttributeOption]);
-
+  // FUNCTIONS
   const onSubmit = (data: IFormType) => {
-    console.log('Form submited', data);
     if (checkFormChange()) {
       return;
     }
@@ -289,7 +280,6 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
     return isFormDataChanged;
   };
 
-  const theme = useTheme();
   return (
     <>
       <Modal open={open} onClose={handleClose}>
@@ -390,8 +380,6 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
                 <Button
                   disabled={errors?.attribute?.name || errors?.attribute?.slug}
                   onClick={() => {
-                    console.log(getValues('attribute'));
-
                     updateAttribute({
                       variables: {
                         updAttr: {

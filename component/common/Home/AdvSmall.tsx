@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Box,
   styled,
@@ -7,6 +6,7 @@ import {
   useTheme,
 } from '@mui/material';
 import Image from 'next/image';
+import React from 'react';
 import { advData } from '../../../data/advData';
 
 const AdvBox = styled(Box)(({ theme }) => ({
@@ -94,7 +94,6 @@ const AdvReviewImgBox = styled(Box)(({ theme }) => ({
   },
   [theme.breakpoints.down('sm')]: {
     marginRight: '10px',
-  
   },
   '&::after': {
     content: '""',

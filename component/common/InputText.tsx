@@ -1,4 +1,3 @@
-import React from 'react';
 import { InputBase, InputBaseProps, styled } from '@mui/material';
 
 type Props = {

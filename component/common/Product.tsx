@@ -1,29 +1,27 @@
-import React from 'react';
+import { useLazyQuery } from '@apollo/client';
+import { Delete } from '@mui/icons-material';
 import {
   Box,
   Button,
   Card,
   CardActions,
   CardContent,
-  CardHeader,
-  CardMedia,
   Grid,
   styled,
   Typography,
   useTheme,
 } from '@mui/material';
-import ButtonIcon from './ButtonIcon';
 import Image from 'next/image';
-import { currencyFormat } from '../../utils/currencyFormat';
-import { AttributeOption, Product } from '../../types/graphql';
 import { useRouter } from 'next/router';
+import React from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
-import { useLazyQuery } from '@apollo/client';
 import { GET_DEFAULT_PRODUCT_ATTRIBUTES } from '../../graphql/query/attribute';
-import useAppConfig from '../../hooks/useAppConfig';
 import { withSnackbar } from '../../hooks/useAlert';
-import { Add, Delete } from '@mui/icons-material';
+import useAppConfig from '../../hooks/useAppConfig';
+import { AttributeOption, Product } from '../../types/graphql';
+import { currencyFormat } from '../../utils/currencyFormat';
+import ButtonIcon from './ButtonIcon';
 type Props = {
   data: Product;
   inCart: boolean;
@@ -84,7 +82,6 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
       let attributes = [];
       dataDefault.data.getDefaultProductAttributes.map(
         (defaultAttrOpt: AttributeOption) => {
-          console.log(defaultAttrOpt?.defaultPrice);
           total += parseInt(defaultAttrOpt?.defaultPrice);
           attributes.push({
             attr: defaultAttrOpt.Attribute._id,
@@ -92,7 +89,6 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
           });
         },
       );
-      console.log(total);
 
       addingInCart({
         totalPrice: total,
@@ -132,27 +128,11 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
           src={`/static/products/${data.images[data.images.length - 1]?.name}`}
           width={'242px'}
         />
-        {/* <MainMedia
-          sx={{}}
-          src={`/static/products/${data.images[data.images.length - 1]?.name}`}
-          width="242"
-          height="182"
-        /> */}
-        {/* <Tag sx={{ backgroundColor: data.tag.color, px: 4.5, py: 2 }}>
-          {data.tag.name}
-        </Tag> */}
-        {/* 
-        <BtnCompare
-          iconW={theme.spacing(10)}
-          iconH={theme.spacing(6)}
-          icon={'/static/icons/compare.svg'}
-          iconColor={theme.palette.grey[600]}
-          sizeBtn={theme.spacing(20)}></BtnCompare> */}
       </Header>
       <Content sx={{ pt: 10, px: 12, pb: 0 }}>
         <Title variant="t1bb" sx={{ mb: 10 }}>
           {data.name}
-        </Title>{' '}
+        </Title>
         <SpecList container spacing={9} sx={{ mb: 13 }}>
           {data.SpecOptions.edges.map((specOpt, i) => (
             <SpecItem
@@ -198,13 +178,6 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
                   snackbarShowMessage(`Товар добавлен в корзину`);
                 });
           }}></BtnCart>
-        {/* <BtnFavorite
-          variant="border"
-          iconW={theme.spacing(8.5)}
-          iconH={theme.spacing(7.5)}
-          icon={'/static/icons/favorite.svg'}
-          iconColor={theme.palette.primary.main}
-          sizeBtn={theme.spacing(20)}></BtnFavorite> */}
 
         <BtnBuy
           variant="containedSmall"
@@ -233,7 +206,6 @@ const ProductCard = styled(Card)(({ theme }) => ({
 const Header = styled(Box)(({ theme }) => ({
   position: 'relative',
   maxHeight: '230px',
-  // background: '#F0F1F5',
 }));
 const Tag = styled(Box)(({ theme }) => ({
   position: 'absolute',

@@ -180,7 +180,7 @@ const productMutation = {
   createProduct: async (parent, { product }) => {
     try {
       const { attributes, specs, category, images, ...productData } = product;
-      console.log(images);
+
       const newImages = await createImages(images);
       const newProduct = await new Product({
         ...productData,
@@ -189,12 +189,6 @@ const productMutation = {
       }).save();
       createProductSpecs(specs, newProduct._id);
       createProductAttributes(attributes, newProduct._id);
-
-      //   Promise.all([...productSpecOperations, ...productAttrOperations]).then(
-      //     () => {
-      //       console.log('All specs and attrs added');
-      //     },
-      //   );
     } catch (error) {
       console.log(error);
     }
@@ -211,7 +205,6 @@ const productMutation = {
     );
   },
   deleteProduct: async (parent, { productId }) => {
-    console.log(productId);
     await Product.updateOne({ _id: productId }, { isDeleted: true });
   },
 };

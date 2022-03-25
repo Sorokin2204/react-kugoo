@@ -14,7 +14,7 @@ const ProductEdit: React.FC<Props> = ({}) => {
   const { setAdminHeaderTitle } = useAppConfig();
   useEffect(() => {
     if (!router.isReady) return;
-    console.log(router.query.productId);
+
     getProduct({
       variables: {
         productSlug: router.query.productId,
@@ -24,7 +24,6 @@ const ProductEdit: React.FC<Props> = ({}) => {
         setAdminHeaderTitle(
           `Редактирование товара - "${prod.data.getProduct.name}"`,
         );
-        console.log('SUCC', prod);
       })
       .catch((err) => console.error(JSON.stringify(err, null, 2)));
   }, [router]);
@@ -36,9 +35,6 @@ const ProductEdit: React.FC<Props> = ({}) => {
       ) : (
         <CircularProgress />
       )}
-      {/* {!getProduct.loading && 
-        getProduct.data.getProduct.Spec
-     } */}
     </>
   );
 };

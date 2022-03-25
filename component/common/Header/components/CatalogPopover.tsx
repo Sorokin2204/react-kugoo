@@ -1,12 +1,7 @@
-import React, {
-  MouseEventHandler,
-  ReactEventHandler,
-  useEffect,
-  useState,
-} from 'react';
+import { useQuery } from '@apollo/client';
 import { Box, Link, Popover, PopoverProps, styled } from '@mui/material';
 import { random } from 'lodash';
-import { useQuery } from '@apollo/client';
+import React, { useState } from 'react';
 import { GET_ALL_CATEGORY } from '../../../../graphql/query/category';
 
 type Props = {};
@@ -131,17 +126,6 @@ const CatalogPopover: React.FC<PopoverProps> = (props) => {
     CatalogFilter[] | null
   >(null);
 
-  useEffect(() => {
-    // setActiveLink(categoryData[0]._id);
-  }, []);
-
-  useEffect(() => {
-    // const foundFilterData = categoryData.find(
-    //   (el) => el._id == activeLink,
-    // )?.filter;
-    // foundFilterData && setActiveFilterData(foundFilterData);
-  }, [activeLink]);
-
   const handleClickLink = (
     event: React.MouseEvent<Element, MouseEvent>,
     linkId: string,
@@ -166,12 +150,7 @@ const CatalogPopover: React.FC<PopoverProps> = (props) => {
           ))}
         </CategoryList>
       </Category>
-      <Filter
-        sx={
-          {
-            // pl: 20, pt: 10, pr: 10, pb: 10
-          }
-        }>
+      <Filter>
         <FilterBlockList>
           {activeFilterData?.map((el, i) => (
             <FilterBlockItem key={i}>

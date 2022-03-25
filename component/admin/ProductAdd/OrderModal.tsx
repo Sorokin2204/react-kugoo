@@ -1,13 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useLazyQuery } from '@apollo/client';
+import { Close } from '@mui/icons-material';
 import {
-  Autocomplete,
   Box,
-  Button,
-  Checkbox,
-  FormControl,
   IconButton,
   Modal,
-  ModalUnstyled,
   Paper,
   styled,
   Table,
@@ -16,32 +12,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   Typography,
 } from '@mui/material';
-import { Controller, useForm } from 'react-hook-form';
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import {
-  CREATE_CATEGORY,
-  DELETE_CATEGORY,
-  UPDATE_CATEGORY,
-} from '../../../graphql/mutation/category';
-import {
-  GET_ALL_CATEGORY,
-  GET_CATEGORY,
-} from '../../../graphql/query/category';
-import { ModalBox } from '../ModalBox';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import { GET_ALL_ATTRIBUTE } from '../../../graphql/query/attribute';
-import _ from 'lodash';
-import { Close, Delete } from '@mui/icons-material';
-import translationToSlug from '../../../utils/translateToSlug';
-import { GET_ALL_SPEC } from '../../../graphql/query/spec';
+import React, { useEffect } from 'react';
 import { GET_ORDER } from '../../../graphql/query/order';
 import { currencyFormat } from '../../../utils/currencyFormat';
-const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-const checkedIcon = <CheckBoxIcon fontSize="small" />;
+import { ModalBox } from '../ModalBox';
 
 const OrderProduct = styled(Box)(({ theme }) => ({
   display: 'grid',
@@ -106,7 +82,6 @@ type Props = {
 };
 
 const OrderModal: React.FC<Props> = ({ open, handleClose, orderId }) => {
-  //   const { data: getOrderData, loading: getOrderLoading } = useQuery(GET_ORDER);
   const [
     getOrder,
     { data: { getOrder: orderData } = {}, loading: getOrderLoading },
@@ -118,9 +93,7 @@ const OrderModal: React.FC<Props> = ({ open, handleClose, orderId }) => {
         variables: {
           orderId: orderId,
         },
-      })
-        .then((succ) => console.log(succ))
-        .catch((err) => console.log(JSON.stringify(err, null, 2)));
+      }).catch((err) => console.log(JSON.stringify(err, null, 2)));
     }
   }, [orderId]);
 

@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import {
   FormControl,
   FormControlLabel,
@@ -7,8 +6,7 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
-import { useLazyQuery } from '@apollo/client';
-import { GET_ALL_PRODUCTS_CARD } from '../../graphql/query/product';
+import React, { useEffect, useState } from 'react';
 
 export type FilterInlineType = {
   label: string;
@@ -21,9 +19,6 @@ type Props = {
 };
 
 const FilterInline: React.FC<Props> = ({ data, onChangeSort }) => {
-  // const [getAllProductCard, getAllProductCardData] = useLazyQuery(
-  //   GET_ALL_PRODUCTS_CARD,
-  // );
   const [activeFilter, setActiveFilter] = useState<string>(data[0].value);
   const theme = useTheme();
   const handleChangeFilter = (

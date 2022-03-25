@@ -1,17 +1,12 @@
+import { Grid, styled, useTheme } from '@mui/material';
 import React, { useState } from 'react';
-import { Box, Grid, styled, Typography, useTheme } from '@mui/material';
-import InputText from '../InputText';
-import FilterCheckbox from '../FilterCheckbox';
-import TextInputForm from '../../admin/inputs/TextInputForm';
 import { UseFormReturn } from 'react-hook-form';
 import NumberInputForm from '../../admin/inputs/NumberInputForm';
+import TextInputForm from '../../admin/inputs/TextInputForm';
+import InputText from '../InputText';
 
 type Props = { form: UseFormReturn };
-const CartGridInput = styled(Grid)(({ theme }) => ({
-  // display: 'grid',
-  // gridTemplateColumns: 'repeat(2,1fr)',
-  // gridGap: '20px',
-}));
+const CartGridInput = styled(Grid)(({ theme }) => ({}));
 const InputBox = styled(Grid)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',

@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Box,
   Button,
@@ -9,6 +8,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { useRouter } from 'next/router';
+import React from 'react';
 
 type Props = {};
 
@@ -130,9 +130,7 @@ const ImageTest = styled(Box)(({ theme }) => ({
   borderRadius: '5px',
   border: '1px solid rgba(255, 255, 255, 0.2)',
   whiteSpace: 'nowrap',
-  // [theme.breakpoints.down('lg')]: {
-  //   ...theme.typography.t4b,
-  // },
+
   '&::before': {
     content: '""',
     display: 'block',
@@ -151,9 +149,6 @@ const ImageFree = styled(Box)(({ theme }) => ({
   position: 'absolute',
   bottom: '-35%',
   right: theme.spacing(8),
-  // [theme.breakpoints.down('lg')]: {
-  //   ...theme.typography.t5b,
-  // },
 }));
 
 const ImageLine = styled(Box)(({ theme }) => ({
@@ -168,12 +163,7 @@ const ImageLine = styled(Box)(({ theme }) => ({
   height: '1px',
   transform: 'rotate(4deg)',
   borderTop: `1.5px dashed  ${theme.palette.common.white}`,
-  // [theme.breakpoints.down('lg')]: {
-  //   width: '6vh',
-  //   // width: theme.spacing(50),
-  //   right: '-42%',
-  //   // top: '60%',
-  // },
+
   '&::after, &::before': {
     content: '""',
     display: 'block',
@@ -261,11 +251,6 @@ const Banner: React.FC<Props> = ({}) => {
                 py: 6.5,
                 pl: 6.5,
                 pr: 8,
-                // [theme.breakpoints.down('lg')]: {
-                //   py: 4.5,
-                //   pl: 4.5,
-                //   pr: 6,
-                // },
               }}>
               Тест-драйв и обучение
             </ImageTest>
@@ -273,10 +258,6 @@ const Banner: React.FC<Props> = ({}) => {
               sx={{
                 px: 5,
                 py: 2,
-                // [theme.breakpoints.down('lg')]: {
-                //   px: 3,
-                //   py: 1,
-                // },
               }}>
               Бесплатно
             </ImageFree>

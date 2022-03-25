@@ -1,5 +1,5 @@
-import React from 'react';
 import { Box, Button, styled, Typography } from '@mui/material';
+import React from 'react';
 import { contactData } from '../../../../data/contactData';
 
 type Props = { data: ContactData };
@@ -80,7 +80,7 @@ const FooterContacts: React.FC<Props> = ({ data }) => {
               {el.addressPhone}
             </AddressPhone>
           </ContactAddress>
-        ))}{' '}
+        ))}
       </ContactBox>
     </>
   );

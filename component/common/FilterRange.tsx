@@ -1,5 +1,5 @@
+import { Box, Slider, styled, useTheme } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Box, Input, Slider, styled, useTheme } from '@mui/material';
 import InputText from './InputText';
 
 type Props = {

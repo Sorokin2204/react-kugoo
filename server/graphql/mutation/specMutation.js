@@ -39,17 +39,6 @@ const specMutation = {
         })),
       );
     }
-
-    // const newCat = await new Category(cat).save();
-    // console.log(catAttrIds);
-
-    // const newCatAttrs = await Category_Attribute.insertMany(
-    //   catAttrIds.map((attrId) => ({
-    //     Category: newCat._id,
-    //     Attribute: attrId,
-    //   })),
-    // );
-    // return newCat;
   },
   deleteSpec: async (parent, { specId }) => {
     const productSpecOptIds = await Product_SpecOption.aggregate([
@@ -84,8 +73,7 @@ const specMutation = {
     await Spec.deleteOne({ _id: specId });
     await SpecOption.deleteMany({ Spec: specId });
     await Category_Spec.deleteMany({ Spec: specId });
-    console.log(specId);
-    // await SpecExtraText.deleteMany({ Spec: specId });
+
     return;
   },
   updateSpec: async (parent, { newOpts, updOpts, deleteIdOpts, updSpec }) => {

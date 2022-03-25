@@ -1,23 +1,20 @@
-import React, { useEffect, useState } from 'react';
 import {
   Badge,
   Box,
   Button,
-  Container,
-  Drawer,
   styled,
   Typography,
   useTheme,
 } from '@mui/material';
-import Search from './Search';
-import MobileMenu from './MobileMenu';
-import CartPopover from './CartPopover';
-import CatalogPopover from './CatalogPopover';
-import ButtonIcon from '../../ButtonIcon';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
-import useAppConfig from '../../../../hooks/useAppConfig';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
 import { topHeaderData } from '../../../../data/topHeaderData';
+import useAppConfig from '../../../../hooks/useAppConfig';
+import ButtonIcon from '../../ButtonIcon';
+import CatalogPopover from './CatalogPopover';
+import MobileMenu from './MobileMenu';
+import Search from './Search';
 
 type Props = {};
 
@@ -53,29 +50,6 @@ const ButtonCatalog = styled(Button)<{ line: string }>(({ theme, line }) => ({
       minHeight: '2px',
       width: '13px',
       marginBottom: '3px',
-      // '&:last-child': {
-      //   minHeight: '2px',
-      //   position: 'relative',
-      //   backgroundSize: 'cover',
-      //   width: '7px',
-      //   '&::after': {
-      //     transition: 'left 0.3s',
-      //     content: '""',
-      //     display: 'block',
-      //     minHeight: '2px',
-      //     width: '6px',
-      //     backgroundImage: `url(${line})`,
-      //     backgroundRepeat: 'no-repeat',
-      //     backgroundSize: 'cover',
-      //     position: 'absolute',
-      //     top: '0',
-      //     left: '100%',
-      //     zIndex: '1',
-      //     transform: 'rotate(180deg) translateY(-0.7px)',
-      //   },
-      //   transition: 'all 0.3s',
-      //   marginBottom: '0px',
-      // },
     },
   },
 
@@ -120,20 +94,12 @@ const HeaderBox = styled(Box)(({ theme }) => ({
 }));
 
 export const BadgeRounded = styled(Badge)(({ theme }) => ({
-  // height: '15px',
-  // width: '15px',
-  // minHeight: '15px',
-  // minWidth: '15px',
-  // maxHeight: '15px',
-  // maxWidth: '15px',
   '& .MuiBadge-badge': {
     minWidth: '16px',
     height: '16px',
     top: '35%',
     left: '27%',
-    // minWidth: '14px',
-    // width: '14px',
-    // height: '14px',
+
     color: theme.palette.common.white,
     ...theme.typography.t5,
     lineHeight: '11px',
@@ -155,7 +121,6 @@ const HeaderBottom: React.FC<Props> = ({}) => {
   const [anchorElCatalog, setAnchorElCatalog] = React.useState(null);
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const handleClick = (event) => {
-    // setAnchorEl(event.currentTarget);
     router.push('/cart');
   };
 
@@ -257,10 +222,6 @@ const HeaderBottom: React.FC<Props> = ({}) => {
             display: 'none',
           },
 
-          ...(openMobileMenu &&
-            {
-              // backgroundColor: 'black !important',
-            }),
           '& > div': {
             display: 'flex',
             justifyContent: 'space-between',
@@ -274,14 +235,11 @@ const HeaderBottom: React.FC<Props> = ({}) => {
                   transform: 'rotate(135deg) translate(30%, -250%)',
                 },
                 '&:nth-child(2)': {
-                  // transform: 'rotate(50deg) translate(26%, 100%)',
                   opacity: 0,
-                  // display: 'none',
                 },
                 '&:nth-child(3)': {
                   transform: 'rotate(230deg) translate(15%, 130%)',
                 },
-                // backgroundColor: 'black !important',
               }),
 
               transform: 'rotate(180deg)',
@@ -304,18 +262,7 @@ const HeaderBottom: React.FC<Props> = ({}) => {
         </div>
       </BurgerButton>
       <Search />
-      {/* <ButtonIcon
-        iconW={theme.spacing(10)}
-        iconH={theme.spacing(6)}
-        padding={`0`}
-        icon={'/static/icons/compare.svg'}
-        sx={{ mr: 10, ml: 24 }}></ButtonIcon>
-      <ButtonIcon
-        sx={{ mr: 10 }}
-        iconW={theme.spacing(10)}
-        iconH={theme.spacing(7)}
-        padding={`0`}
-        icon={'/static/icons/favorite.svg'}></ButtonIcon> */}
+
       <BadgeRounded
         badgeContent={cartCount}
         anchorOrigin={{
@@ -340,18 +287,9 @@ const HeaderBottom: React.FC<Props> = ({}) => {
           iconH={theme.spacing(8)}
           sx={{ fontSize: theme.typography.t3b }}>
           Корзина
-        </ButtonRounded>{' '}
+        </ButtonRounded>
       </BadgeRounded>
-      {/* <CartPopover
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      /> */}
+
       <MobileMenu
         open={openMobileMenu}
         onClose={() => setOpenMobileMenu(false)}

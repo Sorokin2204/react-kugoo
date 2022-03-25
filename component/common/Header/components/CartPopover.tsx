@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useLazyQuery } from '@apollo/client';
 import {
   Box,
   Button,
@@ -7,15 +7,14 @@ import {
   PopoverProps,
   styled,
   Typography,
-  useTheme,
+  useTheme
 } from '@mui/material';
-import Image from 'next/image';
+import React, { useEffect } from 'react';
 import styledComp from 'styled-components';
-import ButtonIcon from '../../ButtonIcon';
-import { useLazyQuery, useQuery } from '@apollo/client';
 import { GET_ALL_PRODUCTS_FORM_CART } from '../../../../graphql/query/product';
 import useAppConfig from '../../../../hooks/useAppConfig';
 import { currencyFormat } from '../../../../utils/currencyFormat';
+import ButtonIcon from '../../ButtonIcon';
 
 const CartPopoverStyled = styled(Popover)(({ theme }) => ({}));
 const CartHead = styled(Box)(({ theme }) => ({
@@ -90,14 +89,12 @@ const CartPopover: React.FC<PopoverProps> = (props) => {
     GET_ALL_PRODUCTS_FORM_CART,
   );
   useEffect(() => {
-    console.log('CART CACHE IN CART POPOVER', cartProducts);
-
     getAllProductsFromCart({
       variables: {
         productsFromCart: cartProducts,
       },
     })
-      .then((prodData) => console.log('Cart data', prodData))
+      
       .catch((err) => console.log(JSON.stringify(err, null, 2)));
   }, []);
 

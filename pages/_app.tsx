@@ -17,34 +17,13 @@ import '../styles/[id].css';
 import '../styles/masonry-style.css';
 import { createUploadLink } from 'apollo-upload-client';
 
-// interface AppConfig {
-//   cartProducts: boolean;
-// }
-
-// const appConfigVar = makeVar<AppConfig>(initialAppConfig);
-
-// const cache: InMemoryCache = new InMemoryCache({
-//   typePolicies: {
-//     Category: {
-//       fields: {
-//         customPrice: {
-//           read(_, variable) {
-//             return variable;
-//           },
-//         },
-//       },
-//     },
-//   },
-// });
-
 const client = new ApolloClient({
   ssrMode: true,
-  connectToDevTools: true, // uri: 'http://localhost:5000/graphql',
+  connectToDevTools: true,
   link: createUploadLink({
     uri: 'http://localhost:5000/graphql',
     credentials: 'same-origin',
   }),
-  // cache: new InMemoryCache(),
   cache: cache,
 });
 

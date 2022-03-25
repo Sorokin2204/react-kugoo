@@ -1,32 +1,22 @@
+import { Box, Button, Modal, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  Modal,
-  styled,
-  TextField,
-  Typography,
-} from '@mui/material';
-import { ModalBox } from '../ModalBox';
 import NumberFormat from 'react-number-format';
 import useAppConfig from '../../../hooks/useAppConfig';
+import { ModalBox } from '../ModalBox';
 
 type Props = {
   open: boolean;
   onClose: () => void;
   checkAttribute: () => void;
-  // handleSaveEditedOption: () => {};
 };
 
 const EditOptionModal: React.FC<Props> = ({
   open,
   onClose,
   checkAttribute,
-  // handleSaveEditedOption,
 }) => {
   const [customPrice, setCustomPrice] = useState<number | null>(null);
   const [customSublabel, setCustomSublabel] = useState<string>('');
-
   const { editedOption, setEditedOption } = useAppConfig();
 
   useEffect(() => {

@@ -155,9 +155,6 @@ async function getSpecifications(page) {
 async function getImageSrc(page) {
   await page.waitForSelector('.t-slds__bgimg');
   let images = await page.evaluate(() => {
-    //   const img = document.querySelectorAll(
-    //     '.t-slds__bgimg.t-slds__bgimg-contain.t-bgimg.loaded',
-    //   );
     const imgs = Array.from(
       document.querySelectorAll('.t-slds__item .t-slds__bgimg'),
       (imgg) => getComputedStyle(imgg).backgroundImage,
@@ -171,7 +168,6 @@ async function getImageSrc(page) {
       .replace('url("', '')
       .replace('")', ''),
   );
-  //   images = images.replace('url("', '').replace('")', '');
   return images;
 }
 
@@ -182,7 +178,6 @@ async function addProductInFile(newProduct) {
   var updateProducts = JSON.stringify(allProduct);
   fs.writeFile('productData.json', updateProducts, (err) => {
     if (err) throw err;
-    console.log('New data added');
   });
 }
 function findExistProduct(productTitle, price) {
@@ -191,23 +186,12 @@ function findExistProduct(productTitle, price) {
   const indexProduct = allProduct.find(
     (product) => product.title === productTitle,
   );
-  // indexProduct.price = price;
-  // var updateProducts = JSON.stringify(allProduct);
-  // fs.writeFile('productData.json', updateProducts, (err) => {
-  //   if (err) throw err;
-  //   console.log('Update price');
-  // });
+
   if (!indexProduct) {
     return false;
   } else {
     return true;
   }
-
-  //   var updateProducts = JSON.stringify(allProduct);
-  //   fs.writeFile('productData.json', updateProducts, (err) => {
-  //     if (err) throw err;
-  //     console.log('New data added');
-  //   });
 }
 
 async function downloadImage(url, fileName) {

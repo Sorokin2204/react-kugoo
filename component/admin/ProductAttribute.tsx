@@ -1,21 +1,18 @@
-import React, { useState } from 'react';
+import { Edit } from '@mui/icons-material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
   Box,
   Checkbox,
   Collapse,
   FormControlLabel,
   FormGroup,
-  FormLabel,
   IconButton,
-  Modal,
   styled,
   Typography,
 } from '@mui/material';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { Edit } from '@mui/icons-material';
-import { ModalBox } from './ModalBox';
 import { grey } from '@mui/material/colors';
+import React from 'react';
 import useAppConfig from '../../hooks/useAppConfig';
 
 const ProductAttrBox = styled(Box)(({ theme }) => ({}));
@@ -47,7 +44,6 @@ const ProductAttrLabel = styled(FormControlLabel)<{
   marginTop: '10px',
   '& .MuiFormControlLabel-label': {
     display: 'flex',
-    // justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
   },

@@ -1,5 +1,5 @@
+import { Select, SelectProps, styled } from '@mui/material';
 import React from 'react';
-import { MenuItem, Select, SelectProps, styled } from '@mui/material';
 import useAppConfig from '../../hooks/useAppConfig';
 
 type SelectData = {
@@ -18,10 +18,6 @@ type Props = {
 };
 
 const SelectCustom: React.FC<SelectCustomProps> = (props) => {
-  // const defaultCheckedValue = props.data.list.find(
-  //   (el) => el.defaultChecked === true,
-  // )?.value;
-
   const { cartProducts, updateInCart } = useAppConfig();
   const [sortValue, setSortValue] = React.useState<string>(props.defaultValue);
   const handleChangeSortValue = (event) => {
@@ -112,13 +108,6 @@ const SelectStyled = styled(Select)<Props>(
         },
       }),
     },
-
-    // '&.Mui-focused fieldset': {
-    //   border: `2px solid ${theme.palette.primary.main} !important`,
-    // },
-    // '&::hover fieldset': {
-    //   border: `2px solid ${theme.palette.primary.main} !important`,
-    // },
   }),
 );
 export default SelectCustom;

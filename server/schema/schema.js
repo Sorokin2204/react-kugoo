@@ -28,6 +28,5 @@ const sch = gql`
   #### MUTATIONS ####
   ${mutationSchema}
 `;
-// const schema = buildSchema(sch);
 
 module.exports = sch;

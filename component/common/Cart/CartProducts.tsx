@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useLazyQuery } from '@apollo/client';
+import { Delete } from '@mui/icons-material';
 import {
   Box,
+  Link as LinkMUI,
   MenuItem,
   styled,
   Table,
@@ -11,22 +13,18 @@ import {
   TableRow,
   Typography,
   useTheme,
-  Link as LinkMUI,
 } from '@mui/material';
-import SelectCustom from '../SelectCustom';
-import { productData } from '../Catalog';
-import QuantityInput from '../QuantityInput';
-import ButtonIcon from '../ButtonIcon';
-import { specData } from '../../../pages/[categorySlug]/[productSlug]';
-import { currencyFormat } from '../../../utils/currencyFormat';
-import { useLazyQuery } from '@apollo/client';
-import { GET_ALL_PRODUCTS_FORM_CART } from '../../../graphql/query/product';
-import useAppConfig from '../../../hooks/useAppConfig';
-import { groupBy } from '../../../utils/groupBy';
-import { withSnackbar } from '../../../hooks/useAlert';
-import { Delete } from '@mui/icons-material';
 import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import { GET_ALL_PRODUCTS_FORM_CART } from '../../../graphql/query/product';
+import { withSnackbar } from '../../../hooks/useAlert';
+import useAppConfig from '../../../hooks/useAppConfig';
 import { Product } from '../../../types/graphql';
+import { currencyFormat } from '../../../utils/currencyFormat';
+import { groupBy } from '../../../utils/groupBy';
+import ButtonIcon from '../ButtonIcon';
+import QuantityInput from '../QuantityInput';
+import SelectCustom from '../SelectCustom';
 
 type Props = {};
 function createData(name, calories, fat, carbs, protein) {
@@ -55,7 +53,7 @@ const TableHeadCustom = styled(TableHead)(({ theme }) => ({
 const TableRowCustom = styled(TableRow)(({ theme }) => ({}));
 const TableCellCustom = styled(TableCell)(({ theme }) => ({
   width: '1px',
-  // whiteSpace: 'nowrap',
+
   textAlign: 'center',
   padding: `${theme.spacing(20)} 0 ${theme.spacing(17)} 0`,
   [theme.breakpoints.down('xs')]: {
@@ -72,8 +70,6 @@ const TableBodyCustom = styled(TableBody)(({ theme }) => ({
   },
 
   '& .MuiTableCell-root ': {
-    // display: 'flex',
-
     '&:first-child': {
       textAlign: 'left',
     },
@@ -158,14 +154,8 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
     GET_ALL_PRODUCTS_FORM_CART,
   );
 
-  useEffect(() => {
-    console.log('PRICES', cartProductPrice);
-  }, [cartProductPrice]);
-
   function refreshTotalPrice(cartProduct) {
-    // setCartProductPrice([]);
     if (data) {
-      // cartProducts?.map((cartProduct) => {
       let totalPrice = 0;
       const product = data?.getAllProductFromCart.find(
         (prod) => prod._id === cartProduct.productId,
@@ -179,35 +169,15 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
         }
       });
       return totalPrice + product.price;
-      // setCartProductPrice((prev) => {
-      //   return [
-      //     ...prev,
-      //     {
-      //       _id: cartProduct._id,
-      //       totalPrice: (totalPrice + product.price) * cartProduct.pieces,
-      //     },
-      //   ];
-      // });
-      // });
     }
   }
 
-  // useEffect(() => {
-  //   refreshTotalPrice();
-  // }, [cartProducts, data]);
-
   useEffect(() => {
-    console.log('CART CACHE IN CART POPOVER', cartProducts);
-
     getAllProductsFromCart({
       variables: {
         productsFromCart: cartProducts,
       },
-    })
-      .then((dataSuccess) => {
-        console.log('Cart data', dataSuccess);
-      })
-      .catch((err) => console.log(JSON.stringify(err, null, 2)));
+    }).catch((err) => console.log(JSON.stringify(err, null, 2)));
   }, []);
 
   return (
@@ -271,14 +241,12 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                             <CartItemStock variant="t4">
                               В наличии
                             </CartItemStock>
-                            {/* <CartItemText variant="t4">+ 2 подарка</CartItemText> */}
                           </CartItemContent>
                         </CartItem>
                       </TableCellCustom>
                       <TableCellCustom
                         align="right"
                         sx={{
-                          // maxWidth: theme.spacing(40),
                           px: 10,
                           [theme.breakpoints.down('sm')]: {
                             px: 5,
@@ -292,7 +260,6 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                           }}>
                           <QuantityInput
                             onChangeNumber={(value) => {
-                              console.log('QUENTIY', value);
                               updateInCart({ ...cartProduct, pieces: value });
                             }}
                             defaultValue={cartProduct.pieces}
@@ -317,9 +284,6 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                           }}>
                           {currencyFormat(
                             cartProduct.totalPrice * cartProduct.pieces,
-                            // cartProductPrice.find(
-                            //   (prod) => prod._id === cartProduct._id,
-                            // )?.totalPrice ?? 0,
                           )}
                         </Typography>
                       </TableCellCustom>
@@ -404,24 +368,8 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                                         };
                                         updatedProduct.totalPrice =
                                           refreshTotalPrice(updatedProduct);
-                                        // attr.attrOpts.map((attrOpt, i) => {
-                                        //   const priceAttrOpt =
-                                        //     updatedProduct.attributes.find(
-                                        //       (attrr) =>
-                                        //         attrr.attrOpt === attrOpt._id,
-                                        //     );
-                                        //   if (priceAttrOpt) {
-                                        //     totalPrice += attrOpt.defaultPrice;
-                                        //     console.log(
-                                        //       'JSX',
-                                        //       attrOpt.defaultPrice,
-                                        //     );
-                                        //   }
-                                        // });
-                                        console.log(attr.attrOpts);
 
                                         updateInCart(updatedProduct);
-                                        console.log('Selected', updatedProduct);
                                       }}>
                                       {attr.attrOpts.map((attrOpt, i) => (
                                         <MenuItem

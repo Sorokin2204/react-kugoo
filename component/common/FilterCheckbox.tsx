@@ -1,4 +1,3 @@
-import React, { Ref, RefObject, useEffect, useRef, useState } from 'react';
 import {
   Box,
   Checkbox,
@@ -8,6 +7,7 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
+import React, { useRef, useState } from 'react';
 import ButtonIcon from './ButtonIcon';
 
 type Props = { data: CheckboxFilterProps[] } & FormControlProps;
@@ -52,24 +52,12 @@ const BtnCollapse = styled(ButtonIcon)(({ theme }) => ({}));
 
 const FilterCheckbox: React.FC<Props> = ({ data, ...props }) => {
   const theme = useTheme();
-  // const groupRef = useRef();
   const groupCheckbox = useRef();
   const [maxHeightState, setMaxHeightState] = useState(0);
   const [fullHeightState, setFullHeightState] = useState(0);
   const [collapse, setCollapse] = useState(false);
-  // const maxHeightEnd = useRef(0);
-  const maxHeight = useRef(0);
-  useEffect(() => {
-    // setMaxHeightState(maxHeight.current);
-    console.log(maxHeight.current);
-  }, [maxHeight]);
 
-  // useEffect(() => {
-  //   // console.log(groupCheckbox.current.children);
-  //   Array(5).map((item, index) => {
-  //     console.log(groupCheckbox.current.children[index].clientHeight);
-  //   });
-  // }, [groupCheckbox]);
+  const maxHeight = useRef(0);
 
   return (
     <Box>
@@ -83,7 +71,6 @@ const FilterCheckbox: React.FC<Props> = ({ data, ...props }) => {
         }}>
         <FormGroup
           ref={(groupReff) => {
-            // console.log(groupReff?.children);
             if (groupReff?.children?.length > 5) {
               let sum = 0;
               for (let index = 0; index < 5; index++) {
@@ -94,18 +81,6 @@ const FilterCheckbox: React.FC<Props> = ({ data, ...props }) => {
               setMaxHeightState(0);
             }
             setFullHeightState(groupReff?.clientHeight);
-            // groupReff?.children?.map((checkbox, index) => {
-            //   if (index < 5) {
-            //     let sum;
-            //     sum += checkbox.clientHeight;
-            //     console.log(sum);
-            //   }
-            // });
-
-            // Array(5).map((item, index) => {
-            //   console.log(groupReff.children);
-            // });
-            // groupCheckbox.current = groupReff;
           }}
           sx={{
             position: 'absolute',
@@ -119,12 +94,6 @@ const FilterCheckbox: React.FC<Props> = ({ data, ...props }) => {
                 key={i}
                 label={el.label}
                 value={el.value}
-                // ref={(filterRef) => {
-                //   if (i <= 5 && filterRef) {
-                //     maxHeight.current += filterRef.clientHeight;
-                //     if (i === 5) maxHeightEnd.current = maxHeight.current;
-                //   }
-                // }}
                 control={
                   <FilterCheckboxStyle
                     icon={<FilterCheckboxIcon />}
@@ -136,7 +105,7 @@ const FilterCheckbox: React.FC<Props> = ({ data, ...props }) => {
             );
           })}
         </FormGroup>
-      </Box>{' '}
+      </Box>
       {maxHeightState !== 0 && (
         <BtnCollapse
           onClick={() => {
@@ -156,7 +125,7 @@ const FilterCheckbox: React.FC<Props> = ({ data, ...props }) => {
             },
             fontFamily: 'inherit',
             margin: '0 auto',
-            // ...theme.typography.t2,
+
             color: theme.palette.primary.main,
           }}>
           {!collapse ? 'Показать' : 'Скрыть'}

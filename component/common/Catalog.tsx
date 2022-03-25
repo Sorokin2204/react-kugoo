@@ -1,25 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  styled,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { useLazyQuery } from '@apollo/client';
+import { Box, Button, Grid, styled, Typography, useTheme } from '@mui/material';
 import Grow from '@mui/material/Grow';
-
-import FilterInline, { FilterInlineType } from './FilterInline';
-import Product, { ProductType } from './Product';
-import FilterBlock from './FilterBlock';
-import FilterRange from './FilterRange';
-import CatalogSort from './CatalogSort';
-import { useLazyQuery, useQuery } from '@apollo/client';
-import { GET_ALL_PRODUCTS_CARD } from '../../graphql/query/product';
+import React, { useEffect, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { GET_ALL_PRODUCTS_CARD } from '../../graphql/query/product';
 import useAppConfig from '../../hooks/useAppConfig';
 import CatalogBanner from './Catalog/CatalogBanner';
+import CatalogSort from './CatalogSort';
+import FilterBlock from './FilterBlock';
+import FilterInline, { FilterInlineType } from './FilterInline';
+import Product, { ProductType } from './Product';
 
 export const filterInlineData: FilterInlineType[] = [
   {
@@ -110,9 +100,7 @@ const CatalogGrid = styled(Box)<CatalogType>(({ theme, type }) => ({
   gridTemplateColumns: `repeat(auto-fill, minmax(259px,auto))`,
   justifyContent: 'space-evenly',
   alignItems: 'center',
-  [theme.breakpoints.down('lg')]: {
-    // gridTemplateColumns: `repeat(3,259.5px)`,
-  },
+
   ...(type === 'filter' && {
     gritTemplate: '2/12',
   }),
@@ -167,7 +155,7 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
     },
   });
   const { fields, append, remove } = useFieldArray({
-    name: 'attributes', // unique name for your Field Array
+    name: 'attributes',
     control: catalogForm.control,
   });
   let sort = useRef('');
@@ -175,7 +163,6 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
   const limit = 8;
   let offset = useRef(0);
   const onChangeSort = (selectSort: string) => {
-    // console.log('cat', cat);
     offset.current = 0;
     sort.current = selectSort;
     fetchMoreProducts()
@@ -195,23 +182,15 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
     } else {
       filter.current.splice(indexExistAttr);
     }
-    console.log(filter);
+
     fetchMoreProducts().then((prodData) => {
       setAllProductData(prodData.data.getAllProductCard.pageProduct);
     });
   };
   const onLoadMore = () => {
     offset.current = offset.current + limit;
-    console.log(offset.current);
-
-    console.log(sort);
 
     fetchMoreProducts().then((prodData) => {
-      console.log(prodData.data);
-
-      // setCategoryName(
-      //   prodData.data?.getAllProductCard?.pageInfo?.category?.name,
-      // );
       setAllProductData((prev) => [
         ...prev,
         ...prodData.data.getAllProductCard.pageProduct,
@@ -287,7 +266,6 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
           )}
 
           <CatalogGrid type={type}>
-            {/* {getAllProductCardData.loading && <LoadingOverlay />} */}
             {allProductData.map((product, i) => {
               let inCart =
                 cartProducts.findIndex(

@@ -47,7 +47,6 @@ export const withSnackbar = (WrappedComponent) => {
           TransitionComponent={Slide}>
           <Alert
             {...(icon && { icon: icon })}
-            // icon={icon ?? false}
             variant="filled"
             onClose={handleClose}
             severity={severity}>

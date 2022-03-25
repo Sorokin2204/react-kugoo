@@ -1,11 +1,4 @@
-import {
-  AccountTree,
-  Inventory,
-  Receipt,
-  List,
-  Article,
-  ListAlt,
-} from '@mui/icons-material';
+import { AccountTree, Inventory, ListAlt, Receipt } from '@mui/icons-material';
 import { ReactNode } from 'react';
 
 export type AdminMobileNavData = {

@@ -19,23 +19,8 @@ type Props = {
   }>;
 };
 
-// type FooterBottomData = {
-//   title?: string;
-//   list: Array<{ name: string; path: string }>;
-// };
-
-// const footerBottomData: FooterBottomData[] = [
-//   {
-//     title: 'Каталог товаров',
-//     list: [{ name: 'Электросамокаты', path: '/' }],
-//   },
-// ];
-
 const FooterColumnList = styled(Grid)(({ theme }) => ({}));
 const FooterColumnItem = styled(Grid)(({ theme }) => ({
-  // '& + &': {
-  //   marginLeft: theme.spacing(22),
-  // },
   '&:first-child': {
     flexGrow: '1',
   },

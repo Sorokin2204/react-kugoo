@@ -1,21 +1,16 @@
-import React from 'react';
 import {
   Box,
-  CircularProgress,
   Grid,
   Popover,
-  PopoverProps,
   styled,
   Typography,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import Link from 'next/link';
+import React from 'react';
 import { currencyFormat } from '../../../../utils/currencyFormat';
 import { specIcons, SpecItem } from '../../Product';
-import { productData } from '../../Catalog';
-import { useQuery } from '@apollo/client';
-import { GET_SEARCH_PRODUCTS } from '../../../../graphql/query/product';
-import Link from 'next/link';
 
 type Props = {
   clearSearch: () => {};

@@ -14,18 +14,6 @@ const {
 const categoryQuery = {
   getCategory: async (parent, { id, withAttrOpts, withSpecOpts }) => {
     try {
-      // const attributes = await Category_Attribute.find({
-      //   Category: id,
-      // }).populate({
-      //   path: 'Attribute',
-      //   ...(withAttrOpts && {
-      //     populate: {
-      //       path: 'AttributeOptions',
-      //       model: 'AttributeOption',
-      //     },
-      //   }),
-      // });
-
       const pipelineCatAttr = [
         {
           $match: {
@@ -99,8 +87,7 @@ const categoryQuery = {
           },
         },
       ]);
-      // console.log('LOOK UP SPECS ', specsLookUp[0].Spec);
-      // const specs = await Category_Spec.find({ Category: id }).populate('Spec');
+
       const cat = await Category.findById(id).lean();
       let catWithConnections = cat;
 
@@ -137,7 +124,7 @@ const categoryQuery = {
 
   checkExistCategory: async (parent, { categorySlug }) => {
     const categoryExist = await Category.findOne({ slug: categorySlug });
-    console.log(categoryExist);
+
     return !!categoryExist;
   },
 };

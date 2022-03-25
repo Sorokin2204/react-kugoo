@@ -27,17 +27,11 @@ const ProductListAdminPage: React.FC<Props> = ({}) => {
   const { setAdminHeaderTitle } = useAppConfig();
   useEffect(() => {
     setAdminHeaderTitle('Список товаров');
-    getProduct()
-      .then((data) => {
-        console.log('SUCCES', data);
-      })
-      .catch((err) => console.log(err));
+    getProduct().catch((err) => console.log(err));
   }, []);
 
   return (
     <MainWrapper>
-      {/* {!loading && data.getAllProducts.map((el, i) => <div>{el.name}</div>)} */}
-
       {!getAllProduct.loading && (
         <TableContainer component={Paper}>
           <Table>
@@ -62,8 +56,6 @@ const ProductListAdminPage: React.FC<Props> = ({}) => {
             <TableBody>
               {getAllProduct.data?.getAllProduct?.map((product) => (
                 <TableRow
-                  // onClick={(event) => handleTableRowClick(event, product)}
-                  // selected={product._id === activeProduct}
                   key={product._id}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 },

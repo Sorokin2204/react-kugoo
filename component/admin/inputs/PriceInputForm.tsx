@@ -1,9 +1,6 @@
 import React from 'react';
-import { styled } from '@mui/material';
-import NumberInputCustom from './NumberInputForm';
-import { UseFormRegister, UseFormReturn } from 'react-hook-form';
-import NumberInputForm from './NumberInputForm';
 import { InputFormType } from '../types/InputFormType';
+import NumberInputForm from './NumberInputForm';
 
 type Props = InputFormType;
 

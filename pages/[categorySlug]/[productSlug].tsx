@@ -1,45 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import { useLazyQuery } from '@apollo/client';
 import {
   Box,
   Button,
-  Container,
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  styled,
+  Container, styled,
   Typography,
-  useTheme,
+  useTheme
 } from '@mui/material';
-import BreadcrumbsCustom from '../../component/common/BreadcrumbsCustom';
-import ButtonIcon from '../../component/common/ButtonIcon';
-import { productData } from '../../component/common/Catalog';
-import { currencyFormat } from '../../utils/currencyFormat';
-import RadioBlock, {
-  SpecType,
-} from '../../component/common/Catalog/RadioBlock';
-
-// Import Swiper React components
-import { Swiper, SwiperSlide } from 'swiper/react';
-
+import _ from 'lodash';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { FreeMode, Navigation, Thumbs } from 'swiper';
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/free-mode';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
-
-import { FreeMode, Navigation, Thumbs } from 'swiper';
+// Import Swiper React components
+import { Swiper, SwiperSlide } from 'swiper/react';
+import BreadcrumbsCustom from '../../component/common/BreadcrumbsCustom';
+import ButtonIcon from '../../component/common/ButtonIcon';
+import RadioBlock, {
+  SpecType
+} from '../../component/common/Catalog/RadioBlock';
 import ProductInfo from '../../component/common/ProductSingle/ProductInfo';
-import ProductCarusel from '../../component/common/ProductCarusel';
-import { useLazyQuery, useQuery } from '@apollo/client';
-import { GET_PRODUCT, GET_PRODUCT_ADMIN } from '../../graphql/query/product';
-import { useRouter } from 'next/router';
-import Image from 'next/image';
-import { useFieldArray, useForm } from 'react-hook-form';
-import useAppConfig from '../../hooks/useAppConfig';
-import _ from 'lodash';
-import { groupBy } from '../../utils/groupBy';
+import { GET_PRODUCT } from '../../graphql/query/product';
 import { withSnackbar } from '../../hooks/useAlert';
+import useAppConfig from '../../hooks/useAppConfig';
+import { currencyFormat } from '../../utils/currencyFormat';
+import { groupBy } from '../../utils/groupBy';
+
+
+
 type Props = {};
 
 const Content = styled(Box)(({ theme }) => ({
@@ -288,18 +280,13 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
     {
       control: productForm.control,
-      name: 'attributes', // unique name for your Field Array
+      name: 'attributes', 
     },
   );
-  React.useEffect(() => {
-    // const subscription = watch((value, { name, type }) =>
-    //   console.log(value, name, type),
-    // );
-    // return () => subscription.unsubscribe();
-  }, [productForm.getValues('attributes')]);
-  useEffect(() => {
-    console.log('Selected attribute', totalPrice);
-  }, [totalPrice]);
+
+
+
+
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -308,7 +295,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
         productSlug: router.query.productSlug,
       },
     }).then((dataSuccess) => {
-      console.log('Product Data ', dataSuccess);
+     
       const indexInCart = cartProducts.findIndex(
         (productInCart) =>
           productInCart.productId === dataSuccess.data.getProduct._id,
@@ -335,8 +322,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
 
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const onSubmit = (dataForm: IFormType) => {
-    console.log('Prod form data', dataForm);
-    console.log('CART PRODUCT', cartProducts);
+   
 
     if (typeof window !== 'undefined') {
       addingInCart({
@@ -382,9 +368,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
               alignSelf: 'flex-start',
               '--swiper-navigation-color': '#fff',
               '--swiper-pagination-color': '#fff',
-              // `${theme.breakpoints.down('md')}`: {
-              //   display: 'none !important'
-              // }
+      
             }}
             spaceBetween={10}
             thumbs={{ swiper: thumbsSwiper }}
@@ -432,12 +416,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
                 alignItems: 'center',
                 mb: 10,
               }}>
-              {/* <Views sx={{ mr: 10 }} variant="t4">
-                Просмотров {data?.getProduct.viewsCounter}
-              </Views>
-              <Buyers sx={{ mr: 10 }} variant="t4">
-                Купили {productData[0].buyers} раз
-              </Buyers> */}
+           
               <VendorCode sx={{ mr: 10 }} variant="t4">
                 Артикул: {data?.getProduct.vendorCode}
               </VendorCode>
@@ -452,19 +431,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
               <InStock sx={{ mr: 21 }} variant="t3">
                 В наличии
               </InStock>
-              {/* <BtnCompare
-                sx={{ mr: 15 }}
-                icon="/static/icons/compare.svg"
-                iconH={theme.spacing(5.5)}
-                iconW={theme.spacing(10)}>
-                Сравнить
-              </BtnCompare>
-              <BtnShare
-                icon="/static/icons/share.svg"
-                iconH={theme.spacing(10)}
-                iconW={theme.spacing(10)}>
-                Поделиться
-              </BtnShare> */}
+       
             </Box>
             <Box
               sx={{
@@ -540,19 +507,16 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
                             attrOpt: value._id,
                             price: value.defaultPrice,
                           });
-                          console.log();
+                         
                           let price = productForm
                             .getValues('attributes')
                             .map((a) => a.price)
                             .reduce((aa, bb) => aa + bb, 0);
                           setTotalPrice(price + data?.getProduct.price);
 
-                          // setSelectedAttribute((prev) => {
-                          //   prev?.[i] = prev?.[i] ?? {};
-                          //   prev?.[i] = { attr: attr._id, attrOpt: value };
-                          // });
+                     
                         }}
-                        // selectedAttribute={selectedAttribute[i]}
+                      
                       />
                     </Box>
                   );
@@ -579,13 +543,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
                   <TotalPrice variant="h1">
                     {currencyFormat(totalPrice)}
                   </TotalPrice>
-                  {/* <TotalBtnFavorite
-                    variant="border"
-                    iconW={theme.spacing(8.5)}
-                    iconH={theme.spacing(7.5)}
-                    icon={'/static/icons/favorite.svg'}
-                    iconColor={theme.palette.primary.main}
-                    sizeBtn={theme.spacing(20)}></TotalBtnFavorite> */}
+            
                 </Box>
 
                 <TotalDelivary sx={{ mb: 15 }}>
@@ -600,20 +558,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
                   <TotalBtnClick variant="contained">
                     Купить в 1 клик
                   </TotalBtnClick>
-                  {/* {inCart ? (
-                    <TotalBtnCart
-                      sx={{
-                        backgroundColor: 'success.main',
-                        border: '1px solid transparent !important',
-                        color: 'white !important',
-                      }}
-                      variant="outlined"
-                      onClick={() => router.push('/cart')}>
-                      В корзине
-                    </TotalBtnCart>
-                  ) : (
-                   
-                  )} */}
+           
                   <TotalBtnCart variant="outlined" type="submit">
                     Добавить в корзину
                   </TotalBtnCart>
@@ -625,7 +570,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
 
         <ProductInfo data={data?.getProduct?.SpecOptions?.edges} />
       </Container>
-      <Box sx={{ mb: 50 }}>{/* <ProductCarusel /> */}</Box>
+   
     </>
   );
 };

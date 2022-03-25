@@ -1,6 +1,6 @@
-import React from 'react';
-import { Box, Breadcrumbs, styled, Link as LinkMui } from '@mui/material';
+import { Box, Breadcrumbs, Link as LinkMui, styled } from '@mui/material';
 import Link from 'next/link';
+import React from 'react';
 type Props = {
   data: Array<{ name: string; ulr: string }>;
 };
@@ -39,23 +39,6 @@ const BreadcrumbsCustom: React.FC<Props> = ({ children, data }) => {
             </BreadLink>
           </Link>
         ))}
-        {/* <Link href="/">
-          <BreadLink href="/">
-            <img
-              src="/static/icons/home.svg"
-              style={{ marginBottom: '3px', marginRight: '6px' }}
-              width={14}
-              height={14}
-            />
-            Главная
-          </BreadLink>
-        </Link>
-        <Link href="/catalog">
-          <BreadLink href="/catalog">Каталог</BreadLink>
-        </Link>
-        <Link href="/catalog/scooter">
-          <BreadLink href="/catalog/scooter">Электросамокаты</BreadLink>
-        </Link> */}
       </BreadcrumbsStyle>
     </>
   );

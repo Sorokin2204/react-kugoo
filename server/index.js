@@ -18,8 +18,6 @@ const {
   ApolloServerPluginLandingPageProductionDefault,
   ApolloServerPluginLandingPageLocalDefault,
 } = require('apollo-server-core');
-// schemaComposer.add(GraphQLUpload);
-// schemaComposer.set('Upload', GraphQLUpload);
 require('./model');
 
 const jsonServer = (path) => `http://localhost:4000${path && path}`;
@@ -57,21 +55,6 @@ async function start() {
   const app = express();
   app.use(cors(corsOptions));
   app.use(graphqlUploadExpress({ maxFileSize: 10486000, maxFiles: 20 }));
-  // app.use(
-  //   '/graphql',
-  //   bodyParser.json(),
-  //   graphqlUploadExpress(),
-  //   graphqlHTTP(async (request, response, graphQLParams) => {
-  //     return {
-  //       schema: schema,
-  //       graphiql: true,
-  //       rootValue: root,
-  //       context: {
-  //         req: request,
-  //       },
-  //     };
-  //   }),
-  // );
   server.applyMiddleware({ app });
   app.listen(5000, async () => {
     try {

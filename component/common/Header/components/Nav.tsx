@@ -1,16 +1,16 @@
-import React from 'react';
+import { SentimentVeryDissatisfied } from '@mui/icons-material';
 import {
   Box,
-  Grid,
-  styled,
-  Link as LinkMui,
-  Container,
-  useTheme,
   BoxProps,
+  Container,
+  Grid,
+  Link as LinkMui,
+  styled,
+  useTheme,
 } from '@mui/material';
 import LinkNext from 'next/link';
+import React from 'react';
 import { withSnackbar } from '../../../../hooks/useAlert';
-import { SentimentVeryDissatisfied } from '@mui/icons-material';
 
 type Props = {};
 
@@ -106,7 +106,6 @@ const Nav: React.FC<Props & BoxProps> = ({ snackbarShowMessage, ...props }) => {
   return (
     <>
       <NavBox {...props}>
-        {' '}
         <Container>
           <NavList container>
             {menuData.map((el, i) =>

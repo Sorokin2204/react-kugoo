@@ -1,11 +1,11 @@
-import React from 'react';
-import LinkNext from 'next/link';
 import {
   Link as LinkMUI,
   LinkProps,
   styled as styledMUI,
   useTheme,
 } from '@mui/material';
+import LinkNext from 'next/link';
+import React from 'react';
 type Props = {
   fontSize?: string;
 };

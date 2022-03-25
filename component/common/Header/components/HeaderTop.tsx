@@ -1,30 +1,21 @@
+import { SentimentVeryDissatisfied } from '@mui/icons-material';
 import {
   AppBar,
   Box,
-  Grid,
-  Toolbar,
-  Typography,
-  useTheme,
-  Link as LinkMUI,
-  Divider,
-  styled,
-  Link,
-  Button,
-  IconButton,
   ClickAwayListener,
+  Grid,
+  Link,
+  styled,
+  Toolbar,
+  useTheme,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-
-import styles from './Header.module.scss';
-import clsx from 'clsx';
-import LinkNext from 'next/link';
-import LinkCustom from './LinkCustom';
-import SocialLinkCustom from './SocialLinkCustom';
-import PhonePopover from './PhonePopover';
-import ButtonIcon from '../../ButtonIcon';
+import React from 'react';
 import { topHeaderData } from '../../../../data/topHeaderData';
 import { withSnackbar } from '../../../../hooks/useAlert';
-import { ExitToApp, SentimentVeryDissatisfied } from '@mui/icons-material';
+import ButtonIcon from '../../ButtonIcon';
+import LinkCustom from './LinkCustom';
+import PhonePopover from './PhonePopover';
+import SocialLinkCustom from './SocialLinkCustom';
 
 type Props = {};
 
@@ -137,7 +128,7 @@ const HeaderTop = (props: Props) => {
               sx={{ fontSize: theme.typography.t4b }}
               href={`tel:${topHeaderData.phone.replace(/\D/g, '')}`}>
               {topHeaderData.phone}
-            </Phone>{' '}
+            </Phone>
             <ClickAwayListener onClickAway={clickAwayHandler}>
               <div>
                 <ButtonIcon

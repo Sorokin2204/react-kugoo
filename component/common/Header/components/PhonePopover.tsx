@@ -1,15 +1,4 @@
-import {
-  Divider,
-  Grid,
-  Popover,
-  PopoverProps,
-  Popper,
-  PopperProps,
-  styled,
-  Typography,
-  useTheme,
-} from '@mui/material';
-import Link from 'next/link';
+import { Grid, PopperProps, styled, Typography, useTheme } from '@mui/material';
 import React from 'react';
 import { phoneData } from '../../../../data/phoneData';
 import PopperCustom from '../../PopperBox';

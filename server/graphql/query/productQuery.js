@@ -36,7 +36,7 @@ const productQuery = {
       [{ $limit: 5 }],
       [],
     );
-    console.log(allProduct[0].data.Category);
+
     const allProductDto = allProduct[0].data.map((product) => ({
       ...product,
       Category: product.Category[0],
@@ -55,7 +55,6 @@ const productQuery = {
     // await showSpec();
     //Start the browser and create a browser instance
     // let browserInstance = browserObject.startBrowser();
-
     // Pass the browser instance to the scraper controller
     // scraperController(browserInstance);
     return await Product.aggregate([
@@ -103,13 +102,6 @@ const productQuery = {
           foreignField: 'Product',
           as: 'AttributeOptions',
           pipeline: [
-            // {
-            //   $match: {
-            //     AttributeOption: {
-            //       $in: attrsFromCart,
-            //     },
-            //   },
-            // },
             {
               $lookup: {
                 from: AttributeOption.collection.name,
@@ -157,7 +149,6 @@ const productQuery = {
     let aggregateAfter = [];
     switch (sort) {
       case 'popular':
-        // aggregateAfter.push({ $sort: { viewCounter: 1 } });
         break;
       case 'high-price':
         aggregateAfter.push({ $sort: { price: -1 } });
@@ -201,8 +192,6 @@ const productQuery = {
     };
   },
   getProduct: async (parent, { productSlug }) => {
-    // const findProduct = await Product.findOne({ slug: productSlug });
-
     const findProduct = await Product.aggregate([
       { $match: { isDeleted: false } },
       {
@@ -299,7 +288,7 @@ const productQuery = {
         },
       },
     ]);
-    console.log(findProduct[0].images);
+
     const productData = {
       ...findProduct[0],
       Category: findProduct[0].Category[0],

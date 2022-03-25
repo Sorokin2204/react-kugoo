@@ -1,5 +1,5 @@
-import React from 'react';
 import { Box, styled, Typography } from '@mui/material';
+import React from 'react';
 import RadioBlock from '../Catalog/RadioBlock';
 
 type Props = {};

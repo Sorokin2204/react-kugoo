@@ -13,7 +13,6 @@ const fetchFakeServer = async (path, method, params) => {
     },
   );
   const content = await response.json();
-  console.log(content);
   return content;
 };
 

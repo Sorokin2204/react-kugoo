@@ -1,12 +1,12 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useMutation } from '@apollo/client';
 import { Box, Button, styled, Typography, useTheme } from '@mui/material';
-import FilterCheckbox from '../FilterCheckbox';
+import _ from 'lodash';
+import { useRouter } from 'next/router';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { CREATE_ORDER } from '../../../graphql/mutation/order';
 import useAppConfig from '../../../hooks/useAppConfig';
 import { currencyFormat } from '../../../utils/currencyFormat';
-import _ from 'lodash';
-import { CREATE_ORDER } from '../../../graphql/mutation/order';
-import { useMutation } from '@apollo/client';
-import { useRouter } from 'next/router';
+import FilterCheckbox from '../FilterCheckbox';
 
 type Props = {
   setStepCheckout: Dispatch<SetStateAction<boolean>>;
@@ -63,15 +63,11 @@ const CartSidebar: React.FC<Props> = ({
   const [confirm, setConfirm] = useState(false);
   const [newOrder] = useMutation(CREATE_ORDER);
   useEffect(() => {
-    // let total = cartProducts.map(
-    //   (cartProd) => cartProd.totalPrice * cartProd.pieces,
-    // );
     let total = _.sumBy(cartProducts, (item) => item.totalPrice * item.pieces);
     setTotalPrice(total);
   }, [cartProducts]);
 
   const onSubmit = (data) => {
-    console.log(data);
     newOrder({
       variables: {
         orderInfo: {
@@ -101,14 +97,6 @@ const CartSidebar: React.FC<Props> = ({
               {currencyFormat(totalPrice)}
             </TotalItemPrice>
           </TotalItem>
-          {/* <TotalItem>
-            <TotalItemName variant="t4">Сумма скидки</TotalItemName>
-            <TotalItemPrice variant="t2b">8 000 ₽</TotalItemPrice>
-          </TotalItem>
-          <TotalItem>
-            <TotalItemName variant="t4">Итого без учета доставки</TotalItemName>
-            <TotalItemPrice variant="t2b">50 800 ₽</TotalItemPrice>
-          </TotalItem> */}
         </TotalList>
         {!stepCheckout ? (
           <TotalBtnOrder

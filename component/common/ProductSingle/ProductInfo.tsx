@@ -1,5 +1,5 @@
-import React from 'react';
 import { Box, styled, Tab, Tabs, Typography } from '@mui/material';
+import React from 'react';
 
 type Props = {};
 function TabPanel(props) {
@@ -24,10 +24,6 @@ function a11yProps(index) {
 }
 
 const TabsCustom = styled(Tabs)(({ theme }) => ({
-  // '& .MuiTabs-flexContainer': {
-  //   display: 'grid',
-  //   gridTemplateColumns: 'repeat(auto-fit,1fr)',
-  // },
   '& .MuiTabs-flexContainer': {
     justifyContent: 'space-around',
   },
@@ -37,7 +33,6 @@ const TabCustom = styled(Tab)(({ theme }) => ({
   textTransform: 'none',
   paddingTop: '6px',
   justifyContent: 'flex-start',
-  // minHeight: '42px',
 }));
 
 const SpecList = styled(Box)(({ theme }) => ({
@@ -50,20 +45,18 @@ const SpecList = styled(Box)(({ theme }) => ({
   },
 }));
 const SpecItem = styled(Box)(({ theme }) => ({
-  // display: 'flex',
   alignItems: 'center',
-  // justifyContent: 'space-between',
+
   minHeight: '64px',
   padding: '10px 0',
   display: 'grid',
   gridTemplateColumns: 'repeat(2,1fr)',
   columnGap: '10px',
-  // paddingBottom: theme.spacing(10),
+
   borderBottom: `1px solid ${theme.palette.grey[200]}`,
 }));
 const SpecLabel = styled(Typography)(({ theme }) => ({}));
 const SpecValue = styled(Typography)(({ theme }) => ({
-  // whiteSpace: 'pre',
   textAlign: 'right',
   [theme.breakpoints.down('smd')]: {
     textAlign: 'left',

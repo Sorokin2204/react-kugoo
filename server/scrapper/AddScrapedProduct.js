@@ -70,14 +70,14 @@ const addAttributToDb = async (product, newProduct) => {
 };
 
 const addProductToDb = async (product) => {
-  //// 1.Ищем существует ли продукт с названием
+  // 1.Ищем существует ли продукт с названием
   const findProduct = await Product.findOne({
     name: product.title,
   });
   if (findProduct) {
     return;
   }
-  // //// 2. Создаем объект продукта
+  // 2. Создаем объект продукта
   const newProduct = await new Product({
     name: product.title,
     slug: product.slug,
@@ -90,7 +90,7 @@ const addProductToDb = async (product) => {
 };
 
 const addSpecificationToDb = async (product, newProduct) => {
-  //// 4.Добавляем характеристики
+  // 4.Добавляем характеристики
   for (const spec of product.specifications) {
     let currentSpec = await Spec.findOne({
       name: spec.label,
@@ -154,12 +154,6 @@ const showSpec = async () => {
       { label: 'Комплектация', opt: [] },
       { label: 'Гарантия', opt: [] },
     ];
-    // allProduct.map((prod) =>
-    //   prod.specifications.map((spec, i) => {
-    //     const findSpec = specs.find((s) => s.label === spec.label);
-    //     if (findSpec) findSpec.opt.push(spec.value);
-    //   }),
-    // );
 
     await Product.deleteMany();
     await Product_SpecOption.deleteMany();
@@ -178,12 +172,6 @@ const showSpec = async () => {
     for (const product of allProductFilter) {
       await saveProductToDb(product);
     }
-
-    // allProductFilter.reduce(async (memo, product) => {
-    //   const results = await memo;
-    //   await addProductToDb(product);
-    //   return [...results, product];
-    // }, []);
   } catch (error) {
     console.log(error);
   }

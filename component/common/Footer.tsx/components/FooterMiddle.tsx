@@ -1,5 +1,5 @@
-import React from 'react';
 import { Box, styled, Typography, useTheme } from '@mui/material';
+import React from 'react';
 import { socialData } from '../../../../data/socialData';
 
 type Props = {};
@@ -9,9 +9,7 @@ const FooterMiddleWrapper = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   borderTop: `1px solid rgba(93, 108, 123,0.15);`,
   borderBottom: `1px solid rgba(93, 108, 123,0.15);`,
-  [theme.breakpoints.down('md')]: {
-    // alignItems: 'start',
-  },
+
   [theme.breakpoints.down('smd')]: {
     flexWrap: 'wrap',
   },
@@ -74,9 +72,6 @@ const FooterSocialItem = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
   borderRadius: '5px',
   display: 'flex',
-  // '& + &': {
-  //   marginLeft: theme.spacing(5),
-  // },
 }));
 const FooterSocialIcon = styled('img')(({ theme }) => ({}));
 const FooterSocialBox = styled(Box)(({ theme }) => ({

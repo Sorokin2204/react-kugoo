@@ -48,7 +48,6 @@ const attributeMutation = {
     try {
       await AttributeOption.updateOne({ _id: attrOptId }, { isDelete: true });
       await Product_AttributeOption.deleteMany({ AttributeOption: attrOptId });
-      console.log('delete', attrOptId);
     } catch (error) {
       console.log(error.message);
     }

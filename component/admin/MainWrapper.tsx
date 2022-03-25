@@ -1,31 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { styled, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Add } from '@mui/icons-material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import MenuIcon from '@mui/icons-material/Menu';
+import { Link as LinkMUI } from '@mui/material';
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import CssBaseline from '@mui/material/CssBaseline';
+import Divider from '@mui/material/Divider';
+import Drawer from '@mui/material/Drawer';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
-import { adminMobileNavData } from '../../data/adminMobileNavData';
-import { useRouter } from 'next/router';
-import CategoryModal from './ProductAdd/CategoryModal';
-import AttributeModal from './ProductAdd/AttributeModal';
-import SpecModal from './ProductAdd/SpecModal';
-import useAppConfig from '../../hooks/useAppConfig';
+import { styled, useTheme } from '@mui/material/styles';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 import Link from 'next/link';
-import { Add, Delete } from '@mui/icons-material';
-import { Button, Link as LinkMUI } from '@mui/material';
+import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import { adminMobileNavData } from '../../data/adminMobileNavData';
+import useAppConfig from '../../hooks/useAppConfig';
+import AttributeModal from './ProductAdd/AttributeModal';
+import CategoryModal from './ProductAdd/CategoryModal';
+import SpecModal from './ProductAdd/SpecModal';
 
 const drawerWidth = 240;
 
@@ -73,7 +70,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
+
   ...theme.mixins.toolbar,
   justifyContent: 'flex-end',
 }));
@@ -88,10 +85,6 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
   const [openAttribute, setOpenAttribute] = useState<boolean>(false);
   const [openSpec, setOpenSpec] = useState<boolean>(false);
   const { adminHeaderTitle } = useAppConfig();
-
-  useEffect(() => {
-    console.log(router);
-  }, [router]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -137,7 +130,6 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
                     },
                   },
                 }}>
-                {' '}
                 <span> Добавить товар</span>
                 <Add
                   sx={{

@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import {
   Box,
   FormControl,
@@ -9,6 +8,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import React, { useState } from 'react';
 import { currencyFormat } from '../../../utils/currencyFormat';
 
 export type SpecType = {
@@ -24,7 +24,6 @@ export type SpecType = {
 
 const RadioBox = styled(Box)(({ theme }) => ({
   gridColumn: '1/12',
-  // gridRow: '5/6',
 }));
 const RadioCustom = styled(Radio)<{ withContent: boolean }>(
   ({ theme, withContent }) => ({
@@ -75,16 +74,14 @@ const RadioContent = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
 }));
-const RadioBody = styled(Box)(({ theme }) => ({
-  // height: '100%',
-}));
+const RadioBody = styled(Box)(({ theme }) => ({}));
 const RadioName = styled(Typography)<{ withContent: boolean }>(
   ({ theme, withContent }) => ({
     ...theme.typography.t1,
     display: 'block',
     lineHeight: '20px',
     textAlign: 'center',
-    // whiteSpace: 'pre',
+
     ...(withContent && {
       ...theme.typography.t2b,
       textAlign: 'left',
@@ -165,22 +162,7 @@ const RadioBlock: React.FC<Props> = ({
   radioName,
   radioList,
 }) => {
-  // const defaultCheckedLabel = data.attrOpts.find(
-  //   (el) => el.defaultChecked === true,
-  // )?.value;
-  // const defaultCheckedLabel = data.attrOpts[0];
-
-  // const withSubtitle: boolean =
-  //   data.attrOpts.findIndex((el) => el.subLabel) == -1 ? true : false;
-
-  // const withContent: boolean =
-  //   data.attrOpts.findIndex((el) => el.content) == -1 ? true : false;
-
   const [activeFilter, setActiveFilter] = useState<string>(defaultValue);
-
-  useEffect(() => {
-    console.log();
-  }, []);
 
   const theme = useTheme();
   const handleChangeFilter = (event: React.ChangeEvent<Element>, value) => {
@@ -204,12 +186,7 @@ const RadioBlock: React.FC<Props> = ({
               width: '100%',
             },
           }}>
-          <RadioList
-            // onChange={(e, value) => {
-            //   onChange(e, value);
-            //   handleChangeFilter(e, value);
-            // }}
-            withContent={!withContent}>
+          <RadioList withContent={!withContent}>
             {radioList.map((el, i) => (
               <RadioButton
                 onChange={() => handleChangeRadio(el)}

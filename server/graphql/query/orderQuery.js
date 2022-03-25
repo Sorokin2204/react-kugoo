@@ -147,7 +147,7 @@ const orderQuery = {
         },
       },
     ]);
-    console.log(resaultOrder[0]);
+
     return resaultOrder[0];
   },
 };

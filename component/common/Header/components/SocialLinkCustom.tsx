@@ -1,7 +1,6 @@
+import { Link as LinkMUI, styled } from '@mui/material';
 import Link from 'next/link';
 import React from 'react';
-
-import { Button, Link as LinkMUI, styled } from '@mui/material';
 
 type Props = {
   href: string;

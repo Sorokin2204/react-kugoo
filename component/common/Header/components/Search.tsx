@@ -1,20 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import { useLazyQuery } from '@apollo/client';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Box,
-  Button,
   ButtonBase,
-  IconButton,
   InputBase,
   MenuItem,
   Select,
   styled,
   useTheme,
 } from '@mui/material';
-
-import SearchIcon from '@mui/icons-material/Search';
-import SearchPopover from './SearchPopover';
-import { useLazyQuery } from '@apollo/client';
+import React, { useEffect, useState } from 'react';
 import { GET_SEARCH_PRODUCTS } from '../../../../graphql/query/product';
+import SearchPopover from './SearchPopover';
 
 type Props = {};
 
@@ -32,7 +29,6 @@ const Search: React.FC<Props> = ({}) => {
 
   const clearSearch = () => {
     setSearchText('');
-    // console.log('close');
   };
 
   const handleClose = () => {
@@ -48,7 +44,6 @@ const Search: React.FC<Props> = ({}) => {
       })
         .then((dataS) => {
           setOpenSearch(true);
-          console.log('search data', dataS.data.searchProducts);
         })
         .catch((err) => console.log(JSON.stringify(err, null, 2)));
     } else {
@@ -58,7 +53,6 @@ const Search: React.FC<Props> = ({}) => {
 
   useEffect(() => {
     let timer = setTimeout(() => {
-      console.log('sEARC', searchText);
       fetchSearchProduct();
     }, 500);
 
@@ -98,7 +92,6 @@ const Search: React.FC<Props> = ({}) => {
             onChange={(e) => {
               setSearchText(e.target.value);
             }}
-            // onFocus={() => fetchSearchProduct()}
             sx={{ fontSize: theme.typography.t3 }}
             placeholder="Искать самокат KUGOO"
           />
@@ -138,12 +131,11 @@ const SearchBox = styled(Box)(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
     marginRight: '0',
   },
-  // border: `2px solid ${theme.palette.primary.main}`,
+
   borderRadius: '5px',
 }));
 const SearchSelect = styled(Select)<{ triangle: string }>(
   ({ theme, triangle }) => ({
-    // margin: theme.spacing(2),
     [theme.breakpoints.down('md')]: {
       display: 'none',
     },

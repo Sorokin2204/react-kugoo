@@ -49,7 +49,7 @@ const ThanksImage = styled('img')(({ theme }) => ({
 }));
 const ThanksBoxImage = styled(Box)(({ theme }) => ({
   maxHeight: '350px',
-  //   overflow: 'hidden',
+
   [theme.breakpoints.down('md')]: { maxHeight: '280px' },
   [theme.breakpoints.down('sm')]: { maxHeight: '200px' },
   [theme.breakpoints.down('smd')]: {
@@ -61,7 +61,6 @@ const ThanksInner = styled(Box)(({ theme }) => ({
   background:
     'radial-gradient(82.68% 234.06% at 85.58% 87.89%, #9DF474 0%, #75D14A 100%)',
   borderRadius: '10px',
-  //   overflow: 'hidden',
   marginTop: '30px',
   marginBottom: '30px',
   padding: '0 30px ',
@@ -76,14 +75,11 @@ const ThanksPage: React.FC<Props> = ({}) => {
   return (
     <>
       <ThanksWrapper>
-        {' '}
         <Container maxWidth="xl">
           <ThanksInner>
             <ThanksContent>
               <ThanksBody>
-                <ThanksTitle variant="h1">
-                  Мы получили вашу заявку!{' '}
-                </ThanksTitle>
+                <ThanksTitle variant="h1">Мы получили вашу заявку!</ThanksTitle>
                 <ThanksText variant="t2">
                   Менеджер свяжется с Вами в течение 5 минут в рабочее время.
                   Если Вы оставили заявку в нерабочее время — начнем следующий

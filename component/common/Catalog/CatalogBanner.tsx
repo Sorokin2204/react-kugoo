@@ -1,5 +1,5 @@
-import React from 'react';
 import { Box, Container, styled, Typography } from '@mui/material';
+import React from 'react';
 
 type Props = { title: string };
 

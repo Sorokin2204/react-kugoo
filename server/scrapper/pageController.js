@@ -14,13 +14,9 @@ async function scrapeAll(browserInstance) {
         productUrl,
         browser,
       );
-      // if (productData) await pageScraper.addProductInFile(productData);
+
       return [...results, productUrl];
     }, []);
-    // const productData = await pageScraper.scraperSingleProduct(
-    //   'https://kugoo-russia.ru/electrosamokaty/kugoo-m4pro-13ah',
-    //   browser,
-    // );
   } catch (err) {
     console.log('Could not resolve the browser instance => ', err);
   }

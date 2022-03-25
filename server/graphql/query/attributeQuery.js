@@ -17,21 +17,10 @@ const attributeQuery = {
           _id: { $in: productAttrs.map((prod) => prod.AttributeOption) },
         },
       },
-      // {
-      //   $lookup: {
-      //     from: Product_AttributeOption.collection.name,
-      //     localField: '_id',
-      //     foreignField: 'AttributeOption',
-      //     as: 'AttributeOption',
-      //     pipeline: [],
-      //   },
-      // },
-      // { $unwind: '$AttributeOption' },
+
       {
         $group: {
           _id: '$Attribute',
-          // defaultPrice: { $addToSet: '$defaultPrice' },
-          // defaultPrice: '$defaultPrice',
           defaultAttrOpt: { $first: '$$ROOT' },
         },
       },
@@ -78,10 +67,6 @@ const attributeQuery = {
             },
           },
         ]);
-        // return await Attribute.findOne({
-        //   _id: attrId,
-        //   AttributeOptions: attrOptId,
-        // }).populate('AttributeOptions');
       }
       if (attrId) {
         return await Attribute.findById(attrId);

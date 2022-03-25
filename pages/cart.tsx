@@ -1,34 +1,10 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Button,
-  Container,
-  MenuItem,
-  styled,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { Box, Container, styled, Typography, useTheme } from '@mui/material';
 import BreadcrumbsCustom from '../component/common/BreadcrumbsCustom';
-import { currencyFormat } from '../utils/currencyFormat';
-import ButtonIcon from '../component/common/ButtonIcon';
-import QuantityInput from '../component/common/QuantityInput';
-import { productData } from '../component/common/Catalog';
-import SelectCustom from '../component/common/SelectCustom';
-import { specData } from './[categorySlug]/[productSlug]';
-import FilterCheckbox from '../component/common/FilterCheckbox';
-import ProductCarusel from '../component/common/ProductCarusel';
 import CartProducts from '../component/common/Cart/CartProducts';
 import CartClientInfo from '../component/common/Cart/CartClientInfo';
 import CartSidebar from '../component/common/Cart/CartSidebar';
 import CartDeliveryInfo from '../component/common/Cart/CartDeliveryInfo';
-import CartDeliveryChoice from '../component/common/Cart/CartDeliveryChoice';
-import CartPaymentChoice from '../component/common/Cart/CartPaymentChoice';
 import { useForm } from 'react-hook-form';
 import useAppConfig from '../hooks/useAppConfig';
 import _ from 'lodash';
@@ -93,9 +69,6 @@ const CartPage: React.FC<Props> = ({}) => {
     },
   });
 
-  const onSubmit = (dataSubmit) => {
-    console.log('Submit Data', dataSubmit);
-  };
   if (cartProducts.length === 0) {
     return (
       <>
@@ -140,33 +113,19 @@ const CartPage: React.FC<Props> = ({}) => {
             {!stepCheckout ? (
               <CartProducts />
             ) : (
-              <form
-                onSubmit={formCheckout.handleSubmit(onSubmit)}
-                autoComplete="off">
-                {/* <CartStep>
-                  <CartStepTitle variant="h4b">
-                    <span>Шаг 1.</span> Выберите способ доставки
-                  </CartStepTitle>
-                  <CartDeliveryChoice />
-                </CartStep> */}
+              <form autoComplete="off">
                 <CartStep>
                   <CartStepTitle variant="h4b">
-                    <span>Шаг 2.</span> Укажите адрес доставки
+                    <span>Шаг 1.</span> Укажите адрес доставки
                   </CartStepTitle>
                   <CartDeliveryInfo form={formCheckout} />
                 </CartStep>
                 <CartStep>
                   <CartStepTitle variant="h4b">
-                    <span>Шаг 3.</span> Укажите данные получателя
-                  </CartStepTitle>{' '}
+                    <span>Шаг 2.</span> Укажите данные получателя
+                  </CartStepTitle>
                   <CartClientInfo form={formCheckout} />
                 </CartStep>
-                {/* <CartStep>
-                  <CartStepTitle variant="h4b">
-                    <span>Шаг 4.</span> Выберите способ оплаты
-                  </CartStepTitle>
-                  <CartPaymentChoice />
-                </CartStep> */}
               </form>
             )}
           </CartContent>
@@ -177,7 +136,6 @@ const CartPage: React.FC<Props> = ({}) => {
           />
         </CartGrid>
       </Container>
-      <Box sx={{ mb: 50 }}>{/* <ProductCarusel /> */}</Box>
     </>
   );
 };

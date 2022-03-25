@@ -1,4 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import {
+  Add,
+  Close,
+  Delete,
+  RestartAltOutlined,
+  Save,
+} from '@mui/icons-material';
+import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import {
   Box,
   IconButton,
@@ -12,17 +19,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FieldArray } from 'react-hook-form';
-import {
-  Add,
-  Close,
-  Delete,
-  RestartAltOutlined,
-  Restore,
-  Save,
-} from '@mui/icons-material';
 import slugify from 'slugify';
-import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import { createObjectId } from '../../../utils/createObjectId';
 type Props = {
   firstChild: string;
@@ -239,13 +238,9 @@ const SubTableModal: React.FC<Props> = ({
                     color: 'inherit',
                   }}
                   onClick={(e) => {
-                    // removeAfterText(index);
                     e.stopPropagation();
                     if (activeSpec) {
-                      console.log('ESXIT SPEC');
                       removeSpecOpt(field._id);
-                    } else {
-                      console.log('NEW SPEC');
                     }
                   }}>
                   <Delete
@@ -358,14 +353,7 @@ const SubTableModal: React.FC<Props> = ({
           </IconButton>
         )}
       </Box>
-      <TableContainer
-        component={Paper}
-        sx={
-          {
-            // height: 'calc(67vh - 40px)',
-            // overflowY: 'scroll',
-          }
-        }>
+      <TableContainer component={Paper}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
