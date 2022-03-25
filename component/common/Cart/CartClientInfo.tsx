@@ -14,6 +14,9 @@ const CartGridInput = styled(Box)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(2,1fr)',
   gridGap: '20px',
+  [theme.breakpoints.down('sm')]: {
+    gridTemplateColumns: '1fr',
+  },
   rowGap: theme.spacing(20),
 }));
 const InputBox = styled(Box)(({ theme }) => ({
@@ -92,7 +95,14 @@ const CartClientInfo: React.FC<Props> = ({ form }) => {
           }}
           form={form}
         />
-        <InputBox sx={{ gridColumn: '1/3' }}>
+        <InputBox
+          sx={{
+            gridColumn: '1/3',
+            mb: 15,
+            [theme.breakpoints.down('sm')]: {
+              gridColumn: '1/2',
+            },
+          }}>
           {/* <Typography variant="t4" sx={{ mb: 3.5 }}>
             Комментрий
           </Typography>

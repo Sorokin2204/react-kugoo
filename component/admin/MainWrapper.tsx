@@ -23,6 +23,9 @@ import CategoryModal from './ProductAdd/CategoryModal';
 import AttributeModal from './ProductAdd/AttributeModal';
 import SpecModal from './ProductAdd/SpecModal';
 import useAppConfig from '../../hooks/useAppConfig';
+import Link from 'next/link';
+import { Add, Delete } from '@mui/icons-material';
+import { Button, Link as LinkMUI } from '@mui/material';
 
 const drawerWidth = 240;
 
@@ -86,6 +89,10 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
   const [openSpec, setOpenSpec] = useState<boolean>(false);
   const { adminHeaderTitle } = useAppConfig();
 
+  useEffect(() => {
+    console.log(router);
+  }, [router]);
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -113,6 +120,34 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
           <Typography variant="h6" noWrap component="div">
             {adminHeaderTitle}
           </Typography>
+          {router.asPath == '/admin/product-list' && (
+            <Link href="/admin/product-add">
+              <LinkMUI
+                sx={{
+                  marginLeft: 'auto',
+                  marginTop: '3px',
+                  fontSize: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  textDecoration: 'none',
+                  color: theme.palette.common.white,
+                  [theme.breakpoints.down('md')]: {
+                    '& span': {
+                      display: 'none',
+                    },
+                  },
+                }}>
+                {' '}
+                <span> Добавить товар</span>
+                <Add
+                  sx={{
+                    ml: '6px',
+                    fontSize: 26,
+                  }}
+                />
+              </LinkMUI>
+            </Link>
+          )}
         </Toolbar>
       </AppBar>
       <Drawer
@@ -166,12 +201,21 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
             </>
           ))}
         </List>
-        <CategoryModal open={openCategory} handleClose={handleSwithCategory} />
-        <AttributeModal
-          open={openAttribute}
-          handleClose={handleSwithAttribute}
-        />
-        <SpecModal open={openSpec} handleClose={handleSwithSpec} />
+        {openCategory ? (
+          <CategoryModal
+            open={openCategory}
+            handleClose={handleSwithCategory}
+          />
+        ) : null}
+        {openAttribute ? (
+          <AttributeModal
+            open={openAttribute}
+            handleClose={handleSwithAttribute}
+          />
+        ) : null}
+        {openSpec ? (
+          <SpecModal open={openSpec} handleClose={handleSwithSpec} />
+        ) : null}
       </Drawer>
       <Main open={open}>
         <DrawerHeader />

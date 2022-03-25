@@ -16,14 +16,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Edit } from '@mui/icons-material';
 import { ModalBox } from './ModalBox';
 import { grey } from '@mui/material/colors';
-
-type Props = {
-  open: boolean;
-  attrData: object;
-  setOpen: () => {};
-  handleCheckboxChange: () => {};
-  handleEditOptionClick: () => {};
-};
+import useAppConfig from '../../hooks/useAppConfig';
 
 const ProductAttrBox = styled(Box)(({ theme }) => ({}));
 const ProductAttrHead = styled(Box)(({ theme, active }) => ({
@@ -79,13 +72,24 @@ const ProductAttrLabel = styled(FormControlLabel)<{
 const ProductAttrCheckbox = styled(Checkbox)(({ theme }) => ({
   display: 'none',
 }));
+
+type Props = {
+  open: boolean;
+  attrData: object;
+  setOpen: () => void;
+  handleCheckboxChange: (optId: string) => void;
+  handleClose: () => void;
+};
+
 const ProductAttribute: React.FC<Props> = ({
   open,
   setOpen,
   attrData,
   handleCheckboxChange,
-  handleEditOptionClick,
+  handleClose,
 }) => {
+  const { setEditedOption } = useAppConfig();
+
   return (
     <ProductAttrBox>
       <ProductAttrHead
@@ -189,7 +193,10 @@ const ProductAttribute: React.FC<Props> = ({
 
                   <IconButton
                     sx={{ p: 0, ml: 1 }}
-                    onClick={() => handleEditOptionClick(opt)}>
+                    onClick={() => {
+                      setEditedOption(opt);
+                      handleClose();
+                    }}>
                     <Edit />
                   </IconButton>
                 </>

@@ -6,9 +6,15 @@ const initialAppConfig: AppConfig = () => {
       localStorage.getItem('nuffshell.appConfig'),
   );
   if (storageData) {
-    return { ...storageData, category: null, adminHeaderTitle: null };
+    return {
+      ...storageData,
+      category: null,
+      adminHeaderTitle: null,
+      editedOption: null,
+    };
   } else {
     return {
+      editedOption: null,
       adminHeaderTitle: null,
       category: null,
       cartProducts: [],

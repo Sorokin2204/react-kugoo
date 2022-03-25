@@ -58,6 +58,11 @@ themeAdmin = createTheme(themeAdmin, {
           '& .MuiTableHead-root': {
             padding: 0,
           },
+          '& .MuiTableRow-root.Mui-selected': {
+            '&:hover': {
+              backgroundColor: 'rgba(25, 118, 210, 0.08)',
+            },
+          },
           '& .MuiTableCell-root': {
             padding: '4px',
             [themeAdmin.breakpoints.down('sm')]: {
@@ -85,11 +90,27 @@ themeAdmin = createTheme(themeAdmin, {
     },
     MuiButton: {
       styleOverrides: {
-        root: {
+        // root: {
+        //   boxShadow: 'none',
+        //   '&:hover': {
+        //     backgroundColor: `${themeAdmin.palette.primary.main} !important`,
+        //     boxShadow: 'none',
+        //   },
+        // },
+        contained: {
           boxShadow: 'none',
           '&:hover': {
             backgroundColor: `${themeAdmin.palette.primary.main} !important`,
             boxShadow: 'none',
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.08) !important',
           },
         },
       },

@@ -21,6 +21,11 @@ var ProductSchema = new Schema({
     type: String,
     required: true,
   },
+  isDeleted: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
   images: [
     {
       order: { type: Number, required: true },

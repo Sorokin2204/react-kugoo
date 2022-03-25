@@ -30,7 +30,11 @@ const ContactPhone = styled(Typography)(({ theme }) => ({
   },
 }));
 const PhoneSubtitle = styled(Typography)(({ theme }) => ({}));
-const PhoneNumber = styled(Typography)(({ theme }) => ({}));
+const PhoneNumber = styled('a')(({ theme }) => ({
+  ...theme.typography.t2b,
+  textDecoration: 'none',
+  color: theme.palette.common.black,
+}));
 const PhoneWorktime = styled(Typography)(({ theme }) => ({
   color: theme.palette.grey[600],
 }));
@@ -39,8 +43,10 @@ const ContactAddress = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
 }));
 const Address = styled(Typography)(({ theme }) => ({}));
-const AddressPhone = styled(Typography)(({ theme }) => ({
+const AddressPhone = styled('a')(({ theme }) => ({
   color: theme.palette.grey[600],
+  ...theme.typography.t4,
+  textDecoration: 'none',
 }));
 
 const FooterContacts: React.FC<Props> = ({ data }) => {
@@ -54,7 +60,9 @@ const FooterContacts: React.FC<Props> = ({ data }) => {
             <PhoneSubtitle variant="t4" sx={{ mb: 2.5 }}>
               {el.phonesubtitle}
             </PhoneSubtitle>
-            <PhoneNumber variant="t2b" sx={{ mb: 3.5 }}>
+            <PhoneNumber
+              sx={{ mb: 3.5 }}
+              href={`tel:${el.phoneFull.replace(/\D/g, '')}`}>
               {el.phoneFull}
             </PhoneNumber>
             <PhoneWorktime variant="t4">{el.phoneWorktime}</PhoneWorktime>
@@ -66,7 +74,11 @@ const FooterContacts: React.FC<Props> = ({ data }) => {
               {el.addressFull}
             </Address>
 
-            <AddressPhone variant="t4">{el.addressPhone}</AddressPhone>
+            <AddressPhone
+              variant="t4"
+              href={`tel:${el.addressPhone.replace(/\D/g, '')}`}>
+              {el.addressPhone}
+            </AddressPhone>
           </ContactAddress>
         ))}{' '}
       </ContactBox>

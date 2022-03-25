@@ -36,12 +36,18 @@ const GalleryBox = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.grey[100],
   borderRadius: '10px',
   padding: '30px',
+  [theme.breakpoints.down('md')]: {
+    padding: '15px',
+  },
 }));
 const GalleryList = styled(Box)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill,200px)',
   justifyContent: 'center',
   gridGap: '20px',
+  [theme.breakpoints.down('md')]: {
+    gridGap: '10px',
+  },
 }));
 const GalleryImg = styled('img')(({ theme }) => ({
   display: 'block',
@@ -83,11 +89,17 @@ const DropText = styled(Typography)(({ theme }) => ({
   fontWeight: '600',
   color: theme.palette.grey[600],
   maxWidth: '70%',
+  [theme.breakpoints.down('md')]: {
+    fontSize: '20px',
+  },
 }));
 const DropIcon = styled(AddPhotoAlternate)(({ theme }) => ({
   fontSize: 50,
   color: theme.palette.grey[600],
   marginTop: '30px',
+  [theme.breakpoints.down('md')]: {
+    marginTop: '15px',
+  },
 }));
 const GalleryDropBox = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -95,6 +107,9 @@ const GalleryDropBox = styled(Box)(({ theme }) => ({
   justifyContent: 'center',
   flexDirection: 'column',
   padding: '40px',
+  [theme.breakpoints.down('md')]: {
+    padding: '20px',
+  },
 }));
 
 type Props = {

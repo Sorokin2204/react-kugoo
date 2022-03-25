@@ -39,6 +39,8 @@ import _ from 'lodash';
 import { Close, Delete } from '@mui/icons-material';
 import translationToSlug from '../../../utils/translateToSlug';
 import { GET_ALL_SPEC } from '../../../graphql/query/spec';
+import useModal from '../../../hooks/useModal';
+import AlertDelete from '../AlertDelete';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -74,6 +76,8 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
       Specs: [],
     },
   });
+
+  const [openDelete, handleToggleDelete] = useModal();
   const [activeCategory, setActiveCategory] = useState(null);
   const [newCategory] = useMutation(CREATE_CATEGORY);
   const [deleteCategory] = useMutation(DELETE_CATEGORY);
@@ -229,6 +233,7 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
       })
         .then(() => {
           allCategoryRefetch();
+          setActiveCategory(null);
         })
         .catch((err) => console.log(err.message));
     }
@@ -309,10 +314,8 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
                     <Close />
                   </IconButton>
                   <IconButton
-                    sx={{ p: 0, ml: 1 }}
-                    onClick={() => {
-                      handleDeleteCategoryClick();
-                    }}>
+                    sx={{ p: 0, ml: 1, color: theme.palette.error.main }}
+                    onClick={handleToggleDelete}>
                     <Delete />
                   </IconButton>
                 </>
@@ -548,6 +551,15 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
               </Table>
             </TableContainer>
           )}
+          {openDelete ? (
+            <AlertDelete
+              open={openDelete}
+              handleClose={handleToggleDelete}
+              title={'Категория будет удалена'}
+              text={'Будет удалена категория и все товары связанные с ней'}
+              handleDelete={handleDeleteCategoryClick}
+            />
+          ) : null}
         </ModalBox>
       </Modal>
     </>

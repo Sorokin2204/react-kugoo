@@ -73,6 +73,7 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
     event: MouseEvent,
     productId: string,
     price: number,
+    callback: () => {},
   ) => {
     getDefaultProductAttributes({
       variables: {
@@ -99,7 +100,7 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
         attributes: attributes,
         pieces: 1,
       });
-      snackbarShowMessage(`Товар добавлен в корзину`);
+      callback();
     });
   };
   return (
@@ -193,7 +194,9 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
             e.stopPropagation();
             inCart
               ? handleDeleteFromCart(data._id)
-              : handleAddToCart(e, data._id, data.price);
+              : handleAddToCart(e, data._id, data.price, () => {
+                  snackbarShowMessage(`Товар добавлен в корзину`);
+                });
           }}></BtnCart>
         {/* <BtnFavorite
           variant="border"
@@ -207,8 +210,9 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
           variant="containedSmall"
           onClick={(e) => {
             e.stopPropagation();
-            handleAddToCart(e, data._id, data.price);
-            router.push('/cart');
+            handleAddToCart(e, data._id, data.price, () => {
+              router.push('/cart');
+            });
           }}>
           Купить в 1 клик
         </BtnBuy>

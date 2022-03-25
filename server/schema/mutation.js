@@ -7,9 +7,11 @@ const mutationSchema = `
 ### PRODUCT  
       createProduct(product: ProductInput): String
       updateProduct(product: ProductInput): String
+      deleteProduct(productId: String): String
 ### ATTRIBUTE
     createAttributeWithOptions(attr: AttributeInput, attrOpt: AttributeOptionInput ): String
     updateAttribute(updAttr: AttributeInput): String
+  
 ### ATTRIBUTE_OPTION
     updateAttributeOption(attrOptId: String, newAttrOpt: AttributeOptionInput ): String
     createAttributeOptionInAttribute(attrId: String, attrOpt: AttributeOptionInput): String

@@ -10,3 +10,8 @@ export const UPDATE_PRODUCT = gql`
     updateProduct(product: $product)
   }
 `;
+export const DELETE_PRODUCT = gql`
+  mutation ($productId: String) {
+    deleteProduct(productId: $productId)
+  }
+`;

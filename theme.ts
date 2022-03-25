@@ -1,8 +1,13 @@
 import { createTheme, Typography, useTheme } from '@mui/material';
 
 let theme = createTheme({
+  zIndex: {
+    drawer: 1400,
+    snackbar: 1500,
+  },
   breakpoints: {
     values: {
+      xxs: 0,
       xs: 480,
       sm: 640,
       smd: 840,
@@ -312,7 +317,7 @@ theme = createTheme(theme, {
         outlined: {
           '&, &:hover': {
             border: `1px solid ${theme.palette.primary.main}`,
-            backgroundColor: 'transiton',
+
             color: theme.palette.primary.main,
             padding: `${theme.spacing(7.5)} ${theme.spacing(12.5)}`,
             ...theme.typography.t2,
@@ -321,6 +326,16 @@ theme = createTheme(theme, {
               padding: `${theme.spacing(7.5)} ${theme.spacing(5)}`,
             },
           },
+          '&:hover': {
+            backgroundColor: 'transparent',
+          },
+        },
+      },
+    },
+    MuiModal: {
+      styleOverrides: {
+        root: {
+          zIndex: '10000 !important',
         },
       },
     },
@@ -457,6 +472,7 @@ declare module '@mui/material/Typography/Typography' {
 
 declare module '@mui/material/styles' {
   interface BreakpointOverrides {
+    xxs: true;
     smd: true;
   }
 

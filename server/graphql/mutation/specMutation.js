@@ -1,8 +1,10 @@
+const { ObjectId } = require('mongodb');
 const {
   Spec,
   SpecOption,
   SpecExtraText,
   Product_SpecOption,
+  Category_Spec,
 } = require('../../model');
 
 const specMutation = {
@@ -50,9 +52,40 @@ const specMutation = {
     // return newCat;
   },
   deleteSpec: async (parent, { specId }) => {
+    const productSpecOptIds = await Product_SpecOption.aggregate([
+      {
+        $lookup: {
+          from: SpecOption.collection.name,
+          localField: 'SpecOption',
+          foreignField: '_id',
+          as: 'SpecOption',
+          pipeline: [{ $project: { Spec: 1 } }],
+        },
+      },
+      {
+        $addFields: {
+          SpecOption: { $arrayElemAt: ['$SpecOption', 0] },
+        },
+      },
+      {
+        $match: {
+          'SpecOption.Spec': ObjectId(specId),
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+        },
+      },
+    ]);
+    await Product_SpecOption.deleteMany({
+      _id: productSpecOptIds.map((prodSpecOptId) => prodSpecOptId._id),
+    });
     await Spec.deleteOne({ _id: specId });
     await SpecOption.deleteMany({ Spec: specId });
-    await SpecExtraText.deleteMany({ Spec: specId });
+    await Category_Spec.deleteMany({ Spec: specId });
+    console.log(specId);
+    // await SpecExtraText.deleteMany({ Spec: specId });
     return;
   },
   updateSpec: async (parent, { newOpts, updOpts, deleteIdOpts, updSpec }) => {

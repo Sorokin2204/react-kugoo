@@ -374,7 +374,8 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
               mb: 15,
             },
           }}>
-          <Swiper
+            {!data?.loading && data?.getProduct?.images.length !== 0 ? <>   
+            <Swiper
             style={{
               gridColumn: '1/2',
               gridRow: '1/2',
@@ -391,7 +392,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
             className="mySwiper2">
             {!data?.loading &&
               data?.getProduct?.images?.map((image) => (
-                <SwiperSlide>
+                <SwiperSlide key={image.name}>
                   <img src={`/static/products/${image.name}`} />
                 </SwiperSlide>
               ))}
@@ -403,18 +404,25 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
               alignSelf: 'flex-start',
             }}
             onSwiper={setThumbsSwiper}
+           
             slidesPerView={7}
             modules={[FreeMode, Navigation, Thumbs]}
             allowSlideNext={false}
             allowSlidePrev={false}
+            allowTouchMove={false}
             className="mySwiper">
             {!data?.loading &&
-              data?.getProduct?.images?.map((image) => (
-                <SwiperSlide>
+              data?.getProduct?.images?.map((image,i) => (
+                <SwiperSlide key={image.name} className={i === 0  && 'swiper-slide-thumb-active'}>
                   <img src={`/static/products/${image.name}`} />
                 </SwiperSlide>
               ))}
           </Swiper>
+          </> : <Box sx={{ gridColumn: '1/2',
+              gridRow: '1/2',}}>
+ <img  style={{width: "100%", height: "auto"}} src='/static/preview-product.jpg' />
+          </Box>}
+       
 
           <Content>
             <Title variant="h1">{data?.getProduct.name}</Title>

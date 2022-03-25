@@ -31,6 +31,7 @@ import CartDeliveryChoice from '../component/common/Cart/CartDeliveryChoice';
 import CartPaymentChoice from '../component/common/Cart/CartPaymentChoice';
 import { useForm } from 'react-hook-form';
 import useAppConfig from '../hooks/useAppConfig';
+import _ from 'lodash';
 
 type Props = {};
 
@@ -95,7 +96,26 @@ const CartPage: React.FC<Props> = ({}) => {
   const onSubmit = (dataSubmit) => {
     console.log('Submit Data', dataSubmit);
   };
-  // if (cartProducts.length === 0) return <div>Корзина пуста</div>;
+  if (cartProducts.length === 0) {
+    return (
+      <>
+        <Typography
+          variant="h2"
+          sx={(theme) => ({
+            py: 120,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: theme.palette.grey[600],
+            [theme.breakpoints.down('md')]: {
+              py: 100,
+            },
+          })}>
+          Корзина пуста
+        </Typography>
+      </>
+    );
+  }
   return (
     <>
       <Container>
@@ -113,7 +133,7 @@ const CartPage: React.FC<Props> = ({}) => {
         <Typography
           variant="t3"
           sx={{ display: 'block', color: theme.palette.grey[600], mb: 20 }}>
-          2 товара
+          {`${_.sumBy(cartProducts, 'pieces')} товаров`}
         </Typography>
         <CartGrid sx={{ mb: 50 }}>
           <CartContent>

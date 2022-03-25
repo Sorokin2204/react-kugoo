@@ -39,6 +39,8 @@ import _ from 'lodash';
 import { Add, Close, Delete } from '@mui/icons-material';
 import translationToSlug from '../../../utils/translateToSlug';
 import SubTableModal from './SubTableModal';
+import AlertDelete from '../AlertDelete';
+import useModal from '../../../hooks/useModal';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -92,6 +94,9 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
       specExtraTextBefore: [],
     },
   });
+
+  const [openDelete, handleToggleDelete] = useModal();
+
   const [activeSpec, setActiveSpec] = useState(null);
 
   const [newSpec] = useMutation(CREATE_SPEC);
@@ -265,7 +270,7 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
     return () => clearTimeout(timer);
   }, [typingNameCat]);
 
-  const handleDeleteSpecClick = (e) => {
+  const handleDeleteSpecClick = () => {
     deleteSpec({
       variables: {
         specId: activeSpec._id,
@@ -335,10 +340,8 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
                   <Close />
                 </IconButton>
                 <IconButton
-                  sx={{ p: 0, ml: 1 }}
-                  onClick={() => {
-                    handleDeleteSpecClick();
-                  }}>
+                  sx={{ p: 0, ml: 1, color: theme.palette.error.main }}
+                  onClick={handleToggleDelete}>
                   <Delete />
                 </IconButton>
               </>
@@ -549,6 +552,15 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
             }}>
             {activeSpec ? 'Сохранить' : 'Добавить'}
           </Button>
+          {openDelete ? (
+            <AlertDelete
+              open={openDelete}
+              handleClose={handleToggleDelete}
+              title={'Характеристика будет удалена'}
+              text={'Будет удалена характеристика и все связанные опции'}
+              handleDelete={handleDeleteSpecClick}
+            />
+          ) : null}
         </ModalBox>
       </Modal>
     </>

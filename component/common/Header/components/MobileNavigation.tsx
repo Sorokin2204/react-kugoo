@@ -23,7 +23,7 @@ const MobileNav = styled(Box)(({ theme }) => ({
   left: 0,
   padding: '8px 0',
   backgroundColor: theme.palette.common.white,
-  zIndex: 100000,
+  zIndex: 10000000,
   [theme.breakpoints.up('md')]: {
     display: 'none',
   },
@@ -32,6 +32,8 @@ const MobileList = styled(Box)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(3,1fr)',
   width: '100vw',
+  position: 'relative',
+  zIndex: 10000000,
 }));
 const MobileItem = styled(Box)(({ theme }) => ({}));
 const MobileLink = styled(LinkCustom)<{ icon: string; active: boolean }>(
@@ -95,6 +97,7 @@ const MobileNavigation: React.FC<Props> = ({}) => {
                 }}
                 sx={{
                   '& .MuiBadge-badge': {
+                    pointerEvents: 'none',
                     left: 'auto',
                     top: '10%',
                     right: '25%',

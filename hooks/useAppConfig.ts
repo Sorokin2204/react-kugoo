@@ -15,12 +15,19 @@ export default function useAppConfig() {
     category: data.appConfig.category,
     cartProducts: data.appConfig.cartProducts,
     adminHeaderTitle: data.appConfig.adminHeaderTitle,
+    editedOption: data.appConfig.editedOption,
     setAdminHeaderTitle(newTitle: string) {
       appConfigVar({
         ...data.appConfig,
         adminHeaderTitle: newTitle,
       });
-      saveAppConfig();
+      // saveAppConfig();
+    },
+    setEditedOption(newEditedOption) {
+      appConfigVar({
+        ...data.appConfig,
+        editedOption: newEditedOption,
+      });
     },
     setCategory(category: Category) {
       appConfigVar({
@@ -53,6 +60,13 @@ export default function useAppConfig() {
       });
       saveAppConfig();
     },
+    resetCart() {
+      appConfigVar({
+        ...data.appConfig,
+        cartProducts: [],
+      });
+      saveAppConfig();
+    },
     addingInCart(newProductInCart: ProductInCartType) {
       let updatedProductsInCart = [];
       let isRepeatInCart = false;
@@ -61,8 +75,24 @@ export default function useAppConfig() {
           (prod: ProductInCartType) => {
             if (
               _.isEqual(
-                _.omit(prod, ['pieces', '_id', 'totalPrice']),
-                _.omit(newProductInCart, ['pieces', 'totalPrice']),
+                _.omit(
+                  {
+                    ...prod,
+                    attributes: _.orderBy(prod.attributes, 'attr', 'asc'),
+                  },
+                  ['pieces', '_id', 'totalPrice'],
+                ),
+                _.omit(
+                  {
+                    ...newProductInCart,
+                    attributes: _.orderBy(
+                      newProductInCart.attributes,
+                      'attr',
+                      'asc',
+                    ),
+                  },
+                  ['pieces', 'totalPrice'],
+                ),
               )
             ) {
               isRepeatInCart = true;
@@ -76,11 +106,12 @@ export default function useAppConfig() {
             }
           },
         );
-        if (!isRepeatInCart)
+        if (!isRepeatInCart) {
           updatedProductsInCart.push({
             _id: createObjectId(),
             ...newProductInCart,
           });
+        }
       } else {
         updatedProductsInCart.push({
           _id: createObjectId(),

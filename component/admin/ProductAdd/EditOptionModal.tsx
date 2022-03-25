@@ -1,71 +1,103 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, styled, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Modal,
+  styled,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { ModalBox } from '../ModalBox';
 import NumberFormat from 'react-number-format';
+import useAppConfig from '../../../hooks/useAppConfig';
 
 type Props = {
   open: boolean;
-  onClose: () => {};
-  opt: object;
-  handleSaveEditedOption: () => {};
+  onClose: () => void;
+  checkAttribute: () => void;
+  // handleSaveEditedOption: () => {};
 };
 
 const EditOptionModal: React.FC<Props> = ({
   open,
   onClose,
-  opt,
-  handleSaveEditedOption,
+  checkAttribute,
+  // handleSaveEditedOption,
 }) => {
   const [customPrice, setCustomPrice] = useState<number | null>(null);
   const [customSublabel, setCustomSublabel] = useState<string>('');
 
-  useEffect(() => {
-    console.log('Custom price in modal ' + customPrice);
-  }, [customPrice]);
+  const { editedOption, setEditedOption } = useAppConfig();
 
   useEffect(() => {
-    setCustomPrice(opt?.customPrice);
-    setCustomSublabel(opt?.customSublabel);
+    setCustomPrice(editedOption?.customPrice);
+    setCustomSublabel(editedOption?.customSublabel);
   }, []);
 
   return (
     <>
       <Modal open={open} onClose={onClose}>
-        <ModalBox>
-          <Typography variant="body1">Изменение {opt?.label}</Typography>
+        <ModalBox
+          sx={{
+            height: 'auto',
+            overflow: 'auto',
+            maxWidth: '500px',
+            width: '100%',
+          }}>
+          <Typography variant="body1" sx={{ fontSize: '20px', mb: '16px' }}>
+            {`Изменение опции "${editedOption?.label}"`}
+          </Typography>
 
-          <TextField
-            value={customSublabel}
-            label="Кастомный подтекст"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            variant="outlined"
-            onChange={(e) => setCustomSublabel(e.target.value)}
-          />
+          <Box
+            sx={{
+              display: 'grid',
+              gap: '15px',
+            }}>
+            <TextField
+              sx={{
+                gridColumn: '1/2',
+              }}
+              value={customSublabel}
+              label="Кастомный подтекст"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              variant="outlined"
+              onChange={(e) => setCustomSublabel(e.target.value)}
+            />
 
-          <NumberFormat
-            value={customPrice}
-            customInput={TextField}
-            label="Кастомная цена"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            thousandSeparator={' '}
-            prefix={'₽ '}
-            onValueChange={(v) => {
-              v.floatValue !== undefined
-                ? setCustomPrice(v.floatValue)
-                : setCustomPrice(null);
-            }}
-          />
-          <Button
-            variant="contained"
-            onClick={() =>
-              handleSaveEditedOption(opt, customPrice, customSublabel)
-            }>
-            Сохранить
-          </Button>
+            <NumberFormat
+              sx={{
+                gridColumn: '2/3',
+              }}
+              value={customPrice}
+              customInput={TextField}
+              label="Кастомная цена"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              thousandSeparator={' '}
+              prefix={'₽ '}
+              onValueChange={(v) => {
+                v.floatValue !== undefined
+                  ? setCustomPrice(v.floatValue)
+                  : setCustomPrice(null);
+              }}
+            />
+            <Button
+              sx={{
+                gridColumn: '1/3',
+              }}
+              variant="contained"
+              onClick={() => {
+                checkAttribute(editedOption, customPrice, customSublabel);
+
+                setEditedOption(null);
+                onClose();
+              }}>
+              Сохранить
+            </Button>
+          </Box>
         </ModalBox>
       </Modal>
     </>

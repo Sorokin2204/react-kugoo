@@ -3,55 +3,37 @@ import {
   Box,
   Button,
   Divider,
-  FormControl,
-  FormHelperText,
-  IconButton,
-  Input,
-  InputLabel,
   MenuItem,
-  Select,
   styled,
-  TextField,
   Typography,
+  useTheme,
 } from '@mui/material';
-import HeaderAdmin from '../HeaderAdmin';
 import MainWrapper from '../MainWrapper';
-import {
-  useForm,
-  SubmitHandler,
-  Controller,
-  useFieldArray,
-} from 'react-hook-form';
-import InputMask from 'react-input-mask';
+import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import {
   CREATE_PRODUCT,
+  DELETE_PRODUCT,
   UPDATE_PRODUCT,
 } from '../../../graphql/mutation/product';
-import { Add, Category } from '@mui/icons-material';
-import CategoryModal from '../ProductAdd/CategoryModal';
 import {
   GET_ALL_CATEGORY,
   GET_CATEGORY,
 } from '../../../graphql/query/category';
-import AttributeModal from '../ProductAdd/AttributeModal';
 import ProductAttribute from '../ProductAttribute';
 import _ from 'lodash';
 import EditOptionModal from '../ProductAdd/EditOptionModal';
-import SpecModal from '../ProductAdd/SpecModal';
-import NumberFormat from 'react-number-format';
-import TextInputCustom from '../inputs/TextInputForm';
-import NumberInputCustom from '../inputs/NumberInputForm';
-import PriceInputCustom from '../inputs/PriceInputForm';
 import TextInputForm from '../inputs/TextInputForm';
 import PriceInputForm from '../inputs/PriceInputForm';
 import NumberInputForm from '../inputs/NumberInputForm';
 import SelectForm from '../inputs/SelectForm';
 import translationToSlug from '../../../utils/translateToSlug';
 import { Product, ProductImage } from '../../../types/graphql';
-import { ProductDto } from '../../../types/graphqlDto';
 import Masonry from 'react-masonry-css';
 import ImageGallery from '../ImageGallery';
+import AlertDelete from '../AlertDelete';
+import useModal from '../../../hooks/useModal';
+import { useRouter } from 'next/router';
 interface IFormInput {
   name: string;
   price: number;
@@ -71,11 +53,9 @@ type Props = {
   product?: Product;
 };
 
-function listener(data) {
-  console.log(data);
-}
-
 const AddEditProduct: React.FC<Props> = ({ product }) => {
+  const theme = useTheme();
+  const router = useRouter();
   const productForm = useForm<IFormInput>({
     mode: 'onBlur',
     defaultValues: {
@@ -85,55 +65,38 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
     },
   });
 
-  const { fields } = useFieldArray({
-    control: productForm.control,
-    name: 'specs',
-  });
-  const imagesFieldArray = useFieldArray({
-    control: productForm.control,
-    name: 'images',
-  });
-
   // MUTATION
   const [newProduct] = useMutation(CREATE_PRODUCT);
   const [updateProduct] = useMutation(UPDATE_PRODUCT);
+  const [deleteProduct] = useMutation(DELETE_PRODUCT);
   //   STATE
-  // const imagesRef = useRef(product?.images);
-  const [images, setImages] = useState<ProductImage>(
-    product?.images || [],
-    // _.sortBy(product?.images, 'order'),
-  );
+  const [images, setImages] = useState<ProductImage>(product?.images || []);
+
+  const [openDelete, handleToggleDelete] = useModal();
+  const [openEditOption, handleToggleEditOption] = useModal();
+
   const [openAttrs, setOpenAttrs] = useState<boolean[]>([]);
   const [attrOptions, setAttrOptions] = useState([]);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
-  const [editedOption, setEditedOption] = useState(null);
-  const [openEditOptionModal, setOpenEditOptionModal] = useState(false);
+  // const [editedOption, setEditedOption] = useState(null);
+  // const [openEditOptionModal, setOpenEditOptionModal] = useState(false);
   // QUERY
-  const [
-    getCategory,
-    {
-      data: categoryData,
-      loading: categoryLoading,
-      error: categoryError,
-      refetch: categoryRefetch,
-    },
-  ] = useLazyQuery(GET_CATEGORY);
-  const {
-    data: allCategoryData,
-    loading: allCategoryLoading,
-    error: allCategoryError,
-    refetch: allCategoryRefetch,
-  } = useQuery(GET_ALL_CATEGORY);
-  //EDIT OPTION MODAL
-  const handleEditOptionClick = (opt) => {
-    setEditedOption(opt);
-    setOpenEditOptionModal(true);
-  };
-  const handleCloseEditOptionModal = () => {
-    setOpenEditOptionModal(false);
-  };
+  const [getCategory, { data: categoryData, loading: categoryLoading }] =
+    useLazyQuery(GET_CATEGORY);
+  const { data: allCategoryData, loading: allCategoryLoading } =
+    useQuery(GET_ALL_CATEGORY);
 
-  useEffect(() => {}, [editedOption]);
+  const ProductAttributeBox = styled(Masonry)(({ theme }) => ({}));
+  const timer = useRef('');
+  const [disabledSlug, setDisabledSlug] = useState(false);
+  //EDIT OPTION MODAL
+  // const handleEditOptionClick = (opt) => {
+  //   setEditedOption(opt);
+  //   setOpenEditOptionModal(true);
+  // };
+  // const handleCloseEditOptionModal = () => {
+  //   setOpenEditOptionModal(false);
+  // };
 
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
     console.log(data);
@@ -162,17 +125,22 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
         },
       }).catch((err) => console.log(JSON.stringify(err, null, 2)));
     } else {
-      // newProduct({
-      //   variables: {
-      //     product: productData,
-      //   },
-      // })
-      //   .then((data) => {
-      //     console.log(data);
-      //   })
-      //   .catch((err) => {
-      //     console.error(JSON.stringify(err, null, 2));
-      //   });
+      newProduct({
+        variables: {
+          product: _.omit(productData, [
+            '__typename',
+            'AttributeOptions',
+            'SpecOptions',
+            'Category',
+          ]),
+        },
+      })
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((err) => {
+          console.error(JSON.stringify(err, null, 2));
+        });
     }
   };
 
@@ -180,25 +148,19 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
     if (product?.Category?._id) {
       setActiveCategoryId(product?.Category?._id);
     }
-
-    // console.log('Upd specs', specs);
   }, []);
 
   useEffect(() => {
-    console.log('ATTR OPTIONS');
-
     productForm.setValue('attributes', attrOptions);
   }, [attrOptions]);
 
   useEffect(() => {
-    console.log('categoryData');
-
-    if (categoryData) productForm.setValue(`specs`, []);
+    // if (categoryData) productForm.setValue(`specs`, []);
   }, [categoryData]);
 
   useEffect(() => {
     console.log('ACTIVE CATEGORY CHANGE');
-    productForm.setValue('specs', []);
+    // productForm.setValue('specs', []);
     productForm.clearErrors('specs');
 
     if (activeCategoryId) {
@@ -294,11 +256,6 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
     }
   }, [activeCategoryId]);
 
-  const ProductAttributeBox = styled(Masonry)(({ theme }) => ({}));
-  const timer = useRef('');
-  // const disabledSlug = useRef(false);
-  const [disabledSlug, setDisabledSlug] = useState(false);
-
   function checkAttribute(attrOptId, customPrice, customLabel) {
     setAttrOptions((prev) => {
       const arr = [...prev];
@@ -322,14 +279,22 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
     });
   }
 
-  useEffect(() => {
-    console.log('FIELD AR');
-  }, [imagesFieldArray]);
-
   return (
     <>
       <MainWrapper>
         <form onSubmit={productForm.handleSubmit(onSubmit)}>
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: '20px',
+              fontWeight: '600',
+              display: 'block',
+              //
+            }}>
+            Шаг 1 - Изображения
+          </Typography>
+          <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
+
           <ImageGallery images={images} setImages={setImages} />
           <Typography
             variant="body1"
@@ -339,7 +304,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
               display: 'block',
               //
             }}>
-            Шаг 1 - Категоря
+            Шаг 2 - Категоря
           </Typography>
           <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
           <SelectForm
@@ -368,20 +333,23 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
               display: 'block',
               marginTop: '10px',
             }}>
-            Шаг 2 - Аттрибуты
+            Шаг 3 - Аттрибуты
           </Typography>
           <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
           <ProductAttributeBox
-            breakpointCols={2}
+            breakpointCols={{
+              default: 2,
+              840: 1,
+            }}
             className="my-masonry-grid"
             columnClassName="my-masonry-grid_column">
             {attrOptions.lenght !== 0
               ? attrOptions.map((attr, i) => (
                   <>
                     <ProductAttribute
-                      handleEditOptionClick={handleEditOptionClick}
+                      handleClose={handleToggleEditOption}
                       open={openAttrs[i]}
-                      setOpen={() => {
+                      setOpen={(): void => {
                         setOpenAttrs((prev) => {
                           const arr = [...prev];
                           arr[i] = !arr[i];
@@ -416,7 +384,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
               display: 'block',
               //
             }}>
-            Шаг 2 - Характеристики
+            Шаг 4 - Характеристики
           </Typography>
           <Divider
             sx={{
@@ -427,7 +395,10 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(2,1fr)',
+              gridTemplateColumns: 'repeat(2,minmax(0,1fr))',
+              [theme.breakpoints.down('md')]: {
+                gridTemplateColumns: 'repeat(1,minmax(0,1fr))',
+              },
               gridGap: '15px',
               marginBottom: '15px',
             }}>
@@ -552,13 +523,16 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
               display: 'block',
               //
             }}>
-            Шаг 3 - Общая информация
+            Шаг 5 - Общая информация
           </Typography>
           <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
           <Box
             sx={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
+              [theme.breakpoints.down('md')]: {
+                gridTemplateColumns: '1fr',
+              },
               gridGap: '20px',
             }}>
             <TextInputForm
@@ -627,59 +601,63 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
               form={productForm}
             />
           </Box>
-          {/* <Controller
-            name="image"
-            control={control}
-            rules={{
-              required: false,
-            }}
-            render={({ field }) => (
-              <input
-                type="file"
-                onChange={(e) => {
-                  field.onChange(e.target.files);
-                }}
-                multiple
-              />
-            )}
-          /> */}
-          <Button type="submit" variant='contained' disabled={!productForm.formState.isValid}>
-            Сохранить
-          </Button>
-        </form>
 
-        {/* <IconButton
-          onClick={handleSwithCategory}
-          sx={{ backgroundColor: 'primary.main', color: 'common.white' }}>
-          <Add />
-        </IconButton>
-        <IconButton
-          onClick={handleSwithAttribute}
-          sx={{ backgroundColor: 'primary.main', color: 'common.white' }}>
-          <Add />
-        </IconButton>
-        <IconButton
-          onClick={handleSwithSpec}
-          sx={{ backgroundColor: 'primary.main', color: 'common.white' }}>
-          <Add />
-        </IconButton>
-        <CategoryModal open={openCategory} handleClose={handleSwithCategory} />
-        <AttributeModal
-          open={openAttribute}
-          handleClose={handleSwithAttribute}
-        />
-        <SpecModal open={openSpec} handleClose={handleSwithSpec} /> */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+
+              [theme.breakpoints.down('md')]: {
+                gridTemplateColumns: '1fr',
+              },
+              marginTop: '20px',
+              gap: '10px',
+            }}>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={!productForm.formState.isValid}>
+              Сохранить
+            </Button>
+            {product && (
+              <Button
+                onClick={handleToggleDelete}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: `${theme.palette.error.main} !important `,
+                  },
+                }}
+                variant="contained"
+                color="error">
+                Удалить
+              </Button>
+            )}{' '}
+          </Box>
+        </form>
       </MainWrapper>
-      {openEditOptionModal ? (
+      {openEditOption ? (
         <EditOptionModal
-          open={true}
-          onClose={handleCloseEditOptionModal}
-          opt={editedOption}
-          handleSaveEditedOption={(selectedOpt, customPrice, customLabel) => {
-            checkAttribute(selectedOpt, customPrice, customLabel);
-            setEditedOption(null);
-            setOpenEditOptionModal(false);
-          }}
+          open={openEditOption}
+          onClose={handleToggleEditOption}
+          checkAttribute={checkAttribute}
+        />
+      ) : null}
+
+      {openDelete ? (
+        <AlertDelete
+          open={openDelete}
+          handleClose={handleToggleDelete}
+          title={'Товар будет удален'}
+          text={'Будет удален товар и все что с ним связанно'}
+          handleDelete={() =>
+            deleteProduct({
+              variables: {
+                productId: product?._id,
+              },
+            }).then(() => {
+              router.push('/admin/product-list');
+            })
+          }
         />
       ) : null}
     </>

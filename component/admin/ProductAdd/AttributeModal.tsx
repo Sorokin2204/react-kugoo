@@ -128,6 +128,7 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
       attribute: { name: '', slug: '' },
     },
   });
+
   const [activeAttribute, setActiveAttribute] = useState(null);
   const [activeAttributeOption, setActiveAttributeOption] = useState(null);
   const [disabledAttrSlug, setDisabledAttrSlug] = useState(false);

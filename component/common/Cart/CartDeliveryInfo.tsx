@@ -22,7 +22,13 @@ const CartDeliveryInfo: React.FC<Props> = ({ form }) => {
   return (
     <>
       <CartGridInput container columnSpacing={10} rowSpacing={20}>
-        <InputBox item xs={6} sx={{ gridColumn: '1/3' }}>
+        <InputBox
+          item
+          sm={6}
+          xxs={12}
+          sx={{
+            gridColumn: '1/3',
+          }}>
           <TextInputForm
             CustomTag={InputText}
             label={'Город/населенный пункт*'}
@@ -39,7 +45,13 @@ const CartDeliveryInfo: React.FC<Props> = ({ form }) => {
             form={form}
           />
         </InputBox>
-        <InputBox item xs={6} sx={{ gridColumn: '3/5' }}>
+        <InputBox
+          item
+          sm={6}
+          xxs={12}
+          sx={{
+            gridColumn: '3/5',
+          }}>
           <TextInputForm
             CustomTag={InputText}
             label={'Название улицы*'}
@@ -56,7 +68,13 @@ const CartDeliveryInfo: React.FC<Props> = ({ form }) => {
             form={form}
           />
         </InputBox>
-        <InputBox item xs={3} sx={{ gridColumn: '1/2' }}>
+        <InputBox
+          item
+          sm={3}
+          xxs={12}
+          sx={{
+            gridColumn: '1/2',
+          }}>
           <NumberInputForm
             CustomTag={InputText}
             label={'Номер дома*'}
@@ -74,7 +92,13 @@ const CartDeliveryInfo: React.FC<Props> = ({ form }) => {
             form={form}
           />
         </InputBox>
-        <InputBox item xs={3} sx={{ gridColumn: '2/3' }}>
+        <InputBox
+          item
+          sm={3}
+          xxs={12}
+          sx={{
+            gridColumn: '2/3',
+          }}>
           <NumberInputForm
             CustomTag={InputText}
             label={'Квартира'}
@@ -92,7 +116,13 @@ const CartDeliveryInfo: React.FC<Props> = ({ form }) => {
             form={form}
           />
         </InputBox>
-        <InputBox item xs={3} sx={{ gridColumn: '3/4' }}>
+        <InputBox
+          item
+          sm={3}
+          xxs={12}
+          sx={{
+            gridColumn: '3/4',
+          }}>
           <NumberInputForm
             CustomTag={InputText}
             label={'Корпус'}
@@ -110,7 +140,13 @@ const CartDeliveryInfo: React.FC<Props> = ({ form }) => {
             form={form}
           />
         </InputBox>
-        <InputBox item xs={3} sx={{ gridColumn: '4/5' }}>
+        <InputBox
+          item
+          sm={3}
+          xxs={12}
+          sx={{
+            gridColumn: '4/5',
+          }}>
           <NumberInputForm
             CustomTag={InputText}
             label={'Индекс'}

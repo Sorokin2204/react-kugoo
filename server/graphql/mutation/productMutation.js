@@ -101,14 +101,15 @@ const updateAttributeOptions = async (product) => {
 };
 const saveFile = async (img) => {
   const { createReadStream, filename } = await img.file;
+  const newFileName = ObjectId() + '-' + getValidFileName(img.name);
   const stream = createReadStream();
   const pathName = path.join(
     appDir,
     '../public/static/products',
-    `/${getValidFileName(img.name)}`,
+    `/${newFileName}`,
   );
   await stream.pipe(fs.createWriteStream(pathName));
-  return filename;
+  return newFileName;
 };
 
 const deleteFile = async (filename) => {
@@ -142,21 +143,25 @@ const deleteImages = async (product) => {
   }
 };
 
-const addImages = async (product) => {
-  let addedImages = product.images.filter((addedImg) => addedImg.file);
-  if (addedImages.lenght !== 0) {
-    for (addedImg of addedImages) {
-      await saveFile(addedImg);
+const addImages = async (images) => {
+  let newImages = [];
+  let index = 0;
+  for (img of images) {
+    if (img.file) {
+      const fileName = await saveFile(img);
+      newImages.push({
+        name: fileName,
+        order: index,
+      });
+    } else {
+      newImages.push({
+        name: img.name,
+        order: index,
+      });
     }
+    index++;
   }
-};
-
-const saveImages = async (product) => {
-  let images = product.images.map((img, index) => ({
-    name: getValidFileName(img.name),
-    order: index,
-  }));
-  await Product.updateOne({ _id: product._id }, { images: images });
+  return newImages;
 };
 
 const getValidFileName = (filename) =>
@@ -164,19 +169,24 @@ const getValidFileName = (filename) =>
 
 const updateImages = async (product) => {
   await deleteImages(product);
-  await addImages(product);
-  await saveImages(product);
+  return await addImages(product.images);
+};
+
+const createImages = async (images) => {
+  return await addImages(images);
 };
 
 const productMutation = {
   createProduct: async (parent, { product }) => {
     try {
-      const { attributes, specs, category, ...productData } = product;
+      const { attributes, specs, category, images, ...productData } = product;
+      console.log(images);
+      const newImages = await createImages(images);
       const newProduct = await new Product({
         ...productData,
+        images: newImages,
         Category: category,
       }).save();
-      console.log(specs);
       createProductSpecs(specs, newProduct._id);
       createProductAttributes(attributes, newProduct._id);
 
@@ -188,24 +198,21 @@ const productMutation = {
     } catch (error) {
       console.log(error);
     }
-
-    // console.log(product);
   },
   updateProduct: async (parent, { product }) => {
-    // console.log(product);
-    // let { attributes, specs, ...productRest } = product;
-    // const { category, ...productRestNoCat } = productRest;
-    // console.log({ ...productRestNoCat, Category: category });
-    // updateSpecOptions(product);
-    // updateAttributeOptions(product);
-    await updateImages(product);
-    // // console.log(product.specs.length);
-    // // console.log(product.attributes.length);
-    // await Product.updateOne(
-    //   { _id: product._id },
-    //   { ...productRestNoCat, Category: category },
-    // );
-    // console.log(productRest);
+    let { attributes, specs, ...productRest } = product;
+    const { category, ...productRestNoCat } = productRest;
+    await updateSpecOptions(product);
+    await updateAttributeOptions(product);
+    const images = await updateImages(product);
+    await Product.updateOne(
+      { _id: product._id },
+      { ...productRestNoCat, Category: category, images: images },
+    );
+  },
+  deleteProduct: async (parent, { productId }) => {
+    console.log(productId);
+    await Product.updateOne({ _id: productId }, { isDeleted: true });
   },
 };
 

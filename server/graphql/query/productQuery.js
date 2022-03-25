@@ -59,6 +59,7 @@ const productQuery = {
     // Pass the browser instance to the scraper controller
     // scraperController(browserInstance);
     return await Product.aggregate([
+      { $match: { isDeleted: false } },
       {
         $lookup: {
           from: Category.collection.name,
@@ -203,6 +204,7 @@ const productQuery = {
     // const findProduct = await Product.findOne({ slug: productSlug });
 
     const findProduct = await Product.aggregate([
+      { $match: { isDeleted: false } },
       {
         $match: {
           slug: productSlug,
@@ -337,6 +339,12 @@ const getProductsCard = async (aggregateBefore, aggregateAfter, filter) => {
   let filterIds = filter.map((filt) => ObjectId(filt));
   let aggregateOptions = [];
   let productOption = [
+    { $match: { isDeleted: false } },
+    {
+      $sort: {
+        'images.order': 1,
+      },
+    },
     {
       $lookup: {
         from: Product_SpecOption.collection.name,

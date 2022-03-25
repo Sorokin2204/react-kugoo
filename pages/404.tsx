@@ -13,6 +13,7 @@ const NotFoundPage: React.FC<Props> = ({}) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          color: theme.palette.grey[600],
           [theme.breakpoints.down('md')]: {
             py: 100,
           },

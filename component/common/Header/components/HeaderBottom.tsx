@@ -187,7 +187,10 @@ const HeaderBottom: React.FC<Props> = ({}) => {
       sx={() => ({
         pt: 15,
         pb: 18,
-        [theme.breakpoints.down('md')]: { pb: 10, pt: 9 },
+        [theme.breakpoints.down('md')]: {
+          pb: 10,
+          pt: 9,
+        },
       })}>
       <Logo
         sx={{ mr: 18, cursor: 'pointer' }}
@@ -323,6 +326,10 @@ const HeaderBottom: React.FC<Props> = ({}) => {
           [theme.breakpoints.down('md')]: {
             display: 'none',
           },
+          '& .MuiBadge-badge': {
+            zIndex: 0,
+            pointerEvents: 'none',
+          },
         }}>
         <ButtonRounded
           aria-describedby={id}
@@ -335,7 +342,7 @@ const HeaderBottom: React.FC<Props> = ({}) => {
           Корзина
         </ButtonRounded>{' '}
       </BadgeRounded>
-      <CartPopover
+      {/* <CartPopover
         id={id}
         open={open}
         anchorEl={anchorEl}
@@ -344,7 +351,7 @@ const HeaderBottom: React.FC<Props> = ({}) => {
           vertical: 'bottom',
           horizontal: 'left',
         }}
-      />
+      /> */}
       <MobileMenu
         open={openMobileMenu}
         onClose={() => setOpenMobileMenu(false)}

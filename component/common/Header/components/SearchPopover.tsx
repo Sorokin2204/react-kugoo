@@ -96,9 +96,13 @@ const SearchPopover: React.FC<Props> = ({ data, clearSearch }) => {
             href={`/${product.Category.slug}/${product.slug}`}>
             <SearchItem onClick={() => clearSearch()}>
               <SearchImage
-                src={`/static/products/${
+                src={
                   product.images[product.images.length - 1]?.name
-                }`}
+                    ? `/static/products/${
+                        product.images[product.images.length - 1]?.name
+                      }`
+                    : '/static/preview-product.jpg'
+                }
               />
               <SearchTitle variant="t2bb">{product.name}</SearchTitle>
               <SearchPrice variant="t3bb">

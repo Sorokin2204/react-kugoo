@@ -14,7 +14,15 @@ const Header: React.FC<Props> = ({}) => {
         <HeaderTop />{' '}
       </Container>
       <Divider sx={{ backgroundColor: '#ECF3FF' }} />
-      <Container>
+      <Container
+        sx={{
+          [theme.breakpoints.down('md')]: {
+            position: 'sticky',
+            top: 0,
+            backgroundColor: theme.palette.common.white,
+            zIndex: 10000,
+          },
+        }}>
         <HeaderBottom />
       </Container>
       <Nav

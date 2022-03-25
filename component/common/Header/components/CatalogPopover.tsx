@@ -5,8 +5,9 @@ import React, {
   useState,
 } from 'react';
 import { Box, Link, Popover, PopoverProps, styled } from '@mui/material';
-
 import { random } from 'lodash';
+import { useQuery } from '@apollo/client';
+import { GET_ALL_CATEGORY } from '../../../../graphql/query/category';
 
 type Props = {};
 
@@ -33,13 +34,6 @@ const loremWords = loremText
   .split(' ')
   .filter((el) => el.length > 5);
 
-// const filter = [
-//   {
-//     title: 'Особености',
-//     list: listData,
-//   },
-// ];
-
 const randomFilterData = () => {
   const countColumn = random(1, 2);
   const filter = [...Array(random(1, 2))].map((ell) => ({
@@ -56,110 +50,14 @@ const randomFilterData = () => {
   return filter;
 };
 
-export const catalogData: CatalogPopover[] = [
-  {
-    id: 'electric-1',
-    name: 'Электросамокаты',
-    icon: '/static/icons/electric-scooter-1.svg',
-    path: '/catalog/electric-scooter',
-    filter: randomFilterData(),
-  },
-  {
-    id: 'electric-2',
-    name: 'Электроскутеры',
-    icon: '/static/icons/electric-scooter-2.svg',
-    path: '/catalog/electric-scooter',
-    filter: randomFilterData(),
-  },
-  {
-    id: 'electric-3',
-    name: 'Электровелосипеды',
-    icon: '/static/icons/electric-bike.svg',
-    path: '/catalog/electric-scooter',
-    filter: randomFilterData(),
-  },
-  {
-    id: 'electric-4',
-    name: 'Робот-пылесосы',
-    icon: '/static/icons/vacuum-cleaner.svg',
-    path: '/catalog/electric-scooter',
-    filter: randomFilterData(),
-  },
-  {
-    id: 'electric-5',
-    name: 'Весы',
-
-    icon: '/static/icons/weighing-scale.svg',
-    path: '/catalog/electric-scooter',
-    filter: randomFilterData(),
-  },
+export const categoryIcons: string[] = [
+  '/static/icons/electric-scooter-1.svg',
+  '/static/icons/electric-scooter-2.svg',
+  '/static/icons/electric-bike.svg',
+  '/static/icons/vacuum-cleaner.svg',
+  '/static/icons/weighing-scale.svg',
 ];
 
-const CatalogPopover: React.FC<PopoverProps> = (props) => {
-  const [activeLink, setActiveLink] = useState<string | null>(null);
-  const [activeFilterData, setActiveFilterData] = useState<
-    CatalogFilter[] | null
-  >(null);
-
-  useEffect(() => {
-    console.log(randomFilterData());
-
-    setActiveLink(catalogData[0].id);
-  }, []);
-
-  useEffect(() => {
-    const foundFilterData = catalogData.find(
-      (el) => el.id == activeLink,
-    )?.filter;
-    foundFilterData && setActiveFilterData(foundFilterData);
-  }, [activeLink]);
-
-  const handleClickLink = (
-    event: React.MouseEvent<Element, MouseEvent>,
-    linkId: string,
-  ) => {
-    setActiveLink(linkId);
-    console.log(activeFilterData);
-  };
-
-  return (
-    <Catalog {...props}>
-      <Category sx={{ pt: 10, pr: 17, pb: 14, pl: 12 }}>
-        <CategoryList>
-          {catalogData.map((el, i) => (
-            <CategoryItem key={i}>
-              <CategoryLink
-                active={activeLink == el.id}
-                onMouseEnter={(event) => handleClickLink(event, el.id)}
-                href={el.path}
-                icon={el.icon}>
-                {el.name}
-              </CategoryLink>
-            </CategoryItem>
-          ))}
-        </CategoryList>
-      </Category>
-      <Filter sx={{ pl: 20, pt: 10, pr: 10, pb: 10 }}>
-        <FilterBlockList>
-          {activeFilterData?.map((el, i) => (
-            <FilterBlockItem key={i}>
-              <FitlerTitle sx={{ mb: 7 }}>{el.title}</FitlerTitle>
-              <FilterList>
-                {el.list.map((item, i) => (
-                  <FilterItem key={i}>
-                    <FilterLink href={item.url}>{item.name}</FilterLink>
-                  </FilterItem>
-                ))}
-              </FilterList>
-            </FilterBlockItem>
-          ))}
-        </FilterBlockList>
-      </Filter>
-    </Catalog>
-  );
-};
-
-export default CatalogPopover;
 const Catalog = styled(Popover)(({ theme }) => ({
   '& .MuiPopover-paper': {
     display: 'flex',
@@ -224,3 +122,73 @@ const CategoryLink = styled(Link)<{ icon: string; active: boolean }>(
     },
   }),
 );
+
+const CatalogPopover: React.FC<PopoverProps> = (props) => {
+  const { data: { getAllCategory: categoryData } = {} } =
+    useQuery(GET_ALL_CATEGORY);
+  const [activeLink, setActiveLink] = useState<string | null>(null);
+  const [activeFilterData, setActiveFilterData] = useState<
+    CatalogFilter[] | null
+  >(null);
+
+  useEffect(() => {
+    // setActiveLink(categoryData[0]._id);
+  }, []);
+
+  useEffect(() => {
+    // const foundFilterData = categoryData.find(
+    //   (el) => el._id == activeLink,
+    // )?.filter;
+    // foundFilterData && setActiveFilterData(foundFilterData);
+  }, [activeLink]);
+
+  const handleClickLink = (
+    event: React.MouseEvent<Element, MouseEvent>,
+    linkId: string,
+  ) => {
+    setActiveLink(linkId);
+  };
+
+  return (
+    <Catalog {...props}>
+      <Category sx={{ pt: 10, pr: 17, pb: 14, pl: 12 }}>
+        <CategoryList>
+          {categoryData?.map((el, index) => (
+            <CategoryItem key={el._id}>
+              <CategoryLink
+                active={activeLink == el._id}
+                onMouseEnter={(event) => handleClickLink(event, el._id)}
+                href={`/${el.slug}`}
+                icon={categoryIcons[index]}>
+                {el.name}
+              </CategoryLink>
+            </CategoryItem>
+          ))}
+        </CategoryList>
+      </Category>
+      <Filter
+        sx={
+          {
+            // pl: 20, pt: 10, pr: 10, pb: 10
+          }
+        }>
+        <FilterBlockList>
+          {activeFilterData?.map((el, i) => (
+            <FilterBlockItem key={i}>
+              <FitlerTitle sx={{ mb: 7 }}>{el.title}</FitlerTitle>
+              <FilterList>
+                {el.list.map((item, i) => (
+                  <FilterItem key={i}>
+                    <FilterLink href={item.url}>{item.name}</FilterLink>
+                  </FilterItem>
+                ))}
+              </FilterList>
+            </FilterBlockItem>
+          ))}
+        </FilterBlockList>
+      </Filter>
+    </Catalog>
+  );
+};
+
+export default CatalogPopover;

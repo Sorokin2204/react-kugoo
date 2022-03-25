@@ -11,7 +11,7 @@ const FooterTop: React.FC<Props> = ({}) => {
   const theme = useTheme();
   const matchLg = useMediaQuery(theme.breakpoints.down('lg'));
   let firstColData = [
-    ...catalogData.map((el, i) => ({ name: el.name, path: el.path })),
+    // ...catalogData.map((el, i) => ({ name: el.name, path: el.path })),
   ];
   const linksFooter = [
     ...menuData.map((el, i) => {
@@ -30,7 +30,7 @@ const FooterTop: React.FC<Props> = ({}) => {
         spacing={matchLg ? 20 : 50}
         sx={{ pt: 23, pb: 24.5 }}>
         <FooterTopBlockLinks item xs={6}>
-          <FooterLinks list={firstColData} title="Каталог товаров" />
+          <FooterLinks list={secondColData} title="Каталог товаров" />
           <FooterLinks list={secondColData} title="Покупателям" />
           <FooterLinks list={thirdColData} />
         </FooterTopBlockLinks>

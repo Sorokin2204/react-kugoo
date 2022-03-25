@@ -252,7 +252,11 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                       <TableCellCustom scope="row">
                         <CartItem>
                           <CartItemImage
-                            src={`/static/products/${product.images[0].name}`}
+                            src={
+                              product.images.length !== 0
+                                ? `/static/products/${product.images[0].name}`
+                                : '/static/preview-product.jpg'
+                            }
                           />
                           <CartItemContent>
                             <Link

@@ -2,6 +2,7 @@ import { Category } from '../types/graphql';
 
 export interface AppConfig {
   // category: Category | null;
+  editedOption: object;
   adminHeaderTitle: string;
   cartProducts: [ProductInCartType];
 }

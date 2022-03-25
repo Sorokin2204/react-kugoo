@@ -16,7 +16,7 @@ import PopperCustom from '../../PopperBox';
 
 const PhoneList = styled(Grid)(({ theme }) => ({
   minWidth: theme.spacing(124),
-
+  zIndex: 3,
   flexDirection: 'column',
   backgroundColor: theme.palette.common.white,
 }));

@@ -24,7 +24,7 @@ export type SpecType = {
 
 const RadioBox = styled(Box)(({ theme }) => ({
   gridColumn: '1/12',
-  gridRow: '5/6',
+  // gridRow: '5/6',
 }));
 const RadioCustom = styled(Radio)<{ withContent: boolean }>(
   ({ theme, withContent }) => ({
@@ -76,7 +76,7 @@ const RadioContent = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
 }));
 const RadioBody = styled(Box)(({ theme }) => ({
-  height: '100%',
+  // height: '100%',
 }));
 const RadioName = styled(Typography)<{ withContent: boolean }>(
   ({ theme, withContent }) => ({
@@ -98,6 +98,8 @@ const RadioList = styled(RadioGroup)<{
 }>(({ theme, withContent }) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(2,minmax(auto,228px))',
+  gridAutoRows: '1fr',
+
   [theme.breakpoints.down('smd')]: {
     gridTemplateColumns: 'repeat(auto-fill,minmax(228px,1fr))',
   },
@@ -112,16 +114,16 @@ const RadioButton = styled(FormControlLabel)<{
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  minHeight: '126px',
+  // minHeight: '126px',
   border: `2px solid ${theme.palette.grey[200]}`,
   borderRadius: '10px',
   margin: 0,
-  padding: `0 ${theme.spacing(15)}`,
+  padding: `${theme.spacing(15)}`,
   [theme.breakpoints.down('md')]: {
-    padding: `0 ${theme.spacing(10)}`,
-    minHeight: '100px',
+    padding: `${theme.spacing(10)}`,
+    // minHeight: '100px',
   },
-  ...(small && { height: '80px' }),
+  // ...(small && { height: '80px' }),
   ...(withContent && {
     height: '160px',
     alignItems: 'flex-start',
@@ -145,7 +147,7 @@ const RadioSubtitle = styled(Typography)(({ theme }) => ({
   ...theme.typography.t3,
   color: theme.palette.grey[600],
   textAlign: 'center',
-  marginTop: theme.spacing(4.5),
+  paddingTop: theme.spacing(4.5),
 }));
 type Props = {
   withSubtitle: boolean;

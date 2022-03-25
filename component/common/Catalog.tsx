@@ -122,6 +122,7 @@ const CatalogBtnMore = styled(Button)(({ theme }) => ({
   display: 'flex',
   margin: '0 auto',
   marginTop: theme.spacing(12),
+  marginBottom: theme.spacing(12),
 }));
 
 const LoadingOverlay = styled(Box)(({ theme }) => ({
@@ -156,6 +157,7 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
     GET_ALL_PRODUCTS_CARD,
   );
   const [allProductData, setAllProductData] = useState([]);
+  const [categoryName, setCategoryName] = useState('');
   const { cartProducts } = useAppConfig();
 
   const catalogForm = useForm<IFormType>({
@@ -205,6 +207,11 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
     console.log(sort);
 
     fetchMoreProducts().then((prodData) => {
+      console.log(prodData.data);
+
+      // setCategoryName(
+      //   prodData.data?.getAllProductCard?.pageInfo?.category?.name,
+      // );
       setAllProductData((prev) => [
         ...prev,
         ...prodData.data.getAllProductCard.pageProduct,
@@ -212,7 +219,9 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
     });
   };
   useEffect(() => {
-    console.log(allProductData);
+    setCategoryName(
+      getAllProductCardData?.data?.getAllProductCard?.pageInfo?.category?.name,
+    );
   }, [allProductData]);
 
   const fetchMoreProducts = () => {
@@ -231,12 +240,7 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
     <>
       {type === 'filter' && (
         <Box sx={{ mb: 25 }}>
-          <CatalogBanner
-            title={
-              getAllProductCardData?.data?.getAllProductCard?.pageInfo?.category
-                ?.name
-            }
-          />
+          <CatalogBanner title={categoryName} />
         </Box>
       )}
 
@@ -250,10 +254,7 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
                   marginBottom: theme.spacing(10),
                 },
               }}>
-              {
-                getAllProductCardData?.data?.getAllProductCard?.pageInfo
-                  ?.category?.name
-              }
+              {categoryName}
             </CatalogTitle>
             <FilterInline data={filterInlineData} onChangeSort={onChangeSort} />
           </CatalogHead>
@@ -306,12 +307,18 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
             })}
           </CatalogGrid>
           {!getAllProductCardData.loading &&
-            getAllProductCardData?.data?.getAllProductCard?.pageInfo
-              ?.hasNextPage && (
-              <CatalogBtnMore variant="outlined" onClick={onLoadMore}>
-                Загрузить еще
-              </CatalogBtnMore>
-            )}
+          getAllProductCardData?.data?.getAllProductCard?.pageInfo
+            ?.hasNextPage ? (
+            <CatalogBtnMore variant="outlined" onClick={onLoadMore}>
+              Загрузить еще
+            </CatalogBtnMore>
+          ) : (
+            <Box
+              sx={{
+                my: 12,
+                height: '52px',
+              }}></Box>
+          )}
         </CatalogBody>
       </CatalogBox>
     </>

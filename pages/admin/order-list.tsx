@@ -78,10 +78,16 @@ const OrderListPage: React.FC<Props> = ({}) => {
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 },
                   }}>
-                  <TableCell component="th" scope="row">
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ whiteSpace: 'nowrap' }}>
                     {phoneFormat(order.phone)}
                   </TableCell>
-                  <TableCell align="left"> {order.name}</TableCell>
+                  <TableCell align="left" sx={{ whiteSpace: 'nowrap' }}>
+                    {' '}
+                    {order.name}
+                  </TableCell>
 
                   <TableCell align="left" sx={{ whiteSpace: 'nowrap' }}>
                     {order.surname}

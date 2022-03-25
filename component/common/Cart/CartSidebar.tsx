@@ -6,6 +6,7 @@ import { currencyFormat } from '../../../utils/currencyFormat';
 import _ from 'lodash';
 import { CREATE_ORDER } from '../../../graphql/mutation/order';
 import { useMutation } from '@apollo/client';
+import { useRouter } from 'next/router';
 
 type Props = {
   setStepCheckout: Dispatch<SetStateAction<boolean>>;
@@ -56,7 +57,8 @@ const CartSidebar: React.FC<Props> = ({
   form,
 }) => {
   const theme = useTheme();
-  const { cartProducts } = useAppConfig();
+  const router = useRouter();
+  const { cartProducts, resetCart } = useAppConfig();
   const [totalPrice, setTotalPrice] = useState<number | null>();
   const [confirm, setConfirm] = useState(false);
   const [newOrder] = useMutation(CREATE_ORDER);
@@ -79,7 +81,12 @@ const CartSidebar: React.FC<Props> = ({
         },
         productsInfo: cartProducts,
       },
-    }).catch((err) => console.log(JSON.stringify(err, 2, null)));
+    })
+      .then(() => {
+        resetCart();
+        router.push('/thanks');
+      })
+      .catch((err) => console.log(JSON.stringify(err, 2, null)));
   };
 
   return (
