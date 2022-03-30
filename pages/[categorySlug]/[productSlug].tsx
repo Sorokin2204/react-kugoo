@@ -2,9 +2,10 @@ import { useLazyQuery } from '@apollo/client';
 import {
   Box,
   Button,
-  Container, styled,
+  Container,
+  styled,
   Typography,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
@@ -20,17 +21,14 @@ import 'swiper/css/thumbs';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import BreadcrumbsCustom from '../../component/common/BreadcrumbsCustom';
 import ButtonIcon from '../../component/common/ButtonIcon';
-import RadioBlock, {
-  SpecType
-} from '../../component/common/Catalog/RadioBlock';
+import RadioBlock from '../../component/common/Catalog/RadioBlock';
 import ProductInfo from '../../component/common/ProductSingle/ProductInfo';
 import { GET_PRODUCT } from '../../graphql/query/product';
 import { withSnackbar } from '../../hooks/useAlert';
 import useAppConfig from '../../hooks/useAppConfig';
 import { currencyFormat } from '../../utils/currencyFormat';
 import { groupBy } from '../../utils/groupBy';
-
-
+import NotFoundPage from '../404';
 
 type Props = {};
 
@@ -48,7 +46,7 @@ const Content = styled(Box)(({ theme }) => ({
   [theme.breakpoints.down('smd')]: {
     gridColumn: '1/3',
     gridRow: '3/4',
-    marginTop: '10px',
+    // marginTop: '10px',
   },
 }));
 const Title = styled(Typography)(({ theme }) => ({
@@ -95,7 +93,7 @@ const OldPrice = styled(Typography)(({ theme }) => ({
 }));
 const NewPrice = styled(Typography)(({ theme }) => ({
   display: 'block',
-
+  whiteSpace: 'nowrap',
   fontSize: '25px !important',
 }));
 const Installment = styled(Box)(({ theme }) => ({
@@ -158,6 +156,9 @@ const ProductWrapper = styled(Box)(({ theme }) => ({
     columnGap: theme.spacing(15),
     gridTemplateRows: '400px auto',
   },
+  [theme.breakpoints.down('sm')]: {
+    gridTemplateRows: '300px auto',
+  },
   [theme.breakpoints.down('smd')]: {
     gridTemplateColumns: '1fr ',
     columnGap: theme.spacing(0),
@@ -171,93 +172,6 @@ const ProductImageBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
 }));
-export const specData: SpecType[] = [
-  {
-    title: 'Комплектация',
-    list: [
-      {
-        defaultChecked: true,
-        label: 'Базовая',
-        value: 'basic',
-      },
-      {
-        label: 'Версия MAX',
-        value: 'verison-max',
-      },
-      {
-        label: 'VIP-версия',
-        value: 'verison-vip',
-      },
-    ],
-  },
-  {
-    title: 'Гарантия',
-    list: [
-      {
-        defaultChecked: true,
-        label: 'Стандартная 1 год',
-        subLabel: 'Бесплатно',
-        value: 'standart',
-      },
-      {
-        label: 'Расширенная 2 года',
-        subLabel: '2 990 руб.',
-        value: 'verison-max',
-      },
-    ],
-  },
-  {
-    title: 'Дополнительные услуги',
-    list: [
-      {
-        defaultChecked: true,
-        label: 'Нет',
-        value: 'standart',
-      },
-      {
-        label: 'Настройка',
-        subLabel: '1 520 руб.',
-        value: 'setting',
-      },
-      {
-        label: 'Гидроизоляция',
-        subLabel: '3 850 руб.',
-        value: 'hydro',
-      },
-      {
-        label: 'Гидроизоляция\n и настройка',
-        subLabel: '3 409 руб. (-30%)',
-        value: 'hydro-setting',
-      },
-    ],
-  },
-
-  {
-    title: 'Тип покрышки',
-    list: [
-      {
-        defaultChecked: true,
-        label: 'Шоссейная (базовая)',
-        value: 'base',
-      },
-      {
-        label: 'Внедорожная',
-        subLabel: '4 000 руб.',
-        value: 'setting',
-      },
-      {
-        label: 'Внедорожная\n с установкой',
-        subLabel: '4 000 руб.',
-        value: 'hydro',
-      },
-      {
-        label: 'Внедорожная\n шипированная',
-        subLabel: '7 600 руб.',
-        value: 'hydro-setting',
-      },
-    ],
-  },
-];
 
 type IFormType = {
   attributes: Array<{ attr: string; attrOpt: string; price: number }>;
@@ -268,9 +182,11 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
   const router = useRouter();
   const [getProduct, { data, loading }] = useLazyQuery(GET_PRODUCT);
   const [groupAttributes, setGroupAttributes] = useState([]);
+  const [thumbsInit, setThumbsInit] = useState<boolean>(false);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const { cartProducts, addingInCart } = useAppConfig();
   const [inCart, setInCart] = useState(false);
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const productForm = useForm<IFormType>({
     mode: 'onBlur',
     defaultValues: {
@@ -280,22 +196,18 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
     {
       control: productForm.control,
-      name: 'attributes', 
+      name: 'attributes',
     },
   );
 
-
-
-
-
   useEffect(() => {
+    setThumbsInit(false);
     if (!router.isReady) return;
     getProduct({
       variables: {
         productSlug: router.query.productSlug,
       },
     }).then((dataSuccess) => {
-     
       const indexInCart = cartProducts.findIndex(
         (productInCart) =>
           productInCart.productId === dataSuccess.data.getProduct._id,
@@ -304,7 +216,9 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
         groupBy(dataSuccess?.data?.getProduct?.AttributeOptions?.edges),
       );
       setInCart(indexInCart !== -1);
-      setTotalPrice(dataSuccess.data.getProduct.price);
+      setTotalPrice((prevPrice) =>
+        prevPrice === 0 ? dataSuccess.data.getProduct.price : prevPrice,
+      );
     });
   }, [router]);
 
@@ -314,16 +228,16 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
         productForm.setValue(`attributes[${i}]`, {
           attr: attr._id,
           attrOpt: attr.attrOpts[0]._id,
-          price: attr.attrOpts[0].defaultPrice,
+          price:
+            attr.attrOpts[0].customPrice === null
+              ? attr.attrOpts[0].defaultPrice
+              : attr.attrOpts[0].customPrice,
         });
       });
     }
   }, [groupAttributes]);
 
-  const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const onSubmit = (dataForm: IFormType) => {
-   
-
     if (typeof window !== 'undefined') {
       addingInCart({
         totalPrice: totalPrice,
@@ -336,241 +250,287 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
   };
   return (
     <>
-      <Container
-        sx={{
-          mb: 0,
-          [theme.breakpoints.down('md')]: {
-            mb: 0,
-          },
-        }}>
-        {data && !loading && (
-            <BreadcrumbsCustom data={[{ url: '/', name: 'Главная' }, {name: `${data?.getProduct?.Category?.name}`, url: `/${data?.getProduct?.Category?.slug}`},{name: `${data?.getProduct?.name}`, url: `/${data?.getProduct?.Category?.slug}/${data?.getProduct?.slug}`}]} />,
-          )}
+      {!loading && data?.getProduct ? (
+        data?.getProduct ? (
+          <Container
+            sx={{
+              mb: 0,
+              [theme.breakpoints.down('md')]: {
+                mb: 0,
+              },
+            }}>
+            {data && !loading && (
+              <BreadcrumbsCustom
+                data={[
+                  { url: '/', name: 'Главная' },
+                  {
+                    name: `${data?.getProduct?.Category?.name}`,
+                    url: `/${data?.getProduct?.Category?.slug}`,
+                  },
+                  {
+                    name: `${data?.getProduct?.name}`,
+                    url: `/${data?.getProduct?.Category?.slug}/${data?.getProduct?.slug}`,
+                  },
+                ]}
+              />
+            )}
 
-        <ProductWrapper
-          sx={{
-            mb: 70,
-            [theme.breakpoints.down('md')]: {
-              mb: 35,
-            },
-            [theme.breakpoints.down('smd')]: {
-              mb: 25,
-            },
-            [theme.breakpoints.down('smd')]: {
-              mb: 15,
-            },
-          }}>
-            {!data?.loading && data?.getProduct?.images.length !== 0 ? <>   
-            <Swiper
-            style={{
-              gridColumn: '1/2',
-              gridRow: '1/2',
-              alignSelf: 'flex-start',
-              '--swiper-navigation-color': '#fff',
-              '--swiper-pagination-color': '#fff',
-      
-            }}
-            spaceBetween={10}
-            thumbs={{ swiper: thumbsSwiper }}
-            modules={[FreeMode, Navigation, Thumbs]}
-            className="mySwiper2">
-            {!data?.loading &&
-              data?.getProduct?.images?.map((image) => (
-                <SwiperSlide key={image.name}>
-                  <img src={`/static/products/${image.name}`} />
-                </SwiperSlide>
-              ))}
-          </Swiper>
-          <Swiper
-            style={{
-              gridColumn: '1/2',
-              gridRow: '2/3',
-              alignSelf: 'flex-start',
-            }}
-            onSwiper={setThumbsSwiper}
-           
-            slidesPerView={7}
-            modules={[FreeMode, Navigation, Thumbs]}
-            allowSlideNext={false}
-            allowSlidePrev={false}
-            allowTouchMove={false}
-            className="mySwiper">
-            {!data?.loading &&
-              data?.getProduct?.images?.map((image,i) => (
-                <SwiperSlide key={image.name} className={i === 0  && 'swiper-slide-thumb-active'}>
-                  <img src={`/static/products/${image.name}`} />
-                </SwiperSlide>
-              ))}
-          </Swiper>
-          </> : <Box sx={{ gridColumn: '1/2',
-              gridRow: '1/2',}}>
- <img  style={{width: "100%", height: "auto"}} src='/static/preview-product.jpg' />
-          </Box>}
-       
-
-          <Content>
-            <Title variant="h1">{data?.getProduct.name}</Title>
-            <Box
+            <ProductWrapper
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                mb: 10,
-              }}>
-           
-              <VendorCode sx={{ mr: 10 }} variant="t4">
-                Артикул: {data?.getProduct.vendorCode}
-              </VendorCode>
-            </Box>
-
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                mb: 15,
-              }}>
-              <InStock sx={{ mr: 21 }} variant="t3">
-                В наличии
-              </InStock>
-       
-            </Box>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                mb: 15,
-                [theme.breakpoints.down('xs')]: {
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
+                mb: 70,
+                [theme.breakpoints.down('md')]: {
+                  mb: 35,
+                },
+                [theme.breakpoints.down('smd')]: {
+                  mb: 25,
+                },
+                [theme.breakpoints.down('smd')]: {
+                  mb: 15,
                 },
               }}>
-              <PriceBox>
-                {data?.getProduct?.discountPrice && (
-                  <OldPrice variant="t4">
-                    {currencyFormat(data?.getProduct?.discountPrice)}
-                  </OldPrice>
-                )}
-                {data?.getProduct?.price && (
-                  <NewPrice variant="h3">{currencyFormat(totalPrice)}</NewPrice>
-                )}
-              </PriceBox>
-              <Installment
-                sx={{
-                  px: 7,
-                  py: 3.5,
-                  [theme.breakpoints.down('xs')]: {
-                    mt: 7.5,
-                  },
-                }}>
-                <InstallmentImage
-                  src="/static/cart.png"
-                  width="24"
-                  height="24"
-                />
-                <InstallmentBox>
-                  <InstallmentSubtitle variant="t4">
-                    Рассрочка:
-                  </InstallmentSubtitle>
-                  <InstallmentConditions variant="t3b">
-                    1 760 ₽ в месяц / 24 месяца
-                  </InstallmentConditions>
-                </InstallmentBox>
-              </Installment>
-            </Box>
-            <form
-              onSubmit={productForm.handleSubmit(onSubmit)}
-              autoComplete="off">
-              {!loading &&
-                data?.getProduct?.AttributeOptions?.edges &&
-                groupAttributes.map((attr, i) => {
-                  return (
-                    <Box
-                      key={i}
-                      sx={{
-                        [theme.breakpoints.down('smd')]: {
-                          width: '100%',
-                        },
-                        '& + &': {
-                          mt: 15,
-                          pt: 15,
-                          borderTop: `1px solid ${theme.palette.grey[200]}`,
-                        },
-                      }}>
-                      <RadioBlock
-                        key={i}
-                        defaultValue={attr.attrOpts[0]}
-                        radioName={attr.name}
-                        radioList={attr.attrOpts}
-                        onChange={(value) => {
-                          productForm.setValue(`attributes[${i}]`, {
-                            attr: attr._id,
-                            attrOpt: value._id,
-                            price: value.defaultPrice,
-                          });
-                         
-                          let price = productForm
-                            .getValues('attributes')
-                            .map((a) => a.price)
-                            .reduce((aa, bb) => aa + bb, 0);
-                          setTotalPrice(price + data?.getProduct.price);
+              {!data?.loading && data?.getProduct?.images.length !== 0 ? (
+                <>
+                  {thumbsInit && thumbsSwiper && (
+                    <Swiper
+                      style={{
+                        gridColumn: '1/2',
+                        gridRow: '1/2',
+                        alignSelf: 'flex-start',
+                        '--swiper-navigation-color': '#fff',
+                        '--swiper-pagination-color': '#fff',
+                      }}
+                      spaceBetween={10}
+                      thumbs={{ swiper: thumbsSwiper }}
+                      modules={[FreeMode, Navigation, Thumbs]}
+                      className="mySwiper2">
+                      {!data?.loading &&
+                        data?.getProduct?.images?.map((image) => (
+                          <SwiperSlide key={image.name}>
+                            <img src={`/static/products/${image.name}`} />
+                          </SwiperSlide>
+                        ))}
+                    </Swiper>
+                  )}
+                  {!loading && data?.getProduct?.images && (
+                    <Swiper
+                      style={{
+                        gridColumn: '1/2',
+                        gridRow: '2/3',
+                        alignSelf: 'flex-start',
+                      }}
+                      onSwiper={setThumbsSwiper}
+                      onAfterInit={() => setThumbsInit(true)}
+                      modules={[FreeMode, Navigation, Thumbs]}
+                      allowSlideNext={false}
+                      allowSlidePrev={false}
+                      allowTouchMove={false}
+                      className="mySwiper">
+                      {data?.getProduct?.images?.map((image, i) => (
+                        <SwiperSlide
+                          key={image.name}
+                          className={
+                            i === 0 ? 'swiper-slide-thumb-active' : ''
+                          }>
+                          <img src={`/static/products/${image.name}`} />
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
+                  )}
+                </>
+              ) : (
+                <Box
+                  sx={{
+                    gridColumn: '1/2',
+                    gridRow: '1/2',
+                    margin: '0 auto',
+                    '& img': {
+                      width: '100%',
+                      height: 'auto',
+                    },
+                    [theme.breakpoints.down('md')]: {
+                      gridRow: '1/3',
+                      maxHeight: '400px',
+                      '& img': {
+                        width: 'auto',
+                        height: '100%',
+                      },
+                    },
+                    [theme.breakpoints.down('sm')]: {
+                      maxHeight: '300px',
+                    },
+                  }}>
+                  <img style={{}} src="/static/preview-product.jpg" />
+                </Box>
+              )}
 
-                     
-                        }}
-                      
-                      />
-                    </Box>
-                  );
-                })}
-              <Total
-                sx={{
-                  px: 15,
-                  py: 14,
-                  mt: 15,
-                  [theme.breakpoints.down('md')]: {
-                    px: 13,
-                    py: 12,
-                  },
-                }}>
+              <Content>
+                <Title variant="h1">{data?.getProduct.name}</Title>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    mb: 10,
+                  }}>
+                  <VendorCode sx={{ mr: 10 }} variant="t4">
+                    Артикул: {data?.getProduct.vendorCode}
+                  </VendorCode>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    mb: 15,
+                  }}>
+                  <InStock sx={{ mr: 21 }} variant="t3">
+                    В наличии
+                  </InStock>
+                </Box>
                 <Box
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    pb: 10,
                     mb: 15,
-                    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+                    [theme.breakpoints.down('xs')]: {
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                    },
                   }}>
-                  <TotalPrice variant="h1">
-                    {currencyFormat(totalPrice)}
-                  </TotalPrice>
-            
+                  <PriceBox>
+                    {data?.getProduct?.discountPrice && (
+                      <OldPrice variant="t4">
+                        {currencyFormat(data?.getProduct?.discountPrice)}
+                      </OldPrice>
+                    )}
+                    {data?.getProduct?.price && (
+                      <NewPrice variant="h3">
+                        {currencyFormat(totalPrice)}
+                      </NewPrice>
+                    )}
+                  </PriceBox>
+                  <Installment
+                    sx={{
+                      px: 7,
+                      py: 3.5,
+                      [theme.breakpoints.down('xs')]: {
+                        mt: 7.5,
+                      },
+                    }}>
+                    <InstallmentImage
+                      src="/static/cart.png"
+                      width="24"
+                      height="24"
+                    />
+                    <InstallmentBox>
+                      <InstallmentSubtitle variant="t4">
+                        Рассрочка:
+                      </InstallmentSubtitle>
+                      <InstallmentConditions variant="t3b">
+                        1 760 ₽ в месяц / 24 месяца
+                      </InstallmentConditions>
+                    </InstallmentBox>
+                  </Installment>
                 </Box>
+                <form
+                  onSubmit={productForm.handleSubmit(onSubmit)}
+                  autoComplete="off">
+                  {!loading &&
+                    data?.getProduct?.AttributeOptions?.edges &&
+                    groupAttributes.map((attr, i) => {
+                      return (
+                        <Box
+                          key={i}
+                          sx={{
+                            [theme.breakpoints.down('smd')]: {
+                              width: '100%',
+                            },
+                            '& + &': {
+                              mt: 15,
+                              pt: 15,
+                              borderTop: `1px solid ${theme.palette.grey[200]}`,
+                            },
+                          }}>
+                          <RadioBlock
+                            key={i}
+                            defaultValue={attr.attrOpts[0]}
+                            radioName={attr.name}
+                            radioList={attr.attrOpts}
+                            onChange={(value) => {
+                              productForm.setValue(`attributes[${i}]`, {
+                                attr: attr._id,
+                                attrOpt: value._id,
+                                price:
+                                  value.customPrice === null
+                                    ? value.defaultPrice
+                                    : value.customPrice,
+                              });
 
-                <TotalDelivary sx={{ mb: 15 }}>
-                  <TotalDelivaryTitle variant="t2b">
-                    Бесплатная доставка по РФ
-                  </TotalDelivaryTitle>
-                  <TotalDelivarySubtitle variant="t2">
-                    от 1 дня при заказе до 01.09
-                  </TotalDelivarySubtitle>
-                </TotalDelivary>
-                <Box sx={{ display: 'flex' }}>
-                  <TotalBtnClick variant="contained">
-                    Купить в 1 клик
-                  </TotalBtnClick>
-           
-                  <TotalBtnCart variant="outlined" type="submit">
-                    Добавить в корзину
-                  </TotalBtnCart>
-                </Box>
-              </Total>
-            </form>
-          </Content>
-        </ProductWrapper>
+                              let price = productForm
+                                .getValues('attributes')
+                                .map((a) => a.price)
+                                .reduce((aa, bb) => aa + bb, 0);
 
-        <ProductInfo data={data?.getProduct?.SpecOptions?.edges} />
-      </Container>
-   
+                              setTotalPrice(price + data?.getProduct.price);
+                            }}
+                          />
+                        </Box>
+                      );
+                    })}
+                  <Total
+                    sx={{
+                      px: 15,
+                      py: 14,
+                      mt: 15,
+                      [theme.breakpoints.down('md')]: {
+                        px: 13,
+                        py: 12,
+                      },
+                    }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        pb: 10,
+                        mb: 15,
+                        borderBottom: `1px solid ${theme.palette.grey[200]}`,
+                      }}>
+                      <TotalPrice variant="h1">
+                        {currencyFormat(totalPrice)}
+                      </TotalPrice>
+                    </Box>
+
+                    <TotalDelivary sx={{ mb: 15 }}>
+                      <TotalDelivaryTitle variant="t2b">
+                        Бесплатная доставка по РФ
+                      </TotalDelivaryTitle>
+                      <TotalDelivarySubtitle variant="t2">
+                        от 1 дня при заказе до 01.09
+                      </TotalDelivarySubtitle>
+                    </TotalDelivary>
+                    <Box sx={{ display: 'flex' }}>
+                      <TotalBtnClick variant="contained">
+                        Купить в 1 клик
+                      </TotalBtnClick>
+
+                      <TotalBtnCart variant="outlined" type="submit">
+                        Добавить в корзину
+                      </TotalBtnCart>
+                    </Box>
+                  </Total>
+                </form>
+              </Content>
+            </ProductWrapper>
+
+            <ProductInfo data={data?.getProduct?.SpecOptions?.edges} />
+          </Container>
+        ) : (
+          <NotFoundPage />
+        )
+      ) : (
+        <></>
+      )}
     </>
   );
 };

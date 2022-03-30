@@ -66,9 +66,9 @@ const ButtonCatalog = styled(Button)<{ line: string }>(({ theme, line }) => ({
 }));
 const ButtonRounded = styled(Button)<{
   icon: string;
-  iconW: string;
-  iconH: string;
-}>(({ theme, icon, iconW, iconH }) => ({
+  iconw: string;
+  iconh: string;
+}>(({ theme, icon, iconw, iconh }) => ({
   '&, &:hover': {
     borderRadius: theme.spacing(50),
     backgroundColor: theme.palette.background.paper,
@@ -80,8 +80,8 @@ const ButtonRounded = styled(Button)<{
     content: '""',
     dislpay: 'block',
     background: `url(${icon}) no-repeat 0 0/contain`,
-    width: iconW,
-    height: iconH,
+    width: iconw,
+    height: iconh,
     marginRight: theme.spacing(5),
   },
 }));
@@ -109,7 +109,7 @@ export const BadgeRounded = styled(Badge)(({ theme }) => ({
   },
 }));
 
-const BurgerButton = styled(ButtonIcon)(({ theme, activeBurger }) => ({}));
+const BurgerButton = styled(ButtonIcon)(({ theme }) => ({}));
 
 const HeaderBottom: React.FC<Props> = ({}) => {
   const theme = useTheme();
@@ -196,9 +196,9 @@ const HeaderBottom: React.FC<Props> = ({}) => {
         href={`tel:${topHeaderData.phone.replace(/\D/g, '')}`}
         passHref={true}>
         <ButtonIcon
-          iconW={theme.spacing(8)}
-          iconH={theme.spacing(8)}
-          iconColor={theme.palette.primary.main}
+          iconw={theme.spacing(8)}
+          iconh={theme.spacing(8)}
+          iconcolor={theme.palette.primary.main}
           padding={`0`}
           icon={'/static/icons/phone.svg'}
           sx={{
@@ -211,12 +211,11 @@ const HeaderBottom: React.FC<Props> = ({}) => {
           }}></ButtonIcon>
       </Link>
       <BurgerButton
-        iconW={theme.spacing(8)}
-        iconH={theme.spacing(8)}
+        iconw={theme.spacing(8)}
+        iconh={theme.spacing(8)}
         onClick={handleToggleMobileMenu}
         padding={`0`}
         icon={''}
-        activeBurger={openCatalog}
         sx={{
           '&::after': {
             display: 'none',
@@ -231,13 +230,13 @@ const HeaderBottom: React.FC<Props> = ({}) => {
             '& > div': {
               transition: 'all 0.4s',
               ...(openMobileMenu && {
-                '&:nth-child(1)': {
+                '&:nth-of-type(1)': {
                   transform: 'rotate(135deg) translate(30%, -250%)',
                 },
-                '&:nth-child(2)': {
+                '&:nth-of-type(2)': {
                   opacity: 0,
                 },
-                '&:nth-child(3)': {
+                '&:nth-of-type(3)': {
                   transform: 'rotate(230deg) translate(15%, 130%)',
                 },
               }),
@@ -283,8 +282,8 @@ const HeaderBottom: React.FC<Props> = ({}) => {
           onClick={handleClick}
           variant={'contained'}
           icon={'/static/icons/cart-fill.svg'}
-          iconW={theme.spacing(10)}
-          iconH={theme.spacing(8)}
+          iconw={theme.spacing(10)}
+          iconh={theme.spacing(8)}
           sx={{ fontSize: theme.typography.t3b }}>
           Корзина
         </ButtonRounded>

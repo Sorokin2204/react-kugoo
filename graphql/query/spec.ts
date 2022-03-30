@@ -31,8 +31,8 @@ export const GET_ALL_SPEC = gql`
   }
 `;
 export const GET_ALL_SPEC_WITH_OPTIONS = gql`
-  query {
-    getAllSpecWithOptions {
+  query ($categorySlug: String) {
+    getAllSpecWithOptions(categorySlug: $categorySlug) {
       _id
       name
       slug

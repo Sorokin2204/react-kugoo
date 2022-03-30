@@ -116,7 +116,7 @@ const HeaderTop = (props: Props) => {
             {topHeaderData.socialLinks.map((el, i) => (
               <SocialLinkItem item key={i}>
                 <SocialLinkCustom
-                  sizeIcon={theme.spacing(6)}
+                  sizeicon={theme.spacing(6)}
                   href={el.url}
                   icon={el.iconUrl}
                 />
@@ -135,8 +135,8 @@ const HeaderTop = (props: Props) => {
                   sx={{ display: 'flex', alignItems: 'center' }}
                   aria-describedby={id}
                   onClick={handleClick}
-                  iconH={theme.spacing(8)}
-                  iconW={theme.spacing(8)}
+                  iconh={theme.spacing(8)}
+                  iconw={theme.spacing(8)}
                   padding={theme.spacing(0)}
                   icon={'/static/icons/plus-circle.svg'}></ButtonIcon>
               </div>

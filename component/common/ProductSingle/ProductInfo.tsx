@@ -91,7 +91,7 @@ const ProductInfo: React.FC<Props> = ({ data }) => {
 
   return (
     <>
-      <Box sx={{ width: '100%' }}>
+      <Box sx={{ width: '100%', mb: 30 }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <TabsCustom
             value={value}

@@ -43,6 +43,13 @@ const categoryQuery = {
           localField: 'Attribute._id',
           foreignField: 'Attribute',
           as: 'Attribute.AttributeOptions',
+          pipeline: [
+            {
+              $match: {
+                isDelete: { $ne: true },
+              },
+            },
+          ],
         },
       });
 

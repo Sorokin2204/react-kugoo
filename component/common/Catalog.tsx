@@ -86,7 +86,10 @@ const CatalogBody = styled(Grid)<CatalogType>(({ theme, type }) => ({
   ...(type === 'filter' && {
     display: 'grid',
     gridTemplateColumns: 'minmax(auto,255px) 1fr',
+    gridTemplateRows: 'auto 1fr',
     [theme.breakpoints.down('lg')]: {
+      gridColumn: '1/3',
+      gridRow: '1/2',
       gridTemplateColumns: ' 1fr',
     },
     gridGap: '30px',
@@ -100,6 +103,10 @@ const CatalogGrid = styled(Box)<CatalogType>(({ theme, type }) => ({
   gridTemplateColumns: `repeat(auto-fill, minmax(259px,auto))`,
   justifyContent: 'space-evenly',
   alignItems: 'center',
+  gridAutoRows: '1fr',
+  [theme.breakpoints.down('lg')]: {
+    gridColumn: '1/2',
+  },
 
   ...(type === 'filter' && {
     gritTemplate: '2/12',
@@ -111,6 +118,13 @@ const CatalogBtnMore = styled(Button)(({ theme }) => ({
   margin: '0 auto',
   marginTop: theme.spacing(12),
   marginBottom: theme.spacing(12),
+  alignSelf: 'flex-start',
+  [theme.breakpoints.down('lg')]: {
+    marginTop: theme.spacing(2),
+
+    // gridRow: '2/3',
+    // gridColumn: '2/3',
+  },
 }));
 
 const LoadingOverlay = styled(Box)(({ theme }) => ({
@@ -159,7 +173,7 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
     control: catalogForm.control,
   });
   let sort = useRef('');
-  let filter = useRef([]);
+  let filter = useRef<Array<{ spec: string; specOpt: string }>>([]);
   const limit = 8;
   let offset = useRef(0);
   const onChangeSort = (selectSort: string) => {
@@ -172,13 +186,15 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
       .catch((err) => console.log(JSON.stringify(err, null, 2)));
   };
 
-  const onChangeFilter = (selectFilter: string) => {
+  const onChangeFilter = (selectFilter: string, specId: string) => {
     offset.current = 0;
+    console.log('Spec seleteted', specId);
+
     let indexExistAttr = filter.current.findIndex(
-      (attr) => attr === selectFilter,
+      (attr) => attr.specOpt === selectFilter,
     );
     if (indexExistAttr === -1) {
-      filter.current.push(selectFilter);
+      filter.current.push({ spec: specId, specOpt: selectFilter });
     } else {
       filter.current.splice(indexExistAttr);
     }
@@ -255,47 +271,70 @@ const Catalog: React.FC<Props> = ({ type, category }) => {
         <CatalogBody type={type}>
           {type === 'filter' && (
             <FilterBlock
+              categorySlug={category}
               onChangeFilter={onChangeFilter}
               sx={{
                 ...(type === 'filter' && {
-                  gritTemplate: '1/2',
+                  gridColumn: '1/2',
+                  gridRow: '1/3',
                   alignSelf: 'start',
                 }),
               }}
             />
           )}
-
-          <CatalogGrid type={type}>
-            {allProductData.map((product, i) => {
-              let inCart =
-                cartProducts.findIndex(
-                  (cartProd) => cartProd.productId === product._id,
-                ) !== -1;
-              return (
-                <Grow
-                  in={true}
-                  style={{ transformOrigin: '0 0 0' }}
-                  key={product._id}
-                  timeout={400}>
-                  <CatalogGridItem>
-                    <Product data={product} inCart={inCart} />
-                  </CatalogGridItem>
-                </Grow>
-              );
-            })}
-          </CatalogGrid>
-          {!getAllProductCardData.loading &&
-          getAllProductCardData?.data?.getAllProductCard?.pageInfo
-            ?.hasNextPage ? (
-            <CatalogBtnMore variant="outlined" onClick={onLoadMore}>
-              Загрузить еще
-            </CatalogBtnMore>
+          {/* {!getAllProductCardData.loading && getAllProductCardData.data ? ( */}
+          {allProductData.length !== 0 ? (
+            <>
+              <CatalogGrid type={type}>
+                {allProductData.map((product, i) => {
+                  let inCart =
+                    cartProducts.findIndex(
+                      (cartProd) => cartProd.productId === product._id,
+                    ) !== -1;
+                  return (
+                    <Grow
+                      in={true}
+                      style={{ transformOrigin: '0 0 0' }}
+                      key={product._id}
+                      timeout={400}>
+                      <CatalogGridItem>
+                        <Product data={product} inCart={inCart} />
+                      </CatalogGridItem>
+                    </Grow>
+                  );
+                })}
+              </CatalogGrid>
+              {!getAllProductCardData.loading &&
+              getAllProductCardData?.data?.getAllProductCard?.pageInfo
+                ?.hasNextPage ? (
+                <CatalogBtnMore variant="outlined" onClick={onLoadMore}>
+                  Загрузить еще
+                </CatalogBtnMore>
+              ) : (
+                <Box
+                  sx={{
+                    my: 12,
+                    height: '52px',
+                  }}></Box>
+              )}
+            </>
+          ) : !getAllProductCardData.loading ? (
+            <Typography
+              variant="h1"
+              sx={(theme) => ({
+                py: 120,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: theme.palette.grey[600],
+                [theme.breakpoints.down('md')]: {
+                  py: 100,
+                },
+              })}>
+              Товаров не найдено
+            </Typography>
           ) : (
-            <Box
-              sx={{
-                my: 12,
-                height: '52px',
-              }}></Box>
+            <></>
           )}
         </CatalogBody>
       </CatalogBox>

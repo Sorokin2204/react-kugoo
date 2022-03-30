@@ -78,7 +78,7 @@ const NavItem = styled(Grid)(({ theme }) => ({
     '&:last-child': {
       paddingBottom: '0',
     },
-    '&:first-child': {
+    '&:first-of-type': {
       paddingTop: '0',
     },
     '& + &': {

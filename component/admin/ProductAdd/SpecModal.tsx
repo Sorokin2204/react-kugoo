@@ -30,10 +30,12 @@ import {
   UPDATE_SPEC,
 } from '../../../graphql/mutation/spec';
 import { GET_ALL_SPEC, GET_SPEC } from '../../../graphql/query/spec';
+import { withSnackbar } from '../../../hooks/useAlert';
 import useModal from '../../../hooks/useModal';
 import translationToSlug from '../../../utils/translateToSlug';
 import AlertDelete from '../AlertDelete';
 import { ModalBox } from '../ModalBox';
+import Overlay from '../Overlay';
 import SubTableModal from './SubTableModal';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -65,7 +67,11 @@ type IFormType = {
   }>;
 };
 
-const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
+const SpecModal: React.FC<Props> = ({
+  open,
+  handleClose,
+  snackbarShowMessage,
+}) => {
   // MUTATIONS
   const [newSpec] = useMutation(CREATE_SPEC);
   const [updateSpec] = useMutation(UPDATE_SPEC);
@@ -91,6 +97,7 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
   const [openDelete, handleToggleDelete] = useModal();
   const [activeSpec, setActiveSpec] = useState(null);
   const [typingNameCat, setTypingNameCat] = useState('');
+  const [visibleOverlay, setVisibleOverlay] = useState<boolean>(false);
   const [isNumber, setIsNumber] = useState(false);
   const [disabledSlugCat, setDisabledSlugCat] = useState(false);
   const {
@@ -186,6 +193,7 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
 
   const onSubmit = (data: IFormType) => {
     if (activeSpec) {
+      setVisibleOverlay(true);
       let newSpecArr = [];
       let updateSpecArr = [];
       let deleteSpecArr = [];
@@ -213,7 +221,9 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
         },
       })
         .then((dataSucc) => {
-          allSpecRefetch();
+          setVisibleOverlay(false);
+          snackbarShowMessage(`Характеристика обновлена успешно`),
+            allSpecRefetch();
           setActiveSpec(null);
           reset();
         })
@@ -238,7 +248,8 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
         },
       })
         .then(() => {
-          reset();
+          setVisibleOverlay(false);
+          snackbarShowMessage(`Характеристика добавлена успешно`), reset();
           allSpecRefetch();
         })
         .catch((err) => {
@@ -248,13 +259,21 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
   };
 
   const handleDeleteSpecClick = () => {
+    setVisibleOverlay(true);
     deleteSpec({
       variables: {
         specId: activeSpec._id,
       },
     })
       .then(() => {
-        allSpecRefetch();
+        setVisibleOverlay(false);
+        snackbarShowMessage(
+          `Характеристика удалена успешно`,
+          'error',
+          2000,
+          <Delete />,
+        ),
+          allSpecRefetch();
         setActiveSpec(null);
         reset();
       })
@@ -519,10 +538,11 @@ const SpecModal: React.FC<Props> = ({ open, handleClose }) => {
               handleDelete={handleDeleteSpecClick}
             />
           ) : null}
+          {visibleOverlay && <Overlay />}
         </ModalBox>
       </Modal>
     </>
   );
 };
 
-export default SpecModal;
+export default withSnackbar(SpecModal);

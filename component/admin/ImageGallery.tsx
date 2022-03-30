@@ -7,7 +7,7 @@ import { UseFieldArrayReturn } from 'react-hook-form';
 import {
   SortableContainer,
   SortableElement,
-  sortableHandle,
+  SortableHandle,
 } from 'react-sortable-hoc';
 import { ProductImage } from '../../types/graphql';
 
@@ -92,13 +92,11 @@ const GalleryDropBox = styled(Box)(({ theme }) => ({
 }));
 
 type Props = {
-  images:
-    | UseFieldArrayReturn
-    | React.MutableRefObject<Maybe<Maybe<ProductImage>[]> | undefined>;
+  images: UseFieldArrayReturn;
   setImages: Dispatch<SetStateAction<ProductImage>>;
 };
 
-const DragHandle = sortableHandle(() => (
+const DragHandle = SortableHandle(() => (
   <GalleryMove>
     <ZoomOutMap
       sx={{

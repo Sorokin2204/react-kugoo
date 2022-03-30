@@ -3,30 +3,30 @@ import React from 'react';
 
 type ButtonIconStyleProps = {
   icon: string;
-  iconActive?: string;
+  iconactive?: string;
   active: boolean;
-  iconW: string;
-  iconH: string;
-  sizeBtn: string;
-  iconColor?: string;
+  iconw: string;
+  iconh: string;
+  sizebtn: string;
+  iconcolor?: string;
   variant?: 'border' | 'fill' | 'text';
   reverse?: boolean;
 };
 
 type ButtonIconProps = IconButtonProps & ButtonIconStyleProps;
 
-const ButtonIconStyle = styled(IconButton)<ButtonIconStyleProps>(
+const ButtonIconStyle = styled(IconButton)<ButtonIconProps>(
   ({
     theme,
     icon,
-    iconW,
-    iconH,
-    sizeBtn,
-    iconColor,
+    iconw,
+    iconh,
+    sizebtn,
+    iconcolor,
     variant,
     children,
     active = false,
-    iconActive,
+    iconactive,
     reverse = false,
   }) => ({
     ...(children
@@ -36,19 +36,19 @@ const ButtonIconStyle = styled(IconButton)<ButtonIconStyleProps>(
           display: 'flex',
           flexDirection: 'row-reverse',
         }
-      : { width: sizeBtn, height: sizeBtn, borderRadius: '50%' }),
+      : { width: sizebtn, height: sizebtn, borderRadius: '50%' }),
     [reverse ? '&::before' : '&::after']: {
       display: 'block',
       content: '""',
-      width: iconW,
-      height: iconH,
+      width: iconw,
+      height: iconh,
       mask: `url(${icon}) no-repeat`,
       ...(active &&
-        iconActive && {
-          mask: `url(${iconActive}) no-repeat`,
+        iconactive && {
+          mask: `url(${iconactive}) no-repeat`,
         }),
       maskSize: 'contain',
-      backgroundColor: iconColor ? iconColor : theme.palette.common.black,
+      backgroundColor: iconcolor ? iconcolor : theme.palette.common.black,
       ...(children && {
         [reverse ? 'marginLeft' : 'marginRight']: theme.spacing(5),
       }),
@@ -59,7 +59,7 @@ const ButtonIconStyle = styled(IconButton)<ButtonIconStyleProps>(
   }),
 );
 
-const ButtonIcon = (props: ButtonIconProps) => {
+const ButtonIcon: React.FC<ButtonIconProps> = (props: ButtonIconProps) => {
   return <ButtonIconStyle {...props}></ButtonIconStyle>;
 };
 

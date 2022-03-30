@@ -108,6 +108,7 @@ export const GET_ALL_PRODUCTS_FORM_CART = gql`
       name
       slug
       price
+      isDeleted
       discountPrice
       images {
         name
@@ -181,7 +182,7 @@ export const GET_SEARCH_PRODUCTS = gql`
 export const GET_ALL_PRODUCTS_CARD = gql`
   query getAllProductCard(
     $category: String
-    $filter: [String]
+    $filter: [SpecProductFilter]
     $sort: String
     $offset: Int
     $limit: Int

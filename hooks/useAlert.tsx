@@ -1,4 +1,4 @@
-import { Alert, Slide, Snackbar } from '@mui/material';
+import { Alert, Portal, Slide, Snackbar } from '@mui/material';
 import React, { useState } from 'react';
 
 export const withSnackbar = (WrappedComponent) => {
@@ -33,26 +33,28 @@ export const withSnackbar = (WrappedComponent) => {
     return (
       <>
         <WrappedComponent {...props} snackbarShowMessage={showMessage} />
-        <Snackbar
-          sx={{
-            zIndex: '10000000000 !important',
-          }}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          autoHideDuration={duration}
-          open={open}
-          onClose={handleClose}
-          TransitionComponent={Slide}>
-          <Alert
-            {...(icon && { icon: icon })}
-            variant="filled"
+        <Portal>
+          <Snackbar
+            sx={{
+              zIndex: '10000000000 !important',
+            }}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            autoHideDuration={duration}
+            open={open}
             onClose={handleClose}
-            severity={severity}>
-            {message}
-          </Alert>
-        </Snackbar>
+            TransitionComponent={Slide}>
+            <Alert
+              {...(icon && { icon: icon })}
+              variant="filled"
+              onClose={handleClose}
+              severity={severity}>
+              {message}
+            </Alert>
+          </Snackbar>
+        </Portal>
       </>
     );
   };

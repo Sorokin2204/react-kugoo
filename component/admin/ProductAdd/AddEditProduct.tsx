@@ -22,6 +22,7 @@ import {
   GET_ALL_CATEGORY,
   GET_CATEGORY,
 } from '../../../graphql/query/category';
+import { withSnackbar } from '../../../hooks/useAlert';
 import useModal from '../../../hooks/useModal';
 import { Product, ProductImage } from '../../../types/graphql';
 import translationToSlug from '../../../utils/translateToSlug';
@@ -32,6 +33,7 @@ import PriceInputForm from '../inputs/PriceInputForm';
 import SelectForm from '../inputs/SelectForm';
 import TextInputForm from '../inputs/TextInputForm';
 import MainWrapper from '../MainWrapper';
+import Overlay from '../Overlay';
 import EditOptionModal from '../ProductAdd/EditOptionModal';
 import ProductAttribute from '../ProductAttribute';
 interface IFormInput {
@@ -54,7 +56,7 @@ type Props = {
   product?: Product;
 };
 
-const AddEditProduct: React.FC<Props> = ({ product }) => {
+const AddEditProduct: React.FC<Props> = ({ product, snackbarShowMessage }) => {
   // MUTATION
   const [newProduct] = useMutation(CREATE_PRODUCT);
   const [updateProduct] = useMutation(UPDATE_PRODUCT);
@@ -67,6 +69,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
   const [openEditOption, handleToggleEditOption] = useModal();
   const [openAttrs, setOpenAttrs] = useState<boolean[]>([]);
   const [attrOptions, setAttrOptions] = useState([]);
+  const [visibleOverlay, setVisibleOverlay] = useState<boolean>(false);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const productForm = useForm<IFormInput>({
     mode: 'onBlur',
@@ -86,14 +89,18 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
   const timer = useRef('');
 
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    var result = _.flatten(_.map(data.attributes, 'opts'));
-    result = _.filter(result, { checked: true });
-    result = _.map(result, (e) =>
+    setVisibleOverlay(true);
+    var attributeOptsDto = _.flatten(_.map(data.attributes, 'opts'));
+    attributeOptsDto = _.filter(attributeOptsDto, { checked: true });
+    attributeOptsDto = _.map(attributeOptsDto, (e) =>
       _.pick(e, ['_id', 'customPrice', 'customSublabel']),
     );
+    const specOptsDto = data.specs.filter((spec) => spec.specOptId);
+
     const productData = {
       ...data,
-      attributes: result,
+      specs: specOptsDto,
+      attributes: attributeOptsDto,
       images: images.map((img) => _.omit(img, ['__typename', 'objectUrl'])),
     };
 
@@ -107,7 +114,28 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
             'Category',
           ]),
         },
-      }).catch((err) => console.log(JSON.stringify(err, null, 2)));
+      })
+        .then(() => {
+          snackbarShowMessage(`Товар обновлен успешно`);
+          setVisibleOverlay(false);
+        })
+        .catch((err) => {
+          setVisibleOverlay(false);
+          console.log(err);
+
+          if (err.graphQLErrors[0].extensions.argumentName === 'slug') {
+            snackbarShowMessage(`Товар с таким слагом уже существует`, 'error');
+          } else if (err.graphQLErrors[0].extensions.argumentName === 'name') {
+            snackbarShowMessage(
+              `Товар с таким названием уже существует`,
+              'error',
+            );
+          } else {
+            console.log(JSON.stringify(err, null, 2));
+
+            snackbarShowMessage(`Произошла непредвиденная ошибка`, 'error');
+          }
+        });
     } else {
       newProduct({
         variables: {
@@ -118,9 +146,28 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
             'Category',
           ]),
         },
-      }).catch((err) => {
-        console.error(JSON.stringify(err, null, 2));
-      });
+      })
+        .then(() => {
+          snackbarShowMessage(`Товар добавлен успешно`);
+          router.push('/admin/product-list');
+        })
+        .catch((err) => {
+          setVisibleOverlay(false);
+          if (err.graphQLErrors[0].extensions.argumentName === 'slug') {
+            snackbarShowMessage(`Товар с таким слагом уже существует`, 'error');
+          } else if (err.graphQLErrors[0].extensions.argumentName === 'name') {
+            snackbarShowMessage(
+              `Товар с таким названием уже существует`,
+              'error',
+            );
+          } else {
+            console.log(JSON.stringify(err, null, 2));
+
+            snackbarShowMessage(`Произошла непредвиденная ошибка`, 'error');
+          }
+
+          console.error(JSON.stringify(err, null, 2));
+        });
     }
   };
 
@@ -135,6 +182,7 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
   }, [attrOptions]);
 
   useEffect(() => {
+    productForm.setValue('specs', []);
     if (activeCategoryId) {
       getCategory({
         variables: {
@@ -234,356 +282,372 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
 
   return (
     <>
-      <MainWrapper>
-        <form onSubmit={productForm.handleSubmit(onSubmit)}>
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: '20px',
-              fontWeight: '600',
-              display: 'block',
-            }}>
-            Шаг 1 - Изображения
-          </Typography>
-          <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
+      <Box sx={{ position: 'relative' }}>
+        <MainWrapper>
+          <form onSubmit={productForm.handleSubmit(onSubmit)}>
+            <Typography
+              variant="body1"
+              sx={{
+                fontSize: '20px',
+                fontWeight: '600',
+                display: 'block',
+              }}>
+              Шаг 1 - Изображения
+            </Typography>
+            <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
 
-          <ImageGallery images={images} setImages={setImages} />
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: '20px',
-              fontWeight: '600',
-              display: 'block',
-            }}>
-            Шаг 2 - Категоря
-          </Typography>
-          <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
-          <SelectForm
-            name={'category'}
-            label={'Категория'}
-            rules={{
-              required: { value: false, message: 'Выберите категорию' },
-            }}
-            form={productForm}
-            selectProps={{
-              onChange: (e) => {
-                setActiveCategoryId(e.target.value);
-                productForm.setValue('category', e.target.value);
-              },
-            }}>
-            {!allCategoryLoading &&
-              allCategoryData?.getAllCategory?.map((category) => (
-                <MenuItem value={category._id}>{category.name}</MenuItem>
-              ))}
-          </SelectForm>
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: '20px',
-              fontWeight: '600',
-              display: 'block',
-              marginTop: '10px',
-            }}>
-            Шаг 3 - Аттрибуты
-          </Typography>
-          <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
-          <ProductAttributeBox
-            breakpointCols={{
-              default: 2,
-              840: 1,
-            }}
-            className="my-masonry-grid"
-            columnClassName="my-masonry-grid_column">
-            {attrOptions.lenght !== 0
-              ? attrOptions.map((attr, i) => (
-                  <>
-                    <ProductAttribute
-                      handleClose={handleToggleEditOption}
-                      open={openAttrs[i]}
-                      setOpen={(): void => {
-                        setOpenAttrs((prev) => {
-                          const arr = [...prev];
-                          arr[i] = !arr[i];
-                          return arr;
-                        });
-                      }}
-                      handleCheckboxChange={(optId) => {
-                        setAttrOptions((prev) => {
-                          const arr = [...prev];
-                          arr[i] = {
-                            ...arr[i],
-                            opts: arr[i].opts.map((prevItem) =>
-                              prevItem._id === optId
-                                ? { ...prevItem, checked: !prevItem.checked }
-                                : prevItem,
-                            ),
-                          };
-                          return arr;
-                        });
-                      }}
-                      attrData={attr}
-                    />
-                  </>
-                ))
-              : ''}
-          </ProductAttributeBox>
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: '20px',
-              fontWeight: '600',
-              display: 'block',
-            }}>
-            Шаг 4 - Характеристики
-          </Typography>
-          <Divider
-            sx={{
-              marginBottom: '10px',
-              marginTop: '5px',
-            }}
-          />
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2,minmax(0,1fr))',
-              [theme.breakpoints.down('md')]: {
-                gridTemplateColumns: 'repeat(1,minmax(0,1fr))',
-              },
-              gridGap: '15px',
-              marginBottom: '15px',
-            }}>
-            {!categoryLoading &&
-              categoryData &&
-              categoryData?.getCategory?.specs?.edges?.map((spec, index) => {
-                productForm.setValue(`specs[${index}].specId`, spec.node._id);
-                productForm.setValue(`specs[${index}].type`, spec.node.type);
-                return (
-                  <Box key={spec.node._id}>
-                    <Typography variant="body1" sx={{ fontWeight: '600' }}>
-                      {spec.node.name}
-                    </Typography>
-                    <Box
-                      key={spec.node._id}
-                      sx={{
-                        display: 'flex',
-                      }}>
-                      {spec?.node?.SpecExtraTexts.findIndex(
-                        (specExtra) => specExtra.type === 'before',
-                      ) !== -1 && (
-                        <Box sx={{ width: '25%' }}>
-                          <SelectForm
-                            name={`specs[${index}].beforeId`}
-                            label={''}
-                            rules={{
-                              required: false,
-                            }}
-                            form={productForm}>
-                            <MenuItem value={''}>Не выбранно</MenuItem>
-                            {spec?.node?.SpecExtraTexts?.filter(
-                              (before) => before.type === 'before',
-                            )?.map((specOpt) => (
-                              <MenuItem key={specOpt._id} value={specOpt._id}>
-                                {specOpt.name}
-                              </MenuItem>
-                            ))}
-                          </SelectForm>
+            <ImageGallery images={images} setImages={setImages} />
+            <Typography
+              variant="body1"
+              sx={{
+                fontSize: '20px',
+                fontWeight: '600',
+                display: 'block',
+              }}>
+              Шаг 2 - Категоря
+            </Typography>
+            <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
+            <SelectForm
+              name={'category'}
+              label={'Категория'}
+              rules={{
+                required: { value: true, message: 'Выберите категорию' },
+              }}
+              form={productForm}
+              selectProps={{
+                onChange: (e) => {
+                  setActiveCategoryId(e.target.value);
+                  productForm.setValue('category', e.target.value);
+                },
+              }}>
+              {!allCategoryLoading &&
+                allCategoryData?.getAllCategory?.map((category) => (
+                  <MenuItem value={category._id} key={category.name}>
+                    {category.name}
+                  </MenuItem>
+                ))}
+            </SelectForm>
+            <Typography
+              variant="body1"
+              sx={{
+                fontSize: '20px',
+                fontWeight: '600',
+                display: 'block',
+                marginTop: '10px',
+              }}>
+              Шаг 3 - Аттрибуты
+            </Typography>
+            <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
+            <ProductAttributeBox
+              breakpointCols={{
+                default: 2,
+                840: 1,
+              }}
+              className="my-masonry-grid"
+              columnClassName="my-masonry-grid_column">
+              {attrOptions.lenght !== 0
+                ? attrOptions.map((attr, i) => (
+                    <>
+                      <ProductAttribute
+                        handleClose={handleToggleEditOption}
+                        open={openAttrs[i]}
+                        setOpen={(): void => {
+                          setOpenAttrs((prev) => {
+                            const arr = [...prev];
+                            arr[i] = !arr[i];
+                            return arr;
+                          });
+                        }}
+                        handleCheckboxChange={(optId) => {
+                          setAttrOptions((prev) => {
+                            const arr = [...prev];
+                            arr[i] = {
+                              ...arr[i],
+                              opts: arr[i].opts.map((prevItem) =>
+                                prevItem._id === optId
+                                  ? { ...prevItem, checked: !prevItem.checked }
+                                  : prevItem,
+                              ),
+                            };
+                            return arr;
+                          });
+                        }}
+                        attrData={attr}
+                      />
+                    </>
+                  ))
+                : ''}
+            </ProductAttributeBox>
+            <Typography
+              variant="body1"
+              sx={{
+                fontSize: '20px',
+                fontWeight: '600',
+                display: 'block',
+              }}>
+              Шаг 4 - Характеристики
+            </Typography>
+            <Divider
+              sx={{
+                marginBottom: '10px',
+                marginTop: '5px',
+              }}
+            />
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2,minmax(0,1fr))',
+                [theme.breakpoints.down('md')]: {
+                  gridTemplateColumns: 'repeat(1,minmax(0,1fr))',
+                },
+                gridGap: '15px',
+                marginBottom: '15px',
+              }}>
+              {!categoryLoading &&
+                categoryData &&
+                categoryData?.getCategory?.specs?.edges?.map((spec, index) => {
+                  productForm.setValue(`specs[${index}].specId`, spec.node._id);
+                  productForm.setValue(`specs[${index}].type`, spec.node.type);
+                  return (
+                    <Box key={spec.node._id}>
+                      <Typography variant="body1" sx={{ fontWeight: '600' }}>
+                        {spec.node.name}
+                      </Typography>
+                      <Box
+                        key={spec.node._id}
+                        sx={{
+                          display: 'flex',
+                        }}>
+                        {spec?.node?.SpecExtraTexts.findIndex(
+                          (specExtra) => specExtra.type === 'before',
+                        ) !== -1 && (
+                          <Box sx={{ width: '25%' }}>
+                            <SelectForm
+                              name={`specs[${index}].beforeId`}
+                              label={''}
+                              rules={{
+                                required: false,
+                              }}
+                              form={productForm}>
+                              <MenuItem value={''}>Не выбранно</MenuItem>
+                              {spec?.node?.SpecExtraTexts?.filter(
+                                (before) => before.type === 'before',
+                              )?.map((specOpt) => (
+                                <MenuItem key={specOpt._id} value={specOpt._id}>
+                                  {specOpt.name}
+                                </MenuItem>
+                              ))}
+                            </SelectForm>
+                          </Box>
+                        )}
+
+                        <Box sx={{ width: '100%' }}>
+                          {spec?.node?.SpecOptions.length !== 0 ? (
+                            <SelectForm
+                              name={`specs[${index}].specOptId`}
+                              label={''}
+                              rules={{
+                                required: false,
+                              }}
+                              form={productForm}>
+                              <MenuItem value={''}>Не выбранно</MenuItem>
+                              {spec?.node?.SpecOptions?.map((specOpt) => (
+                                <MenuItem
+                                  value={specOpt._id}
+                                  key={specOpt.name}>
+                                  {specOpt.name}
+                                </MenuItem>
+                              ))}
+                            </SelectForm>
+                          ) : spec.node.type === 'number' ? (
+                            <NumberInputForm
+                              label={''}
+                              name={`specs[${index}].customValue`}
+                              rules={{
+                                required: {
+                                  value: true,
+                                  message: 'Обязательное поле',
+                                },
+                              }}
+                              inputProps={{
+                                onValueChange: (v) => {
+                                  productForm.setValue(
+                                    `specs[${index}].customValue`,
+                                    v.value,
+                                  );
+                                },
+                              }}
+                              form={productForm}
+                            />
+                          ) : (
+                            <TextInputForm
+                              label={''}
+                              name={`specs[${index}].customValue`}
+                              rules={{
+                                required: false,
+                              }}
+                              form={productForm}
+                            />
+                          )}
                         </Box>
-                      )}
 
-                      <Box sx={{ width: '100%' }}>
-                        {spec?.node?.SpecOptions.length !== 0 ? (
-                          <SelectForm
-                            name={`specs[${index}].specOptId`}
-                            label={''}
-                            rules={{
-                              required: false,
-                            }}
-                            form={productForm}>
-                            <MenuItem value={''}>Не выбранно</MenuItem>
-                            {spec?.node?.SpecOptions?.map((specOpt) => (
-                              <MenuItem value={specOpt._id}>
-                                {specOpt.name}
-                              </MenuItem>
-                            ))}
-                          </SelectForm>
-                        ) : spec.node.type === 'number' ? (
-                          <NumberInputForm
-                            label={''}
-                            name={`specs[${index}].customValue`}
-                            rules={{
-                              required: {
-                                value: true,
-                                message: 'Обязательное поле',
-                              },
-                            }}
-                            inputProps={{
-                              onValueChange: (v) => {
-                                productForm.setValue(
-                                  `specs[${index}].customValue`,
-                                  v.value,
-                                );
-                              },
-                            }}
-                            form={productForm}
-                          />
-                        ) : (
-                          <TextInputForm
-                            label={''}
-                            name={`specs[${index}].customValue`}
-                            rules={{
-                              required: false,
-                            }}
-                            form={productForm}
-                          />
+                        {spec?.node?.SpecExtraTexts.findIndex(
+                          (specExtra) => specExtra.type === 'after',
+                        ) !== -1 && (
+                          <Box sx={{ width: '25%' }}>
+                            <SelectForm
+                              name={`specs[${index}].afterId`}
+                              label={''}
+                              rules={{
+                                required: false,
+                              }}
+                              form={productForm}>
+                              <MenuItem value={''}>Не выбранно</MenuItem>
+                              {spec?.node?.SpecExtraTexts?.filter(
+                                (after) => after.type === 'after',
+                              )?.map((specOpt) => (
+                                <MenuItem key={specOpt._id} value={specOpt._id}>
+                                  {specOpt.name}
+                                </MenuItem>
+                              ))}
+                            </SelectForm>
+                          </Box>
                         )}
                       </Box>
-
-                      {spec?.node?.SpecExtraTexts.findIndex(
-                        (specExtra) => specExtra.type === 'after',
-                      ) !== -1 && (
-                        <Box sx={{ width: '25%' }}>
-                          <SelectForm
-                            name={`specs[${index}].afterId`}
-                            label={''}
-                            rules={{
-                              required: false,
-                            }}
-                            form={productForm}>
-                            <MenuItem value={''}>Не выбранно</MenuItem>
-                            {spec?.node?.SpecExtraTexts?.filter(
-                              (after) => after.type === 'after',
-                            )?.map((specOpt) => (
-                              <MenuItem key={specOpt._id} value={specOpt._id}>
-                                {specOpt.name}
-                              </MenuItem>
-                            ))}
-                          </SelectForm>
-                        </Box>
-                      )}
                     </Box>
-                  </Box>
-                );
-              })}
-          </Box>
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: '20px',
-              fontWeight: '600',
-              display: 'block',
-            }}>
-            Шаг 5 - Общая информация
-          </Typography>
-          <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              [theme.breakpoints.down('md')]: {
-                gridTemplateColumns: '1fr',
-              },
-              gridGap: '20px',
-            }}>
-            <TextInputForm
-              label={'Название'}
-              name={'name'}
-              rules={{
-                required: {
-                  value: true,
-                  message: 'Поле не должно быть пустым',
-                },
-                maxLength: { value: 40, message: 'Не более 40 символов' },
-                minLength: { value: 5, message: 'Не менее 5 символов' },
-              }}
-              inputProps={{
-                onChange: (e) => {
-                  setDisabledSlug(true);
-                  if (timer.current) {
-                    clearTimeout(timer.current);
-                    timer.current = null;
-                  }
-                  timer.current = translationToSlug(
-                    'name',
-                    'slug',
-                    productForm.getValues,
-                    productForm.setValue,
-                    setDisabledSlug,
                   );
-                  productForm.setValue('name', e.target.value);
+                })}
+            </Box>
+            <Typography
+              variant="body1"
+              sx={{
+                fontSize: '20px',
+                fontWeight: '600',
+                display: 'block',
+              }}>
+              Шаг 5 - Общая информация
+            </Typography>
+            <Divider sx={{ marginBottom: '20px', marginTop: '5px' }} />
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                [theme.breakpoints.down('md')]: {
+                  gridTemplateColumns: '1fr',
                 },
-              }}
-              form={productForm}
-            />
-            <TextInputForm
-              label={'Слаг'}
-              name={'slug'}
-              rules={{
-                required: {
-                  value: true,
-                  message: 'Поле не должно быть пустым',
-                },
-                maxLength: { value: 40, message: 'Не более 40 символов' },
-                minLength: { value: 5, message: 'Не менее 5 символов' },
-              }}
-              inputProps={{
-                disabled: disabledSlug,
-              }}
-              form={productForm}
-            />
-            <PriceInputForm
-              label={'Акционная цена'}
-              rules={{ required: false }}
-              name={'discountPrice'}
-              form={productForm}
-            />
-            <PriceInputForm label={'Цена'} name={'price'} form={productForm} />
-            <NumberInputForm
-              label={'Артикул'}
-              name={'vendorCode'}
-              rules={{ required: false }}
-              inputProps={{
-                format: '#### #### #### ####',
-                onValueChange: (v) => {
-                  productForm.setValue('vendorCode', v.value);
-                },
-              }}
-              form={productForm}
-            />
-          </Box>
-
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-
-              [theme.breakpoints.down('md')]: {
-                gridTemplateColumns: '1fr',
-              },
-              marginTop: '20px',
-              gap: '10px',
-            }}>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={!productForm.formState.isValid}>
-              Сохранить
-            </Button>
-            {product && (
-              <Button
-                onClick={handleToggleDelete}
-                sx={{
-                  '&:hover': {
-                    backgroundColor: `${theme.palette.error.main} !important `,
+                gridGap: '20px',
+              }}>
+              <TextInputForm
+                label={'Название'}
+                name={'name'}
+                rules={{
+                  required: {
+                    value: true,
+                    message: 'Поле не должно быть пустым',
+                  },
+                  maxLength: { value: 40, message: 'Не более 40 символов' },
+                  minLength: { value: 5, message: 'Не менее 5 символов' },
+                }}
+                inputProps={{
+                  onChange: (e) => {
+                    setDisabledSlug(true);
+                    if (timer.current) {
+                      clearTimeout(timer.current);
+                      timer.current = null;
+                    }
+                    timer.current = translationToSlug(
+                      'name',
+                      'slug',
+                      productForm.getValues,
+                      productForm.setValue,
+                      setDisabledSlug,
+                    );
+                    productForm.setValue('name', e.target.value);
                   },
                 }}
+                form={productForm}
+              />
+              <TextInputForm
+                label={'Слаг'}
+                name={'slug'}
+                rules={{
+                  required: {
+                    value: true,
+                    message: 'Поле не должно быть пустым',
+                  },
+                  maxLength: { value: 40, message: 'Не более 40 символов' },
+                  minLength: { value: 5, message: 'Не менее 5 символов' },
+                }}
+                inputProps={{
+                  disabled: disabledSlug,
+                }}
+                form={productForm}
+              />
+              <PriceInputForm
+                label={'Акционная цена'}
+                rules={{ required: false }}
+                name={'discountPrice'}
+                form={productForm}
+              />
+              <PriceInputForm
+                label={'Цена'}
+                name={'price'}
+                form={productForm}
+              />
+              <NumberInputForm
+                label={'Артикул'}
+                name={'vendorCode'}
+                rules={{
+                  required: {
+                    value: true,
+                    message: 'Поле не должно быть пустым',
+                  },
+                }}
+                inputProps={{
+                  format: '#### #### #### ####',
+                  onValueChange: (v) => {
+                    productForm.setValue('vendorCode', v.value);
+                  },
+                }}
+                form={productForm}
+              />
+            </Box>
+
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+
+                [theme.breakpoints.down('md')]: {
+                  gridTemplateColumns: '1fr',
+                },
+                marginTop: '20px',
+                gap: '10px',
+              }}>
+              <Button
+                type="submit"
                 variant="contained"
-                color="error">
-                Удалить
+                disabled={!productForm.formState.isValid}>
+                Сохранить
               </Button>
-            )}
-          </Box>
-        </form>
-      </MainWrapper>
+              {product && (
+                <Button
+                  onClick={handleToggleDelete}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: `${theme.palette.error.main} !important `,
+                    },
+                  }}
+                  variant="contained"
+                  color="error">
+                  Удалить
+                </Button>
+              )}
+            </Box>
+          </form>
+        </MainWrapper>
+        {visibleOverlay && <Overlay />}
+      </Box>
       {openEditOption ? (
         <EditOptionModal
           open={openEditOption}
@@ -613,4 +677,4 @@ const AddEditProduct: React.FC<Props> = ({ product }) => {
   );
 };
 
-export default AddEditProduct;
+export default withSnackbar(AddEditProduct);

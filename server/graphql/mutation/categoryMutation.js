@@ -32,13 +32,14 @@ const categoryMutation = {
   },
 
   deleteCategory: async (parent, { catId }) => {
-    // await Category_Attribute.deleteMany({
-    //   Category: catId,
-    // });
-    // await Category_Spec.deleteMany({
-    //   Category: catId,
-    // });
-    // await Category.findByIdAndDelete(catId);
+    await Product.updateMany({ Category: catId }, { isDeleted: true });
+    await Category_Attribute.deleteMany({
+      Category: catId,
+    });
+    await Category_Spec.deleteMany({
+      Category: catId,
+    });
+    await Category.findByIdAndDelete(catId);
     return;
   },
 

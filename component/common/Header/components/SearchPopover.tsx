@@ -14,6 +14,7 @@ import { specIcons, SpecItem } from '../../Product';
 
 type Props = {
   clearSearch: () => {};
+  handleClose: () => {};
 };
 
 const SearchPopoverStyled = styled(Popover)(({ theme }) => ({}));
@@ -30,6 +31,9 @@ const SearchList = styled(Grid)(({ theme }) => ({
 }));
 const SearchItem = styled(Grid)(({ theme }) => ({
   display: 'grid',
+  cursor: 'default',
+
+  gridTemplateColumns: 'auto 1fr auto',
   '& + &': {
     paddingTop: theme.spacing(10),
     marginTop: theme.spacing(10),
@@ -53,7 +57,7 @@ const SearchImage = styled('img')(({ theme }) => ({
   },
 }));
 const SearchPrice = styled(Typography)(({ theme }) => ({
-  gridColumn: '11/12',
+  gridColumn: '3/4',
   gridRow: '1/2',
   whiteSpace: 'nowrap',
   marginLeft: '10px',
@@ -62,12 +66,12 @@ const SearchTitle = styled(Typography)(({ theme }) => ({
   display: 'block',
   marginBottom: theme.spacing(4),
 
-  gridColumn: '2/11',
+  gridColumn: '2/3',
   gridRow: '1/2',
 }));
 const SpecList = styled(Box)(({ theme }) => ({
   display: 'grid',
-  gridTemplateColumns: 'repeat(4,auto)',
+  gridTemplateColumns: 'repeat(4,min-content)',
   gridGap: theme.spacing(10),
   [theme.breakpoints.down('sm')]: {
     gridColumn: '2/3',
@@ -78,7 +82,7 @@ const SpecList = styled(Box)(({ theme }) => ({
   gridRow: '2/3',
 }));
 
-const SearchPopover: React.FC<Props> = ({ data, clearSearch }) => {
+const SearchPopover: React.FC<Props> = ({ data, clearSearch, handleClose }) => {
   const theme = useTheme();
   const matchMd = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -108,7 +112,7 @@ const SearchPopover: React.FC<Props> = ({ data, clearSearch }) => {
                   <SpecItem
                     key={i}
                     icon={specIcons[i]}
-                    iconSize={theme.spacing(8)}
+                    iconsize={theme.spacing(8)}
                     sx={{ ...theme.typography.t4 }}>
                     {specOpt.node.name.replace('*', '').replace('до', '')}
                   </SpecItem>

@@ -19,7 +19,7 @@ import 'react-lazy-load-image-component/src/effects/blur.css';
 import { GET_DEFAULT_PRODUCT_ATTRIBUTES } from '../../graphql/query/attribute';
 import { withSnackbar } from '../../hooks/useAlert';
 import useAppConfig from '../../hooks/useAppConfig';
-import { AttributeOption, Product } from '../../types/graphql';
+import { Product } from '../../types/graphql';
 import { currencyFormat } from '../../utils/currencyFormat';
 import ButtonIcon from './ButtonIcon';
 type Props = {
@@ -77,27 +77,33 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
       variables: {
         productId,
       },
-    }).then((dataDefault) => {
-      let total: number = price;
-      let attributes = [];
-      dataDefault.data.getDefaultProductAttributes.map(
-        (defaultAttrOpt: AttributeOption) => {
-          total += parseInt(defaultAttrOpt?.defaultPrice);
-          attributes.push({
-            attr: defaultAttrOpt.Attribute._id,
-            attrOpt: defaultAttrOpt._id,
-          });
-        },
-      );
+    })
+      .then((dataDefault) => {
+        console.log(dataDefault);
 
-      addingInCart({
-        totalPrice: total,
-        productId: productId,
-        attributes: attributes,
-        pieces: 1,
-      });
-      callback();
-    });
+        let total: number = price;
+        let attributes = [];
+        dataDefault.data.getDefaultProductAttributes.map(
+          (defaultAttrOpt: AttributeOption) => {
+            total += parseInt(
+              defaultAttrOpt?.customPrice ?? defaultAttrOpt?.node?.defaultPrice,
+            );
+            attributes.push({
+              attr: defaultAttrOpt.node.Attribute._id,
+              attrOpt: defaultAttrOpt.node._id,
+            });
+          },
+        );
+
+        addingInCart({
+          totalPrice: total,
+          productId: productId,
+          attributes: attributes,
+          pieces: 1,
+        });
+        callback();
+      })
+      .catch((err) => console.log(JSON.stringify(err, null, 2)));
   };
   return (
     <ProductCard
@@ -107,8 +113,11 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
         sx={{
           '& .lazy-load-image-background': {
             display: 'block !important',
-
             margin: '0 auto',
+            '& img': {
+              width: '100%',
+              objectFit: 'contain',
+            },
           },
         }}>
         <LazyLoadImage
@@ -125,22 +134,24 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
           effect="blur"
           alt={data.slug}
           height={'182px'}
-          src={`/static/products/${data.images[data.images.length - 1]?.name}`}
-          width={'242px'}
+          src={
+            data.images?.length !== 0
+              ? `/static/products/${data.images[data.images.length - 1]?.name}`
+              : '/static/preview-product.jpg'
+          }
+          // width={'256px'}
         />
       </Header>
-      <Content sx={{ pt: 10, px: 12, pb: 0 }}>
-        <Title variant="t1bb" sx={{ mb: 10 }}>
-          {data.name}
-        </Title>
-        <SpecList container spacing={9} sx={{ mb: 13 }}>
+      <Content sx={{ pt: 0, px: 12, pb: 0 }}>
+        <Title variant="t1bb">{data.name}</Title>
+        <SpecList container spacing={9} sx={{ mb: 13, mt: 'auto' }}>
           {data.SpecOptions.edges.map((specOpt, i) => (
             <SpecItem
               item
               xs={6}
               key={i}
               icon={specIcons[i]}
-              iconSize={theme.spacing(9)}>
+              iconsize={theme.spacing(9)}>
               {specOpt.node.name.replace('*', '').replace('до', '')}
             </SpecItem>
           ))}
@@ -161,15 +172,15 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
             </>
           )}
         </PriceBox>
-        <BtnCart
+        <ButtonIcon
           active={inCart}
           variant="border"
-          iconW={theme.spacing(9)}
-          iconH={theme.spacing(9)}
+          iconw={theme.spacing(9)}
+          iconh={theme.spacing(9)}
           icon={'/static/icons/cart.svg'}
-          iconActive={'/static/icons/cart-fill.svg'}
-          iconColor={theme.palette.primary.main}
-          sizeBtn={theme.spacing(20)}
+          iconactive={'/static/icons/cart-fill.svg'}
+          iconcolor={theme.palette.primary.main}
+          sizebtn={theme.spacing(20)}
           onClick={(e) => {
             e.stopPropagation();
             inCart
@@ -177,7 +188,7 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
               : handleAddToCart(e, data._id, data.price, () => {
                   snackbarShowMessage(`Товар добавлен в корзину`);
                 });
-          }}></BtnCart>
+          }}></ButtonIcon>
 
         <BtnBuy
           variant="containedSmall"
@@ -201,7 +212,12 @@ const ProductCard = styled(Card)(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
   maxWidth: '300px',
   width: '100%',
+  // height: '100vh',
+  // maxHeight: '472px',
   borderRadius: '10px',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
 }));
 const Header = styled(Box)(({ theme }) => ({
   position: 'relative',
@@ -224,12 +240,13 @@ const Content = styled(CardContent)(({ theme }) => ({}));
 const Title = styled(Typography)(({ theme }) => ({
   display: 'block',
   textAlign: 'left',
+  marginTop: theme.spacing(10),
 }));
 const SpecList = styled(Grid)(({ theme }) => ({
   justifyContent: 'space-between',
 }));
-export const SpecItem = styled(Grid)<{ icon: string; iconSize: string }>(
-  ({ theme, icon, iconSize }) => ({
+export const SpecItem = styled(Grid)<{ icon: string; iconsize: string }>(
+  ({ theme, icon, iconsize }) => ({
     ...theme.typography.t3,
     color: theme.palette.grey[600],
     display: 'flex',
@@ -240,10 +257,10 @@ export const SpecItem = styled(Grid)<{ icon: string; iconSize: string }>(
       content: '""',
       display: 'block',
       background: `url(${icon}) no-repeat 0 0/contain`,
-      width: iconSize,
-      height: iconSize,
-      minWidth: iconSize,
-      minHeight: iconSize,
+      width: iconsize,
+      height: iconsize,
+      minWidth: iconsize,
+      minHeight: iconsize,
       marginRight: theme.spacing(5),
     },
   }),
@@ -251,6 +268,7 @@ export const SpecItem = styled(Grid)<{ icon: string; iconSize: string }>(
 const Actions = styled(CardActions)(({ theme }) => ({
   display: 'flex',
   flexWrap: 'wrap',
+  marginTop: 'auto',
 }));
 const PriceBox = styled(Box)(({ theme }) => ({
   flexGrow: '1',

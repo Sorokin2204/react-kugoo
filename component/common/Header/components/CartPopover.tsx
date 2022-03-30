@@ -7,7 +7,7 @@ import {
   PopoverProps,
   styled,
   Typography,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import React, { useEffect } from 'react';
 import styledComp from 'styled-components';
@@ -93,9 +93,7 @@ const CartPopover: React.FC<PopoverProps> = (props) => {
       variables: {
         productsFromCart: cartProducts,
       },
-    })
-      
-      .catch((err) => console.log(JSON.stringify(err, null, 2)));
+    }).catch((err) => console.log(JSON.stringify(err, null, 2)));
   }, []);
 
   return (
@@ -128,8 +126,8 @@ const CartPopover: React.FC<PopoverProps> = (props) => {
                 </CartItemBody>
                 <CartItemDelete
                   icon="/static/icons/delete.svg"
-                  iconW="15px"
-                  iconH="16px"
+                  iconw="15px"
+                  iconh="16px"
                   padding="0"></CartItemDelete>
               </CartItem>
             ))}

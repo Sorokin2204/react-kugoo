@@ -1,4 +1,4 @@
-import { createTheme, Typography, useTheme } from '@mui/material';
+import { createTheme } from '@mui/material';
 
 let theme = createTheme({
   zIndex: {
@@ -479,6 +479,7 @@ declare module '@mui/material/styles' {
   interface TypographyVariants {
     h4b: React.CSSProperties;
     h4bb: React.CSSProperties;
+    t1: React.CSSProperties;
     t2: React.CSSProperties;
     t3: React.CSSProperties;
     t4: React.CSSProperties;

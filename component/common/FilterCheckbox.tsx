@@ -107,15 +107,15 @@ const FilterCheckbox: React.FC<Props> = ({ data, ...props }) => {
         </FormGroup>
       </Box>
       {maxHeightState !== 0 && (
-        <BtnCollapse
+        <ButtonIcon
           onClick={() => {
             setCollapse(!collapse);
           }}
           icon="/static/icons/arrow-down.svg"
           reverse={true}
-          iconH={theme.spacing(3.5)}
-          iconW={theme.spacing(5)}
-          iconColor={theme.palette.primary.main}
+          iconh={theme.spacing(3.5)}
+          iconw={theme.spacing(5)}
+          iconcolor={theme.palette.primary.main}
           sx={{
             marginTop: '12px !important',
             '&::before': {
@@ -129,7 +129,7 @@ const FilterCheckbox: React.FC<Props> = ({ data, ...props }) => {
             color: theme.palette.primary.main,
           }}>
           {!collapse ? 'Показать' : 'Скрыть'}
-        </BtnCollapse>
+        </ButtonIcon>
       )}
     </Box>
   );

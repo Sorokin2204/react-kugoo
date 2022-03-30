@@ -1,7 +1,11 @@
-import { createTheme, Typography, useTheme } from '@mui/material';
+import { createTheme } from '@mui/material';
 import { teal } from '@mui/material/colors';
 
 let themeAdmin = createTheme({
+  zIndex: {
+    modal: 1300,
+    snackbar: 1400,
+  },
   palette: {
     success: {
       main: teal[400],
@@ -130,6 +134,11 @@ themeAdmin = createTheme(themeAdmin, {
     },
     MuiMenuItem: {
       styleOverrides: {
+        root: {
+          '&:hover': {
+            backgroundColor: 'rgba(25, 118, 210, 0.08) !important',
+          },
+        },
         paper: {
           transitionDuration: '0s !important',
         },

@@ -8,6 +8,7 @@ import LinkNext from 'next/link';
 import React from 'react';
 type Props = {
   fontSize?: string;
+  active?: boolean;
 };
 
 const LinkCustom: React.FC<Props & LinkProps> = ({

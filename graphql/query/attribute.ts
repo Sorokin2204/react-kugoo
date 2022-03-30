@@ -39,10 +39,14 @@ export const GET_ALL_ATTRIBUTE = gql`
 export const GET_DEFAULT_PRODUCT_ATTRIBUTES = gql`
   query getDefaultProductAttributes($productId: String) {
     getDefaultProductAttributes(productId: $productId) {
-      _id
-      defaultPrice
-      Attribute {
+      customPrice
+      customSublabel
+      node {
         _id
+        defaultPrice
+        Attribute {
+          _id
+        }
       }
     }
   }

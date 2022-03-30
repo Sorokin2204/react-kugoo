@@ -1,10 +1,8 @@
-import React, { useEffect } from 'react';
-import { Container, styled } from '@mui/material';
-import Catalog from '../../component/common/Catalog';
-import CatalogBanner from '../../component/common/Catalog/CatalogBanner';
-import BreadcrumbsCustom from '../../component/common/BreadcrumbsCustom';
-import { useRouter } from 'next/router';
 import { useLazyQuery } from '@apollo/client';
+import { Box, Container } from '@mui/material';
+import { useRouter } from 'next/router';
+import React, { useEffect } from 'react';
+import Catalog from '../../component/common/Catalog';
 import { CHECK_EXIST_CATEGORY } from '../../graphql/query/category';
 import NotFoundPage from './../404';
 
@@ -24,28 +22,45 @@ const CatalogPage: React.FC<Props> = ({}) => {
     });
   }, [router]);
 
-  if (router.isFallback) {
-    return <></>;
-  }
+  // if (router.isFallback) {
+  //   return <></>;
+  // }
 
-  if (!loading) {
-    if (data?.checkExistCategory) {
-      return (
-        <>
+  // if (!loading) {
+  //   if (data?.checkExistCategory) {
+  //     return (
+  //       <>
+  //         <Container>
+  //           <Catalog type="filter" category={router.query.categorySlug} />
+  //         </Container>
+  //       </>
+  //     );
+  //   } else {
+  //     return (
+  //       <>
+  //         <NotFoundPage />
+  //       </>
+  //     );
+  //   }
+  // }
+  return (
+    <>
+      {!loading && data ? (
+        data?.checkExistCategory ? (
           <Container>
-            <Catalog type="filter" category={router.query.categorySlug} />
+            <Box sx={{ py: 20 }}>
+              {' '}
+              <Catalog type="filter" category={router.query.categorySlug} />
+            </Box>
           </Container>
-        </>
-      );
-    } else {
-      return (
-        <>
+        ) : (
           <NotFoundPage />
-        </>
-      );
-    }
-  }
-  return <></>;
+        )
+      ) : (
+        <></>
+      )}
+    </>
+  );
 };
 
 export default CatalogPage;

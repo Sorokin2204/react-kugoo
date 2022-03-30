@@ -4,10 +4,12 @@ var ProductSchema = new Schema({
   name: {
     type: String,
     required: true,
+    unique: true,
   },
   slug: {
     type: String,
     required: true,
+    unique: true,
   },
   price: {
     type: Number,
@@ -145,6 +147,7 @@ var AttributeOptionSchema = new Schema({
   defaultPrice: {
     type: Number,
     required: false,
+    default: 0,
   },
   isDelete: {
     type: Boolean,

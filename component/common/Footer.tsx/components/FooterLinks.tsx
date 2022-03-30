@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { SentimentVeryDissatisfied } from '@mui/icons-material';
 import {
   Grid,
   Link as LinkMui,
@@ -6,10 +6,9 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import Link from 'next/link';
-import LinkCustom from '../../Header/components/LinkCustom';
-import { SentimentVeryDissatisfied } from '@mui/icons-material';
+import React from 'react';
 import { withSnackbar } from '../../../../hooks/useAlert';
+import LinkCustom from '../../Header/components/LinkCustom';
 
 type Props = {
   title: string;
@@ -21,7 +20,7 @@ type Props = {
 
 const FooterColumnList = styled(Grid)(({ theme }) => ({}));
 const FooterColumnItem = styled(Grid)(({ theme }) => ({
-  '&:first-child': {
+  '&:first-of-type': {
     flexGrow: '1',
   },
   [theme.breakpoints.down('lg')]: {

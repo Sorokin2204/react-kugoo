@@ -60,6 +60,11 @@ type SpecExtraText {
   Spec: Spec!
 }
 
+input SpecProductFilter {
+  spec: String
+  specOpt: String
+}
+
 input SpecInput {
   _id: ID
    ${specFields}

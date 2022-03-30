@@ -40,7 +40,7 @@ const TableHeadCustom = styled(TableHead)(({ theme }) => ({
   '& .MuiTableCell-root ': {
     padding: `${theme.spacing(6)} ${theme.spacing(0)} !important`,
     textAlign: 'center',
-    '&:first-child': {
+    '&:first-of-type': {
       borderRadius: '5px 0 0 5px',
       textAlign: 'left',
     },
@@ -61,7 +61,7 @@ const TableCellCustom = styled(TableCell)(({ theme }) => ({
   },
 }));
 const TableBodyCustom = styled(TableBody)(({ theme }) => ({
-  '& .MuiTableRow-root:nth-child(odd)': {
+  '& .MuiTableRow-root:nth-of-type(odd)': {
     borderTop: '1px solid rgba(93, 108, 123, 0.2) !important',
   },
 
@@ -70,7 +70,7 @@ const TableBodyCustom = styled(TableBody)(({ theme }) => ({
   },
 
   '& .MuiTableCell-root ': {
-    '&:first-child': {
+    '&:first-of-type': {
       textAlign: 'left',
     },
     '&:last-child': {
@@ -146,7 +146,10 @@ const SpecSelect = styled(SelectCustom)(({ theme }) => ({}));
 const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
   const theme = useTheme();
   const { cartProducts, updateInCart, deleteInCart } = useAppConfig();
+
   const [groupAttributes, setGroupAttributes] = useState([]);
+  const [finishProcessData, setFinishProcessData] = useState(false);
+
   const [cartProductPrice, setCartProductPrice] = useState<
     Array<{ _id: string; totalPrice: number }>
   >([]);
@@ -165,19 +168,122 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
           (attr) => attr.attrOpt === attrOpt.node._id,
         );
         if (priceAttrOpt) {
-          totalPrice += attrOpt.node.defaultPrice;
+          totalPrice +=
+            attrOpt.customPrice !== null
+              ? attrOpt.customPrice
+              : attrOpt.node.defaultPrice;
         }
       });
       return totalPrice + product.price;
     }
   }
 
+  const updateAttrListCartProduct = (cartProduct, rootProduct) => {
+    const rootAttributes = groupBy(rootProduct?.AttributeOptions?.edges);
+    const newsAttributes =
+      rootAttributes.length !== 0
+        ? rootAttributes.map((rootAttr) => {
+            const findAttr = cartProduct.attributes.find(
+              (cartAttrOpt) => cartAttrOpt.attr === rootAttr._id,
+            );
+            if (findAttr) {
+              let findAttrOpt = rootAttr.attrOpts.find(
+                (rootAttrOpt) => rootAttrOpt._id === findAttr.attrOpt,
+              );
+              if (findAttrOpt) {
+                return findAttr;
+              } else {
+                return {
+                  attr: rootAttr._id,
+                  attrOpt: rootAttr.attrOpts[0]._id,
+                };
+              }
+            } else {
+              return {
+                attr: rootAttr._id,
+                attrOpt: rootAttr.attrOpts[0]._id,
+              };
+            }
+          })
+        : [];
+
+    const updAttributes =
+      cartProduct.attributes !== 0
+        ? newsAttributes.filter((cartAttrOpt) => {
+            const findAttr = rootAttributes.find(
+              (rootAttrOpt) => cartAttrOpt.attr === rootAttrOpt._id,
+            );
+            return findAttr;
+          })
+        : [];
+
+    const updatedProduct = {
+      ...cartProduct,
+      attributes: updAttributes,
+    };
+    updatedProduct.totalPrice = refreshTotalPrice(updatedProduct);
+
+    updateInCart(updatedProduct);
+  };
+
+  useEffect(() => {
+    if (data) {
+      const deleteCartIds: string[] = [];
+      cartProducts.map((cartProduct) => {
+        const product: Product = data?.getAllProductFromCart.find(
+          (prod) => prod._id === cartProduct.productId,
+        );
+        if (product.isDeleted === true) {
+          deleteCartIds.push(cartProduct._id);
+        } else {
+          updateAttrListCartProduct(cartProduct, product);
+        }
+      });
+
+      deleteInCart(deleteCartIds);
+      setFinishProcessData(true);
+    }
+  }, [data]);
+
+  const changeAttrOptCartProduct = (
+    cartProduct,
+    attrId: string,
+    attrOptId: string,
+  ) => {
+    const updatedProduct = {
+      ...cartProduct,
+      attributes: cartProduct.attributes.map((cartAttr) =>
+        cartAttr.attr === attrId
+          ? {
+              ...cartAttr,
+              attrOpt: attrOptId,
+            }
+          : cartAttr,
+      ),
+    };
+    updatedProduct.totalPrice = refreshTotalPrice(updatedProduct);
+
+    updateInCart(updatedProduct);
+  };
+
+  const handlerSelectAttribute = (
+    cartProduct,
+    attrId: string,
+    attrOptId: string,
+  ) => {
+    changeAttrOptCartProduct(cartProduct, attrId, attrOptId);
+  };
+
   useEffect(() => {
     getAllProductsFromCart({
       variables: {
         productsFromCart: cartProducts,
       },
-    }).catch((err) => console.log(JSON.stringify(err, null, 2)));
+    })
+      .then((dataProductCart) => {
+        // ata?.getAllProductFromCart;
+      })
+      .catch((err) => console.log(JSON.stringify(err, null, 2)));
   }, []);
 
   return (
@@ -208,33 +314,35 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                 sx={{ maxWidth: 10 }}></TableCellCustom>
             </TableRowCustom>
           </TableHeadCustom>
+
           <TableBodyCustom>
             {!loading &&
-              cartProducts &&
               data?.getAllProductFromCart &&
+              cartProducts &&
               cartProducts?.map((cartProduct) => {
                 const product: Product = data?.getAllProductFromCart.find(
                   (prod) => prod._id === cartProduct.productId,
                 );
+
                 return (
                   <>
-                    <TableRowCustom key={product._id} sx={{ width: '100%' }}>
+                    <TableRowCustom key={product?._id} sx={{ width: '100%' }}>
                       <TableCellCustom scope="row">
                         <CartItem>
                           <CartItemImage
                             src={
-                              product.images.length !== 0
-                                ? `/static/products/${product.images[0].name}`
+                              product?.images.length !== 0
+                                ? `/static/products/${product?.images[0].name}`
                                 : '/static/preview-product.jpg'
                             }
                           />
                           <CartItemContent>
                             <Link
-                              href={`/${product.Category.slug}/${product.slug}`}>
+                              href={`/${product?.Category.slug}/${product?.slug}`}>
                               <CartItemTitle
-                                href={`/${product.Category.slug}/${product.slug}`}
+                                href={`/${product?.Category.slug}/${product?.slug}`}
                                 variant="h4b">
-                                {product.name}
+                                {product?.name}
                               </CartItemTitle>
                             </Link>
 
@@ -306,10 +414,10 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                             );
                           }}
                           icon="/static/icons/delete.svg"
-                          iconW="15px"
-                          iconH="16px"
+                          iconw="15px"
+                          iconh="16px"
                           padding="0"
-                          iconColor={theme.palette.grey[600]}></ButtonIcon>
+                          iconcolor={theme.palette.grey[600]}></ButtonIcon>
                       </TableCellCustom>
                     </TableRowCustom>
                     <TableRowCustom>
@@ -333,10 +441,17 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                           <SpecList>
                             {groupBy(product?.AttributeOptions?.edges).map(
                               (attr, attrIndex) => {
-                                const defaultOption =
-                                  cartProduct.attributes.find(
-                                    (cartAttr) => cartAttr.attr === attr._id,
-                                  );
+                                let defaultAttr = cartProduct.attributes.find(
+                                  (cartAttr) => cartAttr.attr === attr._id,
+                                );
+
+                                let defaultAttrOpt = attr.attrOpts.find(
+                                  (rootAttrOpts) =>
+                                    rootAttrOpts._id === defaultAttr.attrOpt,
+                                );
+                                if (!defaultAttrOpt) {
+                                  defaultAttrOpt = attr.attrOpts[0];
+                                }
 
                                 return (
                                   <SpecItem key={attr._id}>
@@ -348,28 +463,14 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                                       }}
                                       typeSelect="rounded"
                                       beforeText={`${attr.name}:`}
-                                      defaultValue={defaultOption?.attrOpt}
+                                      defaultValue={defaultAttrOpt?._id}
                                       attrId={attr._id}
                                       onChange={(event) => {
-                                        let totalPrice;
-                                        const updatedProduct = {
-                                          ...cartProduct,
-                                          attributes:
-                                            cartProduct.attributes.map(
-                                              (cartAttr) =>
-                                                cartAttr.attr === attr._id
-                                                  ? {
-                                                      ...cartAttr,
-                                                      attrOpt:
-                                                        event.target.value,
-                                                    }
-                                                  : cartAttr,
-                                            ),
-                                        };
-                                        updatedProduct.totalPrice =
-                                          refreshTotalPrice(updatedProduct);
-
-                                        updateInCart(updatedProduct);
+                                        handlerSelectAttribute(
+                                          cartProduct,
+                                          attr._id,
+                                          event.target.value,
+                                        );
                                       }}>
                                       {attr.attrOpts.map((attrOpt, i) => (
                                         <MenuItem

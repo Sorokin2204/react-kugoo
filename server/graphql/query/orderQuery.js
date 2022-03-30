@@ -79,19 +79,6 @@ const orderQuery = {
                 as: 'Product',
                 pipeline: [
                   {
-                    $unwind: '$images',
-                  },
-                  {
-                    $match: {
-                      'images.order': 0,
-                    },
-                  },
-                  {
-                    $addFields: {
-                      images: ['$images'],
-                    },
-                  },
-                  {
                     $lookup: {
                       from: Category.collection.name,
                       localField: 'Category',

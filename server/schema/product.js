@@ -56,6 +56,7 @@ type ProductsFromCart {
   type Product {
     _id: ID!
    ${productFields}
+   isDeleted: Boolean
     viewsCounter: Int
     images: [ProductImage]
     Category: Category

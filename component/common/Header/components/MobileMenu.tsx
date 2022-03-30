@@ -61,7 +61,7 @@ const MobileMenu: React.FC<Props & DrawerProps> = (props) => {
             {topHeaderData.socialLinks.map((el, i) => (
               <ChatItem item key={i}>
                 <SocialLinkCustom
-                  sizeIcon={theme.spacing(8)}
+                  sizeicon={theme.spacing(8)}
                   href={el.url}
                   icon={el.iconUrl}
                 />

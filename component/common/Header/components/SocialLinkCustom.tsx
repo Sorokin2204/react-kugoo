@@ -5,11 +5,11 @@ import React from 'react';
 type Props = {
   href: string;
   icon: string;
-  sizeIcon: string;
+  sizeicon: string;
 };
 
-const SocialLinkStyle = styled(LinkMUI)<{ icon: string; sizeIcon: string }>(
-  ({ theme, icon, sizeIcon }) => ({
+const SocialLinkStyle = styled(LinkMUI)<{ icon: string; sizeicon: string }>(
+  ({ theme, icon, sizeicon }) => ({
     display: 'block',
     width: theme.spacing(6),
     height: theme.spacing(6),
@@ -17,20 +17,20 @@ const SocialLinkStyle = styled(LinkMUI)<{ icon: string; sizeIcon: string }>(
       display: 'block',
       content: `""`,
       background: `url(${icon}) no-repeat 0 0/ contain`,
-      width: sizeIcon,
-      height: sizeIcon,
+      width: sizeicon,
+      height: sizeicon,
     },
   }),
 );
 
-function SocialLinkCustom({ href, icon, sizeIcon }: Props) {
+function SocialLinkCustom({ href, icon, sizeicon }: Props) {
   return (
     <>
       <Link href={href}>
         <SocialLinkStyle
           href={href}
           icon={icon}
-          sizeIcon={sizeIcon}></SocialLinkStyle>
+          sizeicon={sizeicon}></SocialLinkStyle>
       </Link>
     </>
   );

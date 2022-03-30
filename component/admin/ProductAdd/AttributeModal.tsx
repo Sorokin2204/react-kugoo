@@ -34,8 +34,10 @@ import {
   GET_ALL_ATTRIBUTE,
   GET_ATTRIBUTE,
 } from '../../../graphql/query/attribute';
+import { withSnackbar } from '../../../hooks/useAlert';
 import translationToSlug from '../../../utils/translateToSlug';
 import { ModalBox } from '../ModalBox';
+import Overlay from '../Overlay';
 
 const AttributeOptionList = styled(Box)(({ theme }) => ({
   display: 'inline-flex',
@@ -96,7 +98,11 @@ type IFormType = {
   };
 };
 
-const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
+const AttributeModal: React.FC<Props> = ({
+  open,
+  handleClose,
+  snackbarShowMessage,
+}) => {
   const {
     handleSubmit,
     watch,
@@ -153,6 +159,8 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
   const [disabledSlugField, setDisabledSlugField] = useState(false);
   const [typingLabelField, setTypingLabelField] = useState('');
   const [typingLabelAttrField, setTypingLabelAttrField] = useState('');
+  const [visibleOverlay, setVisibleOverlay] = useState<boolean>(false);
+
   // EFFECTS
   useEffect(() => {
     const timer = translationToSlug(
@@ -223,16 +231,21 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
     if (checkFormChange()) {
       return;
     }
+    setVisibleOverlay(true);
     if (!activeAttribute && !activeAttributeOption) {
       newAttribute({
         variables: {
           attr: data.attribute,
           attrOpt: {
             ...data.attributeOption,
-            defaultPrice: parseInt(data.attributeOption.defaultPrice),
+            defaultPrice: data.attributeOption.defaultPrice
+              ? parseInt(data.attributeOption.defaultPrice)
+              : 0,
           },
         },
       }).then(() => {
+        setVisibleOverlay(false);
+        snackbarShowMessage(`Аттрибут добавлен успешно`);
         allAttributeRefetch();
         reset();
       });
@@ -243,12 +256,20 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
           attrId: activeAttribute._id,
           attrOpt: {
             ...data.attributeOption,
-            defaultPrice: parseInt(data.attributeOption.defaultPrice),
+            defaultPrice: data.attributeOption.defaultPrice
+              ? parseInt(data.attributeOption.defaultPrice)
+              : 0,
           },
         },
       }).then(() => {
+        setVisibleOverlay(false);
+        // setActiveAttribute(null);
+        // setActiveAttributeOption(null);
         allAttributeRefetch();
-        reset();
+        setValue('attributeOption.label', '');
+        setValue('attributeOption.slug', '');
+        setValue('attributeOption.subLabel', '');
+        setValue('attributeOption.defaultPrice', '');
       });
     }
 
@@ -258,11 +279,16 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
           attrOptId: activeAttributeOption._id,
           newAttrOpt: {
             ...data.attributeOption,
-            defaultPrice: parseInt(data.attributeOption.defaultPrice),
+            defaultPrice: data.attributeOption.defaultPrice
+              ? parseInt(data.attributeOption.defaultPrice)
+              : 0,
           },
         },
       }).then(() => {
+        setVisibleOverlay(false);
+        snackbarShowMessage(`Опция обновлена успешно`);
         allAttributeRefetch();
+        setActiveAttributeOption(null);
       });
     }
     checkFormChange();
@@ -389,9 +415,11 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
                         },
                       },
                     }).then(() => {
+                      snackbarShowMessage(`Аттрибут обнавлен успешно`);
                       allAttributeRefetch();
                       reset();
                       setActiveAttribute(null);
+                      setActiveAttributeOption(null);
                     });
                   }}
                   sx={{
@@ -428,11 +456,19 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
                       <Close />
                     </IconButton>
                     <IconButton
-                      sx={{ p: 0, ml: 1 }}
+                      sx={{ p: 0, ml: 1, color: 'error.main' }}
                       onClick={() => {
+                        setVisibleOverlay(true);
                         deleteAttributeOption({
                           variables: { attrOptId: activeAttributeOption._id },
                         }).then(() => {
+                          setVisibleOverlay(false);
+                          snackbarShowMessage(
+                            `Опция удалена успешно`,
+                            'error',
+                            2000,
+                            <Delete />,
+                          );
                           setActiveAttributeOption(null);
                           allAttributeRefetch();
                         });
@@ -690,10 +726,11 @@ const AttributeModal: React.FC<Props> = ({ open, handleClose }) => {
               </Table>
             </TableContainer>
           )}
+          {visibleOverlay && <Overlay />}
         </ModalBox>
       </Modal>
     </>
   );
 };
 
-export default AttributeModal;
+export default withSnackbar(AttributeModal);

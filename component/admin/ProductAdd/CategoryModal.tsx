@@ -35,10 +35,12 @@ import {
   GET_CATEGORY,
 } from '../../../graphql/query/category';
 import { GET_ALL_SPEC } from '../../../graphql/query/spec';
+import { withSnackbar } from '../../../hooks/useAlert';
 import useModal from '../../../hooks/useModal';
 import translationToSlug from '../../../utils/translateToSlug';
 import AlertDelete from '../AlertDelete';
 import { ModalBox } from '../ModalBox';
+import Overlay from '../Overlay';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -54,7 +56,11 @@ type IFormType = {
   Specs: string[];
 };
 
-const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
+const CategoryModal: React.FC<Props> = ({
+  open,
+  handleClose,
+  snackbarShowMessage,
+}) => {
   // MUTATIONS
   const [newCategory] = useMutation(CREATE_CATEGORY);
   const [deleteCategory] = useMutation(DELETE_CATEGORY);
@@ -99,6 +105,7 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
   const [autocompleteSpecDefault, setAutocompleteSpecDefault] = useState([]);
   const [typingNameCat, setTypingNameCat] = useState('');
   const [disabledSlugCat, setDisabledSlugCat] = useState(false);
+  const [visibleOverlay, setVisibleOverlay] = useState<boolean>(false);
   const {
     handleSubmit,
     control,
@@ -195,6 +202,7 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
   };
   const onSubmit = (data: IFormType) => {
     if (activeCategory) {
+      setVisibleOverlay(true);
       let diffDeletedSpecs = _.differenceWith(
         autocompleteSpecDefault,
         data.Specs,
@@ -224,7 +232,14 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
           deleteIdAttrs: diffDeletedAttrs.map((delAttr) => delAttr._id),
           newIdAttrs: diffAddedAttrs.map((addedAttr) => addedAttr._id),
         },
-      }).catch((err) => console.log(JSON.stringify(err, null, 2)));
+      })
+        .then(() => {
+          setVisibleOverlay(false);
+          snackbarShowMessage(`Категория обновлена успешно`),
+            setActiveCategory(null);
+          allCategoryRefetch();
+        })
+        .catch((err) => console.log(JSON.stringify(err, null, 2)));
     } else {
       newCategory({
         variables: {
@@ -234,21 +249,31 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
         },
       })
         .then(() => {
+          setVisibleOverlay(false);
+          snackbarShowMessage(`Категория добавлена успешно`);
+          reset();
           allCategoryRefetch();
-          setActiveCategory(null);
         })
         .catch((err) => console.log(err.message));
     }
   };
 
   const handleDeleteCategoryClick = (e) => {
+    setVisibleOverlay(true);
     deleteCategory({
       variables: {
         catId: activeCategory._id,
       },
     })
       .then(() => {
-        allCategoryRefetch();
+        setVisibleOverlay(false);
+        snackbarShowMessage(
+          `Категория удалена успешно`,
+          'error',
+          2000,
+          <Delete />,
+        ),
+          allCategoryRefetch();
         setActiveCategory(null);
         reset();
       })
@@ -543,10 +568,11 @@ const CategoryModal: React.FC<Props> = ({ open, handleClose }) => {
               handleDelete={handleDeleteCategoryClick}
             />
           ) : null}
+          {visibleOverlay && <Overlay />}
         </ModalBox>
       </Modal>
     </>
   );
 };
 
-export default CategoryModal;
+export default withSnackbar(CategoryModal);

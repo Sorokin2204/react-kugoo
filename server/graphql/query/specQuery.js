@@ -4,15 +4,22 @@ const {
   Spec,
   SpecOption,
   SpecExtraText,
+  Category_Spec,
 } = require('../../model');
 
 const specQuery = {
   getAllSpec: async () => {
     return await Spec.find();
   },
-  getAllSpecWithOptions: async () => {
+  getAllSpecWithOptions: async (parent, { categorySlug }) => {
     try {
+      const cat = await Category.find({ slug: categorySlug });
+      const catSpecs = await Category_Spec.find({ Category: cat[0]._id });
+
       const specsOptions = await Spec.aggregate([
+        {
+          $match: { _id: { $in: catSpecs.map((spec) => spec.Spec) } },
+        },
         {
           $lookup: {
             from: SpecOption.collection.name,

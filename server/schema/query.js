@@ -8,17 +8,17 @@ const querySchema = `
 searchProducts(searchText: String): [Product]
     getProduct(productSlug: String): Product
     getAllProductFromCart(productsFromCart: [ProductsFromCartInput]): [Product]
-    getAllProductCard(category: String, filter: [String], sort: String, offset: Int, limit: Int): ProductPage
+    getAllProductCard(category: String, filter: [SpecProductFilter], sort: String, offset: Int, limit: Int): ProductPage
     getAllProduct: [Product]
 ### ATTRIBUTE
-getDefaultProductAttributes(productId: String): [AttributeOption]
+getDefaultProductAttributes(productId: String): [Product_AttributeOption_Edge]
     getAttribute(attrId: String, attrOptId: String): Attribute
     getAllAttribute: [Attribute]
-    getAllAttributeInCategory(categoryId: String): Category
+    getAllAttributeInCategory(categorySlug: String): Category
     ### SPEC
     getAllSpec: [Spec]
     getSpec(specId: String): Spec
-   getAllSpecWithOptions: [Spec]
+   getAllSpecWithOptions(categorySlug: String): [Spec]
  ### ORDER
  getAllOrders: [Order]
  getOrder(orderId: String): Order

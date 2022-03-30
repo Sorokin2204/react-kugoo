@@ -25,7 +25,7 @@ const BreadcrumbsCustom: React.FC<Props> = ({ children, data }) => {
     <>
       <BreadcrumbsStyle aria-label="breadcrumb" sx={{ py: 10 }}>
         {data.map((link, index) => (
-          <Link href={link.url}>
+          <Link href={link.url} key={link.url}>
             <BreadLink href={link.url}>
               {index === 0 && (
                 <img

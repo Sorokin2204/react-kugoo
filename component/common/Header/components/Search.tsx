@@ -3,6 +3,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import {
   Box,
   ButtonBase,
+  ClickAwayListener,
   InputBase,
   MenuItem,
   Select,
@@ -34,6 +35,9 @@ const Search: React.FC<Props> = ({}) => {
   const handleClose = () => {
     setOpenSearch(false);
   };
+  const handleOpen = () => {
+    if (searchText) setOpenSearch(true);
+  };
 
   const fetchSearchProduct = () => {
     if (searchText) {
@@ -62,55 +66,62 @@ const Search: React.FC<Props> = ({}) => {
   const dataSearch = loading ? previousData : data;
 
   return (
-    <SearchWrapper>
-      <SearchBox>
-        <Box
-          sx={{
-            display: 'flex',
-            padding: theme.spacing(1),
-            flexGrow: '1',
-            borderRadius: '5px 0px 0px 5px',
-            border: `2px solid ${theme.palette.primary.main}`,
-            borderRight: 'none',
-            [theme.breakpoints.down('md')]: {
-              border: `2px solid transparent`,
-              backgroundColor: theme.palette.grey[100],
-            },
-          }}>
-          <SearchSelect
-            sx={{ fontSize: theme.typography.t3 }}
-            value={age}
-            onChange={handleChange}
-            displayEmpty>
-            <MenuItem value={''}>Везде</MenuItem>
-            <MenuItem value={'Minsk'}>Минск</MenuItem>
-            <MenuItem value={'Grodno'}>Гродно</MenuItem>
-            <MenuItem value={'Brest'}>Брест</MenuItem>
-          </SearchSelect>
-          <SearchInput
-            value={searchText}
-            onChange={(e) => {
-              setSearchText(e.target.value);
-            }}
-            sx={{ fontSize: theme.typography.t3 }}
-            placeholder="Искать самокат KUGOO"
-          />
-        </Box>
-        <SearchButton>
-          <SearchIcon
-            sx={() => ({
-              fontSize: 20,
+    <ClickAwayListener onClickAway={() => handleClose()}>
+      <SearchWrapper>
+        <SearchBox>
+          <Box
+            sx={{
+              display: 'flex',
+              padding: theme.spacing(1),
+              flexGrow: '1',
+              borderRadius: '5px 0px 0px 5px',
+              border: `2px solid ${theme.palette.primary.main}`,
+              borderRight: 'none',
               [theme.breakpoints.down('md')]: {
-                fontSize: 17,
+                border: `2px solid transparent`,
+                backgroundColor: theme.palette.grey[100],
               },
-            })}
+            }}>
+            <SearchSelect
+              sx={{ fontSize: theme.typography.t3 }}
+              value={age}
+              onChange={handleChange}
+              displayEmpty>
+              <MenuItem value={''}>Везде</MenuItem>
+              <MenuItem value={'Minsk'}>Минск</MenuItem>
+              <MenuItem value={'Grodno'}>Гродно</MenuItem>
+              <MenuItem value={'Brest'}>Брест</MenuItem>
+            </SearchSelect>
+            <SearchInput
+              value={searchText}
+              onClick={() => handleOpen()}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+              }}
+              sx={{ fontSize: theme.typography.t3 }}
+              placeholder="Искать самокат KUGOO"
+            />
+          </Box>
+          <SearchButton>
+            <SearchIcon
+              sx={() => ({
+                fontSize: 20,
+                [theme.breakpoints.down('md')]: {
+                  fontSize: 17,
+                },
+              })}
+            />
+          </SearchButton>
+        </SearchBox>
+        {openSearch && (
+          <SearchPopover
+            data={dataSearch}
+            clearSearch={clearSearch}
+            handleClose={handleClose}
           />
-        </SearchButton>
-      </SearchBox>
-      {openSearch && (
-        <SearchPopover data={dataSearch} clearSearch={clearSearch} />
-      )}
-    </SearchWrapper>
+        )}
+      </SearchWrapper>
+    </ClickAwayListener>
   );
 };
 

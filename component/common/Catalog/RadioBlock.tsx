@@ -8,7 +8,8 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { AttributeOption } from '../../../types/graphql';
 import { currencyFormat } from '../../../utils/currencyFormat';
 
 export type SpecType = {
@@ -94,7 +95,7 @@ const RadioList = styled(RadioGroup)<{
   withContent: boolean;
 }>(({ theme, withContent }) => ({
   display: 'grid',
-  gridTemplateColumns: 'repeat(2,minmax(auto,228px))',
+  gridTemplateColumns: 'repeat(2,minmax(0,1fr))',
   gridAutoRows: '1fr',
 
   [theme.breakpoints.down('smd')]: {
@@ -172,6 +173,28 @@ const RadioBlock: React.FC<Props> = ({
     setActiveFilter(value);
     onChange(value);
   };
+  useEffect(() => {
+    setActiveFilter(defaultValue);
+    onChange(radioList[0]);
+  }, [radioList]);
+
+  // useEffect(() => {
+  //   onChange(radioList[0]);
+  // }, []);
+
+  const getSubtitle = (attrOpt: AttributeOption) => {
+    return attrOpt.customSublabel
+      ? attrOpt.customSublabel
+      : attrOpt.subLabel
+      ? attrOpt.subLabel
+      : attrOpt.customPrice !== null
+      ? attrOpt.customPrice === 0
+        ? 'Бесплатно'
+        : currencyFormat(attrOpt.customPrice)
+      : attrOpt.defaultPrice === 0
+      ? 'Бесплатно'
+      : currencyFormat(attrOpt.defaultPrice);
+  };
 
   return (
     <>
@@ -187,35 +210,31 @@ const RadioBlock: React.FC<Props> = ({
             },
           }}>
           <RadioList withContent={!withContent}>
-            {radioList.map((el, i) => (
-              <RadioButton
-                onChange={() => handleChangeRadio(el)}
-                withContent={!withContent}
-                active={activeFilter?.slug === el.slug}
-                key={i}
-                value={el}
-                control={<RadioCustom withContent={!withContent} />}
-                small={withSubtitle}
-                label={
-                  <>
-                    <RadioContent>
-                      <RadioName withContent={!withContent}>
-                        {el.label}
-                      </RadioName>
-                      <RadioSubtitle>
-                        {el.subLabel
-                          ? el.subLabel
-                          : el.defaultPrice === 0
-                          ? 'Бесплатно'
-                          : currencyFormat(el.defaultPrice)}
-                      </RadioSubtitle>
+            {radioList.map((el, i) => {
+              return (
+                <RadioButton
+                  onChange={() => handleChangeRadio(el)}
+                  withContent={!withContent}
+                  active={activeFilter?.slug === el.slug}
+                  key={i}
+                  value={el}
+                  control={<RadioCustom withContent={!withContent} />}
+                  small={withSubtitle}
+                  label={
+                    <>
+                      <RadioContent>
+                        <RadioName withContent={!withContent}>
+                          {el.label}
+                        </RadioName>
+                        <RadioSubtitle>{getSubtitle(el)}</RadioSubtitle>
 
-                      {el.content && <RadioBody>{el.content}</RadioBody>}
-                    </RadioContent>
-                  </>
-                }
-              />
-            ))}
+                        {el.content && <RadioBody>{el.content}</RadioBody>}
+                      </RadioContent>
+                    </>
+                  }
+                />
+              );
+            })}
           </RadioList>
         </FormControl>
       </RadioBox>

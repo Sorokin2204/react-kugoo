@@ -7,27 +7,69 @@ const {
 
 const attributeQuery = {
   getDefaultProductAttributes: async (parent, { productId }) => {
-    const productAttrs = await Product_AttributeOption.find({
-      Product: productId,
-    }).select('AttributeOption  -_id');
-
-    const defaultAttrs = await AttributeOption.aggregate([
+    // const productAttrs = await Product_AttributeOption.find({
+    //   Product: productId,
+    // }).select('AttributeOption  -_id');
+    const defaultAttrs = await Product_AttributeOption.aggregate([
+      { $match: { Product: ObjectId(productId) } },
       {
-        $match: {
-          _id: { $in: productAttrs.map((prod) => prod.AttributeOption) },
+        $lookup: {
+          from: AttributeOption.collection.name,
+          localField: 'AttributeOption',
+          foreignField: '_id',
+          pipeline: [
+            {
+              $match: {
+                isDelete: { $ne: true },
+              },
+            },
+          ],
+          as: 'AttributeOption',
         },
       },
-
+      { $match: { AttributeOption: { $ne: [] } } },
+      { $addFields: { AttributeOption: { $first: '$AttributeOption' } } },
       {
         $group: {
-          _id: '$Attribute',
-          defaultAttrOpt: { $first: '$$ROOT' },
+          _id: '$AttributeOption.Attribute',
+          AttributeOption: { $first: '$AttributeOption' },
+          customPrice: { $first: '$customPrice' },
+          customSublabel: { $first: '$customSublabel' },
         },
       },
     ]);
+
+    // const defaultAttrs = await AttributeOption.aggregate([
+    //   {
+    //     $match: {
+    //       _id: { $in: productAttrs.map((prod) => prod.AttributeOption) },
+    //     },
+    //   },
+
+    //   {
+    //     $group: {
+    //       _id: '$Attribute',
+    //       defaultAttrOpt: { $first: '$$ROOT' },
+    //     },
+    //   },
+    // ]);
+    // console.log(
+    //   defaultAttrs.map((attrOpt) => ({
+    //     customPrice: attrOpt?.customPrice,
+    //     customSublabel: attrOpt?.customSublabel,
+    //     node: {
+    //       ...attrOpt.AttributeOption,
+    //       Attribute: { _id: attrOpt.AttributeOption.Attribute },
+    //     },
+    //   })),
+    // );
     return defaultAttrs.map((attrOpt) => ({
-      ...attrOpt.defaultAttrOpt,
-      Attribute: { _id: attrOpt.defaultAttrOpt.Attribute },
+      customPrice: attrOpt?.customPrice,
+      customSublabel: attrOpt?.customSublabel,
+      node: {
+        ...attrOpt.AttributeOption,
+        Attribute: { _id: attrOpt.AttributeOption.Attribute },
+      },
     }));
   },
   getAllAttribute: async () => {
@@ -62,7 +104,13 @@ const attributeQuery = {
               from: AttributeOption.collection.name,
               localField: '_id',
               foreignField: 'Attribute',
-              pipeline: [],
+              pipeline: [
+                {
+                  $match: {
+                    isDelete: { $ne: true },
+                  },
+                },
+              ],
               as: 'AttributeOptions',
             },
           },

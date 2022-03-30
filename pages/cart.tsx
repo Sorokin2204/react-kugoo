@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
 import { Box, Container, styled, Typography, useTheme } from '@mui/material';
-import BreadcrumbsCustom from '../component/common/BreadcrumbsCustom';
-import CartProducts from '../component/common/Cart/CartProducts';
-import CartClientInfo from '../component/common/Cart/CartClientInfo';
-import CartSidebar from '../component/common/Cart/CartSidebar';
-import CartDeliveryInfo from '../component/common/Cart/CartDeliveryInfo';
-import { useForm } from 'react-hook-form';
-import useAppConfig from '../hooks/useAppConfig';
 import _ from 'lodash';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import BreadcrumbsCustom from '../component/common/BreadcrumbsCustom';
+import CartClientInfo from '../component/common/Cart/CartClientInfo';
+import CartDeliveryInfo from '../component/common/Cart/CartDeliveryInfo';
+import CartProducts from '../component/common/Cart/CartProducts';
+import CartSidebar from '../component/common/Cart/CartSidebar';
+import useAppConfig from '../hooks/useAppConfig';
 
 type Props = {};
 
@@ -69,9 +69,9 @@ const CartPage: React.FC<Props> = ({}) => {
     },
   });
 
-  if (cartProducts.length === 0) {
-    return (
-      <>
+  return (
+    <Container>
+      {cartProducts.length === 0 ? (
         <Typography
           variant="h2"
           sx={(theme) => ({
@@ -86,57 +86,54 @@ const CartPage: React.FC<Props> = ({}) => {
           })}>
           Корзина пуста
         </Typography>
-      </>
-    );
-  }
-  return (
-    <>
-      <Container>
-        <BreadcrumbsCustom
-          data={[
-            { url: '/', name: 'Главная' },
-            { url: '/cart', name: 'Корзина' },
-          ]}
-        />
-        <Typography
-          variant="h1"
-          sx={{ textTransform: 'uppercase', mb: 2.5, mt: 25 }}>
-          Моя корзина
-        </Typography>
-        <Typography
-          variant="t3"
-          sx={{ display: 'block', color: theme.palette.grey[600], mb: 20 }}>
-          {`${_.sumBy(cartProducts, 'pieces')} товаров`}
-        </Typography>
-        <CartGrid sx={{ mb: 50 }}>
-          <CartContent>
-            {!stepCheckout ? (
-              <CartProducts />
-            ) : (
-              <form autoComplete="off">
-                <CartStep>
-                  <CartStepTitle variant="h4b">
-                    <span>Шаг 1.</span> Укажите адрес доставки
-                  </CartStepTitle>
-                  <CartDeliveryInfo form={formCheckout} />
-                </CartStep>
-                <CartStep>
-                  <CartStepTitle variant="h4b">
-                    <span>Шаг 2.</span> Укажите данные получателя
-                  </CartStepTitle>
-                  <CartClientInfo form={formCheckout} />
-                </CartStep>
-              </form>
-            )}
-          </CartContent>
-          <CartSidebar
-            form={formCheckout}
-            setStepCheckout={setStepCheckout}
-            stepCheckout={stepCheckout}
+      ) : (
+        <>
+          <BreadcrumbsCustom
+            data={[
+              { url: '/', name: 'Главная' },
+              { url: '/cart', name: 'Корзина' },
+            ]}
           />
-        </CartGrid>
-      </Container>
-    </>
+          <Typography
+            variant="h1"
+            sx={{ textTransform: 'uppercase', mb: 2.5, mt: 25 }}>
+            Моя корзина
+          </Typography>
+          <Typography
+            variant="t3"
+            sx={{ display: 'block', color: theme.palette.grey[600], mb: 20 }}>
+            {`${_.sumBy(cartProducts, 'pieces')} товаров`}
+          </Typography>
+          <CartGrid sx={{ mb: 50 }}>
+            <CartContent>
+              {!stepCheckout ? (
+                <CartProducts />
+              ) : (
+                <form autoComplete="off">
+                  <CartStep>
+                    <CartStepTitle variant="h4b">
+                      <span>Шаг 1.</span> Укажите адрес доставки
+                    </CartStepTitle>
+                    <CartDeliveryInfo form={formCheckout} />
+                  </CartStep>
+                  <CartStep>
+                    <CartStepTitle variant="h4b">
+                      <span>Шаг 2.</span> Укажите данные получателя
+                    </CartStepTitle>
+                    <CartClientInfo form={formCheckout} />
+                  </CartStep>
+                </form>
+              )}
+            </CartContent>
+            <CartSidebar
+              form={formCheckout}
+              setStepCheckout={setStepCheckout}
+              stepCheckout={stepCheckout}
+            />
+          </CartGrid>
+        </>
+      )}
+    </Container>
   );
 };
 

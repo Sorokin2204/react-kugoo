@@ -36,15 +36,13 @@ function PhonePopover(props: PopperProps) {
     <PopperCustom {...props}>
       <PhoneList container>
         {phoneData.map((el, i) => (
-          <>
-            <PhoneItem item key={i}>
-              <PhoneTitle variant="t4">{el.title}</PhoneTitle>
-              <PhoneNumber href={`tel:${el.number.replace(/\D/g, '')}`}>
-                {el.number}
-              </PhoneNumber>
-              <PhoneTime variant="t4">{el.workTime}</PhoneTime>
-            </PhoneItem>
-          </>
+          <PhoneItem item key={el.title}>
+            <PhoneTitle variant="t4">{el.title}</PhoneTitle>
+            <PhoneNumber href={`tel:${el.number.replace(/\D/g, '')}`}>
+              {el.number}
+            </PhoneNumber>
+            <PhoneTime variant="t4">{el.workTime}</PhoneTime>
+          </PhoneItem>
         ))}
       </PhoneList>
     </PopperCustom>

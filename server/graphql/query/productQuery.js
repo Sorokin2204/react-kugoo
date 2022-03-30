@@ -16,6 +16,7 @@ const {
 const { showSpec } = require('../../scrapper/AddScrapedProduct');
 const browserObject = require('../../scrapper/browser');
 const scraperController = require('../../scrapper/pageController');
+const _ = require('lodash');
 
 const productQuery = {
   searchProducts: async (parent, { searchText }) => {
@@ -33,12 +34,17 @@ const productQuery = {
           },
         },
       ],
-      [{ $limit: 5 }],
+      [],
+      // [{ $limit: 5 }],
       [],
     );
 
     const allProductDto = allProduct[0].data.map((product) => ({
       ...product,
+      images:
+        product.images.length !== 0
+          ? product.images.filter((img) => img.order === 0)
+          : [],
       Category: product.Category[0],
       SpecOptions: {
         edges: product.SpecOptions.map((specOpt) => ({
@@ -87,6 +93,7 @@ const productQuery = {
           },
         },
       },
+
       {
         $lookup: {
           from: Category.collection.name,
@@ -110,6 +117,9 @@ const productQuery = {
                 as: 'AttributeOption',
                 pipeline: [
                   {
+                    $match: { isDelete: { $ne: true } },
+                  },
+                  {
                     $lookup: {
                       from: Attribute.collection.name,
                       localField: 'Attribute',
@@ -124,8 +134,13 @@ const productQuery = {
         },
       },
     ]).catch((err) => console.log(err));
+
     const allProductDto = productsInCart.map((product) => ({
       ...product,
+      images:
+        product.images.length !== 0
+          ? product.images.filter((img) => img.order === 0)
+          : [],
       Category: product.Category[0],
       AttributeOptions: {
         edges: product.AttributeOptions.map((attrOpt) => ({
@@ -163,20 +178,23 @@ const productQuery = {
       default:
         break;
     }
-
     const categoryFind = await Category.findOne({ slug: category }).select(
       'name',
     );
     const allProduct = await getProductsCard(
-      [{ $match: { Category: categoryFind._id } }],
+      [{ $match: { Category: ObjectId(categoryFind._id) } }],
       [...aggregateAfter, { $skip: offset }, { $limit: limit }],
-      filter,
+      Object.values(_.groupBy(filter, 'spec')),
     );
-    const count = allProduct[0].count[0].count;
+    const count = parseInt(allProduct[0]?.count[0]?.count);
     const hasNextPage = count > offset + limit;
     const allProductDto = allProduct[0].data.map((product) => ({
       ...product,
       Category: { _id: product.Category },
+      images:
+        product.images.length !== 0
+          ? product.images.filter((img) => img.order === 0)
+          : [],
       SpecOptions: {
         edges: product.SpecOptions.map((specOpt) => ({
           node: {
@@ -321,72 +339,88 @@ const productQuery = {
 };
 
 const getProductsCard = async (aggregateBefore, aggregateAfter, filter) => {
-  const specInCard = await Spec.find({
-    orderInCard: { $exists: true },
-  }).select('_id');
-  specInCardIds = specInCard.map((spec) => spec._id);
-  let filterIds = filter.map((filt) => ObjectId(filt));
-  let aggregateOptions = [];
-  let productOption = [
-    { $match: { isDeleted: false } },
-    {
-      $sort: {
-        'images.order': 1,
+  try {
+    const specInCard = await Spec.find({
+      orderInCard: { $exists: true },
+    }).select('_id');
+    specInCardIds = specInCard.map((spec) => spec._id);
+    let filterIds = [];
+    if (filter.length !== 0) {
+      filter.map((filterSpec) => {
+        filterSpec.map((filterSpecOpt) =>
+          filterIds.push(ObjectId(filterSpecOpt.specOpt)),
+        );
+      });
+    }
+
+    let aggregateOptions = [];
+    let productOption = [
+      { $match: { isDeleted: false } },
+
+      {
+        $lookup: {
+          from: Product_SpecOption.collection.name,
+          localField: '_id',
+          foreignField: 'Product',
+          as: 'SpecOptions',
+        },
       },
-    },
-    {
-      $lookup: {
-        from: Product_SpecOption.collection.name,
-        localField: '_id',
-        foreignField: 'Product',
-        as: 'SpecOptions',
-        pipeline: [
-          ...(filterIds.length != 0
-            ? [
-                {
-                  $match: { SpecOption: { $in: filterIds } },
-                },
-              ]
-            : []),
-          { $project: { Product: 0 } },
-        ],
-      },
-    },
-    { $match: { SpecOptions: { $not: { $size: 0 } } } },
-    {
-      $facet: {
-        count: [{ $count: 'count' }],
-        data: [
-          {
-            $lookup: {
-              from: Product_SpecOption.collection.name,
-              localField: '_id',
-              foreignField: 'Product',
-              as: 'SpecOptions',
-              pipeline: [
-                { $project: { Product: 0 } },
-                {
-                  $lookup: {
-                    from: SpecOption.collection.name,
-                    localField: 'SpecOption',
-                    foreignField: '_id',
-                    as: 'SpecOption',
-                    pipeline: [],
-                  },
-                },
-                { $unwind: '$SpecOption' },
-                { $unwind: '$SpecOption.Spec' },
-                { $match: { 'SpecOption.Spec': { $in: specInCardIds } } },
-              ],
-            },
+      { $addFields: { SpecOptions: '$SpecOptions.SpecOption' } },
+      { $addFields: { filter: [] } },
+      ...filter.map((filterItem) => ({
+        $addFields: {
+          filter: {
+            $concatArrays: [
+              '$filter',
+              {
+                $setIntersection: [
+                  filterItem.map((specItem) => ObjectId(specItem.specOpt)),
+                  '$SpecOptions',
+                ],
+              },
+            ],
           },
-          ...(aggregateAfter || []),
-        ],
+        },
+      })),
+      { $match: { filter: { $size: filter.length } } },
+      {
+        $facet: {
+          count: [{ $count: 'count' }],
+          data: [
+            {
+              $lookup: {
+                from: Product_SpecOption.collection.name,
+                localField: '_id',
+                foreignField: 'Product',
+                as: 'SpecOptions',
+                pipeline: [
+                  { $project: { Product: 0 } },
+                  {
+                    $lookup: {
+                      from: SpecOption.collection.name,
+                      localField: 'SpecOption',
+                      foreignField: '_id',
+                      as: 'SpecOption',
+                      pipeline: [],
+                    },
+                  },
+                  { $unwind: '$SpecOption' },
+                  { $unwind: '$SpecOption.Spec' },
+                  { $match: { 'SpecOption.Spec': { $in: specInCardIds } } },
+                ],
+              },
+            },
+            ...(aggregateAfter || []),
+          ],
+        },
       },
-    },
-  ];
-  aggregateOptions = [...(aggregateBefore || []), ...productOption];
-  return await Product.aggregate(aggregateOptions);
+    ];
+
+    aggregateOptions = [...(aggregateBefore || []), ...productOption];
+    return await Product.aggregate(aggregateOptions);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = { productQuery };

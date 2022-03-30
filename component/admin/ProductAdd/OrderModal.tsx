@@ -93,7 +93,9 @@ const OrderModal: React.FC<Props> = ({ open, handleClose, orderId }) => {
         variables: {
           orderId: orderId,
         },
-      }).catch((err) => console.log(JSON.stringify(err, null, 2)));
+      })
+        .then((dt) => console.log('order data ', dt))
+        .catch((err) => console.log(JSON.stringify(err, null, 2)));
     }
   }, [orderId]);
 
@@ -164,14 +166,18 @@ const OrderModal: React.FC<Props> = ({ open, handleClose, orderId }) => {
                       <TableCell component="th" scope="row">
                         <OrderProduct>
                           <OrderProductImg
-                            src={`/static/products/${order.Product.images[0].name}`}
+                            src={
+                              order?.Product?.images?.length !== 0
+                                ? `/static/products/${order?.Product?.images[0]?.name}`
+                                : '/static/preview-product.jpg'
+                            }
                           />
                           <OrderProductTitle>
                             {order.Product.name}
                           </OrderProductTitle>
                           <OrderProductAttrBox>
                             {order.AttributeOptions.map((attrOpt) => (
-                              <OrderProductAttr>
+                              <OrderProductAttr key={attrOpt.label}>
                                 {attrOpt.label}
                               </OrderProductAttr>
                             ))}

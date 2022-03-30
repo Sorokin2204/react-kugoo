@@ -13,6 +13,7 @@ const {
 } = require('../../model');
 const fs = require('fs');
 const path = require('path');
+const { UserInputError } = require('apollo-server-core');
 const appDir = path.dirname(require.main.filename);
 
 const createProductSpecs = (specs, productId) => {
@@ -130,15 +131,18 @@ const deleteImages = async (product) => {
   let oldImages = await Product.findOne({
     _id: product._id,
   }).select('images');
-  let deleteImages = oldImages.images.filter(
-    (imgOld) =>
-      product.images.findIndex(
-        (imgNew) => imgNew._id === imgOld._id.toString(),
-      ) == -1,
-  );
-  if (deleteImages.lenght !== 0) {
-    for (deleteImg of deleteImages) {
-      await deleteFile(deleteImg.name);
+  let deleteImages = [];
+  if (product.images.length !== 0) {
+    deleteImages = oldImages.images.filter(
+      (imgOld) =>
+        product.images.findIndex(
+          (imgNew) => imgNew._id === imgOld._id.toString(),
+        ) == -1,
+    );
+    if (deleteImages.length !== 0) {
+      for (deleteImg of deleteImages) {
+        await deleteFile(deleteImg.name);
+      }
     }
   }
 };
@@ -146,21 +150,24 @@ const deleteImages = async (product) => {
 const addImages = async (images) => {
   let newImages = [];
   let index = 0;
-  for (img of images) {
-    if (img.file) {
-      const fileName = await saveFile(img);
-      newImages.push({
-        name: fileName,
-        order: index,
-      });
-    } else {
-      newImages.push({
-        name: img.name,
-        order: index,
-      });
+  if (images.length !== 0) {
+    for (img of images) {
+      if (img.file) {
+        const fileName = await saveFile(img);
+        newImages.push({
+          name: fileName,
+          order: index,
+        });
+      } else {
+        newImages.push({
+          name: img.name,
+          order: index,
+        });
+      }
+      index++;
     }
-    index++;
   }
+
   return newImages;
 };
 
@@ -179,22 +186,62 @@ const createImages = async (images) => {
 const productMutation = {
   createProduct: async (parent, { product }) => {
     try {
-      const { attributes, specs, category, images, ...productData } = product;
+      const existProductSlug = await Product.find({ slug: product.slug });
+      const existProductName = await Product.find({ name: product.name });
+      if (existProductName.length !== 0) {
+        if (existProductName[0]._id != product._id) {
+          throw new UserInputError('Invalid argument value', {
+            argumentName: 'name',
+          });
+        }
+      }
 
+      if (existProductSlug.length !== 0) {
+        if (existProductSlug[0]._id != product._id) {
+          throw new UserInputError('Invalid argument value', {
+            argumentName: 'slug',
+          });
+        }
+      }
+
+      const { attributes, specs, category, images, ...productData } = product;
       const newImages = await createImages(images);
       const newProduct = await new Product({
         ...productData,
         images: newImages,
         Category: category,
       }).save();
-      createProductSpecs(specs, newProduct._id);
-      createProductAttributes(attributes, newProduct._id);
+      if (specs?.length !== 0) {
+        createProductSpecs(specs, newProduct._id);
+      }
+      if (attributes?.length !== 0) {
+        createProductAttributes(attributes, newProduct._id);
+      }
     } catch (error) {
       console.log(error);
     }
   },
   updateProduct: async (parent, { product }) => {
+    const existProductSlug = await Product.find({ slug: product.slug });
+    const existProductName = await Product.find({ name: product.name });
+    if (existProductName.length !== 0) {
+      if (existProductName[0]._id != product._id) {
+        throw new UserInputError('Invalid argument value', {
+          argumentName: 'name',
+        });
+      }
+    }
+
+    if (existProductSlug.length !== 0) {
+      if (existProductSlug[0]._id != product._id) {
+        throw new UserInputError('Invalid argument value', {
+          argumentName: 'slug',
+        });
+      }
+    }
+
     let { attributes, specs, ...productRest } = product;
+
     const { category, ...productRestNoCat } = productRest;
     await updateSpecOptions(product);
     await updateAttributeOptions(product);

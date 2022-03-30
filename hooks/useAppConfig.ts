@@ -1,12 +1,11 @@
-import { AppConfig } from './../graphql/AppConfigType';
 import { useQuery } from '@apollo/client';
+import _ from 'lodash';
 import appConfigVar from '../graphql/appConfig';
 import { ProductInCartType } from '../graphql/AppConfigType';
 import GET_APP_CONFIG from '../graphql/query/appConfig';
 import saveAppConfig from '../graphql/saveAppConfig';
-import _ from 'lodash';
-import { createObjectId, mongoObjectId } from '../utils/createObjectId';
 import { Category } from '../types/graphql';
+import { createObjectId } from '../utils/createObjectId';
 
 export default function useAppConfig() {
   let { data } = useQuery(GET_APP_CONFIG);
@@ -37,18 +36,20 @@ export default function useAppConfig() {
       saveAppConfig();
     },
     deleteInCart(cartProductId: string | string[]) {
-      let updCartProducts: ProductInCartType[];
-      updCartProducts = data.appConfig.cartProducts.filter(
-        (prod: ProductInCartType) =>
-          Array.isArray(cartProductId)
-            ? !cartProductId.includes(prod._id)
-            : prod._id !== cartProductId,
-      );
-      appConfigVar({
-        ...data.appConfig,
-        cartProducts: updCartProducts,
-      });
-      saveAppConfig();
+      if (cartProductId && cartProductId.length !== 0) {
+        let updCartProducts: ProductInCartType[];
+        updCartProducts = data.appConfig.cartProducts.filter(
+          (prod: ProductInCartType) =>
+            Array.isArray(cartProductId)
+              ? !cartProductId.includes(prod._id)
+              : prod._id !== cartProductId,
+        );
+        appConfigVar({
+          ...data.appConfig,
+          cartProducts: updCartProducts,
+        });
+        saveAppConfig();
+      }
     },
     updateInCart(updateProductInCart: ProductInCartType) {
       appConfigVar({
@@ -58,6 +59,7 @@ export default function useAppConfig() {
             prod._id === updateProductInCart._id ? updateProductInCart : prod,
         ),
       });
+
       saveAppConfig();
     },
     resetCart() {
