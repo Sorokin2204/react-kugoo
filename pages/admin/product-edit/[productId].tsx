@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
-import { CircularProgress, styled } from '@mui/material';
+import { useLazyQuery } from '@apollo/client';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
+import React, { useEffect } from 'react';
+import MainWrapper from '../../../component/admin/MainWrapper';
 import AddEditProduct from '../../../component/admin/ProductAdd/AddEditProduct';
-import { useLazyQuery, useQuery } from '@apollo/client';
 import { GET_PRODUCT_ADMIN } from '../../../graphql/query/product';
 import useAppConfig from '../../../hooks/useAppConfig';
 
@@ -30,10 +31,33 @@ const ProductEdit: React.FC<Props> = ({}) => {
 
   return (
     <>
-      {!getProductData.loading && getProductData.data ? (
-        <AddEditProduct product={getProductData.data.getProduct} />
+      {!getProductData.loading && getProductData ? (
+        getProductData?.data?.getProduct ? (
+          <AddEditProduct product={getProductData.data.getProduct} />
+        ) : (
+          <MainWrapper>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: 'calc(100vh - 110px)',
+              }}>
+              <Typography variant="h4" sx={{ textAlign: 'center' }}>
+                Страница не найдена
+              </Typography>
+            </Box>
+          </MainWrapper>
+        )
       ) : (
-        <CircularProgress />
+        <CircularProgress
+          sx={{
+            position: 'fixed',
+            left: '49%',
+            top: '44%',
+            transform: 'translate(-50%,-50%)',
+          }}
+        />
       )}
     </>
   );

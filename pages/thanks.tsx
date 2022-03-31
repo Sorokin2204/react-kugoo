@@ -1,6 +1,6 @@
-import React from 'react';
 import { Box, Button, Container, styled, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
+import React from 'react';
 
 type Props = {};
 
@@ -88,7 +88,7 @@ const ThanksPage: React.FC<Props> = ({}) => {
                 </ThanksText>
                 <ThanksButton
                   variant="containedReverse"
-                  onClick={() => router.push('/electric-scooter')}>
+                  onClick={() => router.push('/electric-scooters')}>
                   Перейти в каталог
                 </ThanksButton>
               </ThanksBody>

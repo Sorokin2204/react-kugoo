@@ -28,6 +28,8 @@ const SearchList = styled(Grid)(({ theme }) => ({
   boxShadow: theme.boxShadow.secondary,
   marginTop: theme.spacing(6),
   zIndex: '1000',
+  maxHeight: '300px',
+  overflowY: 'auto',
 }));
 const SearchItem = styled(Grid)(({ theme }) => ({
   display: 'grid',
@@ -50,7 +52,7 @@ const SearchImage = styled('img')(({ theme }) => ({
   width: '100%',
   height: 'auto',
   borderRadius: '10px',
-  objectFit: 'cover',
+  objectFit: 'contain',
   marginRight: theme.spacing(10),
   [theme.breakpoints.down('xs')]: {
     display: 'none',

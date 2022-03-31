@@ -17,6 +17,7 @@ import {
 import React, { useEffect } from 'react';
 import { GET_ORDER } from '../../../graphql/query/order';
 import { currencyFormat } from '../../../utils/currencyFormat';
+import { phoneFormat } from '../../../utils/phoneFormat';
 import { ModalBox } from '../ModalBox';
 
 const OrderProduct = styled(Box)(({ theme }) => ({
@@ -121,7 +122,9 @@ const OrderModal: React.FC<Props> = ({ open, handleClose, orderId }) => {
               </ClientItem>
               <ClientItem>
                 <ClientLabel>Телефон</ClientLabel>
-                <ClientData>{orderData?.phone}</ClientData>
+                <ClientData>
+                  {orderData?.phone && phoneFormat(orderData?.phone)}
+                </ClientData>
               </ClientItem>
               <ClientItem>
                 <ClientLabel>Почта</ClientLabel>

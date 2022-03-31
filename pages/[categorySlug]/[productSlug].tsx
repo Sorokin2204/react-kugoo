@@ -208,17 +208,19 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
         productSlug: router.query.productSlug,
       },
     }).then((dataSuccess) => {
-      const indexInCart = cartProducts.findIndex(
-        (productInCart) =>
-          productInCart.productId === dataSuccess.data.getProduct._id,
-      );
-      setGroupAttributes(
-        groupBy(dataSuccess?.data?.getProduct?.AttributeOptions?.edges),
-      );
-      setInCart(indexInCart !== -1);
-      setTotalPrice((prevPrice) =>
-        prevPrice === 0 ? dataSuccess.data.getProduct.price : prevPrice,
-      );
+      if (dataSuccess.data?.getProduct) {
+        const indexInCart = cartProducts.findIndex(
+          (productInCart) =>
+            productInCart.productId === dataSuccess.data.getProduct._id,
+        );
+        setGroupAttributes(
+          groupBy(dataSuccess?.data?.getProduct?.AttributeOptions?.edges),
+        );
+        setInCart(indexInCart !== -1);
+        setTotalPrice((prevPrice) =>
+          prevPrice === 0 ? dataSuccess.data.getProduct.price : prevPrice,
+        );
+      }
     });
   }, [router]);
 
@@ -250,7 +252,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
   };
   return (
     <>
-      {!loading && data?.getProduct ? (
+      {!loading && data ? (
         data?.getProduct ? (
           <Container
             sx={{
@@ -510,7 +512,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
                       </TotalDelivarySubtitle>
                     </TotalDelivary>
                     <Box sx={{ display: 'flex' }}>
-                      <TotalBtnClick variant="contained">
+                      <TotalBtnClick variant="contained" type="submit">
                         Купить в 1 клик
                       </TotalBtnClick>
 

@@ -11,6 +11,7 @@ let themeAdmin = createTheme({
       main: teal[400],
     },
   },
+
   breakpoints: {
     values: {
       xs: 0,
