@@ -1,24 +1,26 @@
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const cors = require('cors');
-const schema = require('./schema/schema');
+const schema = require('../schema/schema');
 const fetch = require('node-fetch');
 var ObjectID = require('bson-objectid');
 const { TypeComposer, schemaComposer } = require('graphql-compose');
 const { graphqlUploadExpress } = require('graphql-upload');
 const GraphQLUpload = require('graphql-upload/public/GraphQLUpload.js');
 const mongoose = require('mongoose');
-const { rootMutation } = require('./graphql/rootMutation');
-const { rootQuery } = require('./graphql/rootQuery');
-const { Category } = require('./model');
+const { rootMutation } = require('../graphql/rootMutation');
+const { rootQuery } = require('../graphql/rootQuery');
+const { Category } = require('../model');
 const { ApolloServer, gql } = require('apollo-server-express');
-const { scrappingProduct } = require('./utils/scrapingProduct');
+const { scrappingProduct } = require('../utils/scrapingProduct');
 const bodyParser = require('body-parser');
 const {
+  ApolloServerPluginDrainHttpServer,
   ApolloServerPluginLandingPageProductionDefault,
   ApolloServerPluginLandingPageLocalDefault,
 } = require('apollo-server-core');
-require('./model');
+require('../model');
+const http = require('http');
 
 const jsonServer = (path) => `http://localhost:4000${path && path}`;
 const dbString =
@@ -40,20 +42,21 @@ const root = {
   },
 };
 
-async function start() {
+async function start(app, httpServer) {
   const server = new ApolloServer({
+    cors: corsOptions,
     uploads: false,
     typeDefs: schema,
     resolvers: root,
     plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
       process.env.NODE_ENV === 'production'
         ? ApolloServerPluginLandingPageProductionDefault({ footer: false })
         : ApolloServerPluginLandingPageLocalDefault({ footer: false }),
     ],
   });
   await server.start();
-  const app = express();
-  app.use(cors(corsOptions));
+
   app.use(graphqlUploadExpress({ maxFileSize: 10486000, maxFiles: 20 }));
   server.applyMiddleware({ app });
   app.listen(5000, async () => {
@@ -72,4 +75,12 @@ async function start() {
   });
 }
 
-start();
+const app = express();
+app.use(cors(corsOptions));
+app.use(express.json());
+
+const httpServer = http.createServer(app);
+
+start(app, httpServer);
+
+module.exports = httpServer;

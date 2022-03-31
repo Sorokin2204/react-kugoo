@@ -1,27 +1,21 @@
-import {
-  ApolloClient,
-  ApolloProvider,
-  createHttpLink,
-  InMemoryCache,
-  makeVar,
-} from '@apollo/client';
+import { ApolloClient, ApolloProvider } from '@apollo/client';
 import { Box, CssBaseline, ThemeProvider } from '@mui/material';
+import { createUploadLink } from 'apollo-upload-client';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import Footer from '../component/common/Footer.tsx';
 import Header from '../component/common/Header';
 import cache from '../graphql/cache';
+import '../styles/masonry-style.css';
+import '../styles/[id].css';
 import theme from '../theme';
 import themeAdmin from '../themeAdmin';
-import '../styles/[id].css';
-import '../styles/masonry-style.css';
-import { createUploadLink } from 'apollo-upload-client';
 
 const client = new ApolloClient({
   ssrMode: true,
   connectToDevTools: true,
   link: createUploadLink({
-    uri: 'http://localhost:5000/graphql',
+    uri: 'https://react-kugoo-server-hyqy6qg0l-sorokin2204.vercel.app/graphql',
     credentials: 'same-origin',
   }),
   cache: cache,
