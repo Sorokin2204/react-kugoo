@@ -137,12 +137,18 @@ const SpecModal: React.FC<Props> = ({
     );
     return () => clearTimeout(timer);
   }, [typingNameCat]);
+
+  useEffect(() => {
+    allSpecRefetch();
+  }, []);
+
   useEffect(() => {
     if (!activeSpec) reset();
   }, [activeSpec]);
   // FUNCTIONS
   const handleTableRowClick = (event, spec) => {
     if (spec._id !== activeSpec?._id) {
+      setVisibleOverlay(true);
       setActiveSpec(spec);
       getSpec({
         variables: {
@@ -150,6 +156,7 @@ const SpecModal: React.FC<Props> = ({
         },
       })
         .then((resault) => {
+          setVisibleOverlay(false);
           const data = resault.data.getSpec;
           setValue('spec._id', data._id, {
             shouldValidate: true,
@@ -283,263 +290,269 @@ const SpecModal: React.FC<Props> = ({
   return (
     <>
       <Modal open={open} onClose={handleClose}>
-        <ModalBox
-          sx={{
-            display: 'grid',
-            gridTemplateRows: 'min-content 1fr 40px',
-
-            gridTemplateColumns: '1fr 1fr',
-            gridGap: '20px',
-            overflowY: 'scroll',
-            [theme.breakpoints.down('sm')]: {
-              gridTemplateRows:
-                'min-content auto minmax(min-content, auto) 40px',
-            },
-          }}>
-          <IconButton
-            sx={{ p: 0, position: 'absolute', top: 15, right: 15 }}
-            onClick={handleClose}>
-            <Close sx={{ fontSize: '30px' }} />
-          </IconButton>
-          <Box
+        <>
+          <ModalBox
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              height: 'min-content',
-              gridColumn: '1/2',
-              gridRow: '1/2',
+              display: 'grid',
+              gridTemplateRows: 'min-content 1fr 40px',
+
+              gridTemplateColumns: '1fr 1fr',
+              gridGap: '20px',
+              overflowY: 'scroll',
               [theme.breakpoints.down('sm')]: {
-                alignItems: 'flex-end',
-                gridColumn: '1/3',
+                gridTemplateRows:
+                  'min-content auto minmax(min-content, auto) 40px',
               },
             }}>
-            <Typography
-              variant="h6"
-              component="h2"
+            <IconButton
+              sx={{ p: 0, position: 'absolute', top: 15, right: 15 }}
+              onClick={handleClose}>
+              <Close sx={{ fontSize: '30px' }} />
+            </IconButton>
+            <Box
               sx={{
-                display: 'block',
+                display: 'flex',
+                alignItems: 'center',
+                height: 'min-content',
+                gridColumn: '1/2',
+                gridRow: '1/2',
                 [theme.breakpoints.down('sm')]: {
-                  fontSize: '18px !important',
+                  alignItems: 'flex-end',
+                  gridColumn: '1/3',
                 },
               }}>
-              {activeSpec
-                ? `Изменить характеристку '${activeSpec.name}'`
-                : 'Добавить характеристку'}
-            </Typography>
-            {activeSpec !== null ? (
-              <>
-                <IconButton
-                  sx={{ p: 0, ml: 1 }}
-                  onClick={() => {
-                    setActiveSpec(null);
-                  }}>
-                  <Close />
-                </IconButton>
-                <IconButton
-                  sx={{ p: 0, ml: 1, color: theme.palette.error.main }}
-                  onClick={handleToggleDelete}>
-                  <Delete />
-                </IconButton>
-              </>
-            ) : (
-              ''
-            )}
-          </Box>
-          <Box
-            sx={{
-              gridColumn: '1/2',
-              gridRow: '2/3',
-              [theme.breakpoints.down('sm')]: {
-                gridColumn: '1/3',
-              },
-            }}>
-            <form
-              autoComplete="off"
-              style={{
-                height: '100%',
-                display: 'grid',
-                gridTemplateRows: 'auto auto 1fr',
-                gridGap: '10px',
-              }}>
-              <Controller
-                control={control}
-                name="spec.name"
-                rules={{
-                  required: { value: true, message: 'Обязательное поле' },
-                }}
-                render={({ field }) => (
-                  <>
-                    <TextField
-                      sx={{
-                        gridRow: '1/2',
-                        gridColumn: '1/2',
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      label="Название"
-                      error={errors?.spec?.name?.message !== undefined}
-                      helperText={errors?.spec?.name?.message}
-                      {...field}
-                      {...register('spec.name')}
-                      onChange={(e) => {
-                        setTypingNameCat(e.target.value);
-                        setDisabledSlugCat(true);
-                        field.onChange(e.target.value);
-                      }}
-                    />
-                  </>
-                )}
-              />
-              <Controller
-                control={control}
-                name="spec.slug"
-                rules={{
-                  required: { value: true, message: 'Обязательное поле' },
-                }}
-                render={({ field }) => (
-                  <>
-                    <TextField
-                      sx={{
-                        gridRow: '2/3',
-                        gridColumn: '1/2',
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      label="Псевдоним"
-                      error={errors?.spec?.slug?.message !== undefined}
-                      helperText={errors?.spec?.slug?.message}
-                      disabled={disabledSlugCat}
-                      {...field}
-                      {...register('spec.slug')}
-                    />
-                  </>
-                )}
-              />
-              <FormControl
-                component="fieldset"
+              <Typography
+                variant="h6"
+                component="h2"
                 sx={{
-                  gridRow: '1/3',
-                  gridColumn: '2/3',
+                  display: 'block',
+                  [theme.breakpoints.down('sm')]: {
+                    fontSize: '18px !important',
+                  },
+                }}>
+                {activeSpec
+                  ? `Изменить характеристку '${activeSpec.name}'`
+                  : 'Добавить характеристку'}
+              </Typography>
+              {activeSpec !== null ? (
+                <>
+                  <IconButton
+                    sx={{ p: 0, ml: 1 }}
+                    onClick={() => {
+                      setActiveSpec(null);
+                    }}>
+                    <Close />
+                  </IconButton>
+                  <IconButton
+                    sx={{ p: 0, ml: 1, color: theme.palette.error.main }}
+                    onClick={handleToggleDelete}>
+                    <Delete />
+                  </IconButton>
+                </>
+              ) : (
+                ''
+              )}
+            </Box>
+            <Box
+              sx={{
+                gridColumn: '1/2',
+                gridRow: '2/3',
+                [theme.breakpoints.down('sm')]: {
+                  gridColumn: '1/3',
+                },
+              }}>
+              <form
+                autoComplete="off"
+                style={{
+                  height: '100%',
+                  display: 'grid',
+                  gridTemplateRows: 'auto auto 1fr',
+                  gridGap: '10px',
                 }}>
                 <Controller
                   control={control}
-                  name="spec.type"
+                  name="spec.name"
+                  rules={{
+                    required: { value: true, message: 'Обязательное поле' },
+                  }}
                   render={({ field }) => (
                     <>
-                      <RadioGroup
-                        defaultValue="string"
+                      <TextField
+                        sx={{
+                          gridRow: '1/2',
+                          gridColumn: '1/2',
+                        }}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        label="Название"
+                        error={errors?.spec?.name?.message !== undefined}
+                        helperText={errors?.spec?.name?.message}
                         {...field}
+                        {...register('spec.name')}
                         onChange={(e) => {
+                          setTypingNameCat(e.target.value);
+                          setDisabledSlugCat(true);
                           field.onChange(e.target.value);
-                          setIsNumber(e.target.value === 'number');
-                        }}>
-                        <FormControlLabel
-                          value="string"
-                          control={<Radio />}
-                          label="Строка"
-                        />
-                        <FormControlLabel
-                          value="number"
-                          control={<Radio />}
-                          label="Число"
-                        />
-                      </RadioGroup>
+                        }}
+                      />
                     </>
                   )}
                 />
-              </FormControl>
-              <Box
-                sx={{
-                  gridColumn: '1/3',
-                  gridRow: '3/4',
-                }}>
-                <SubTableModal
-                  title={'Новая опция'}
-                  isNumber={isNumber}
-                  parent={'specOption'}
-                  firstChild={'name'}
-                  secondChild={'slug'}
-                  fieldArray={specOptionFieldArray}
-                  setValue={setValue}
-                  activeSpec={activeSpec}
-                  errorForm={{
-                    trigger: trigger,
-                    clearErrors: clearErrors,
-                    watch: watch,
-                    errors: errors,
-                    setError: setError,
+                <Controller
+                  control={control}
+                  name="spec.slug"
+                  rules={{
+                    required: { value: true, message: 'Обязательное поле' },
                   }}
+                  render={({ field }) => (
+                    <>
+                      <TextField
+                        sx={{
+                          gridRow: '2/3',
+                          gridColumn: '1/2',
+                        }}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        label="Псевдоним"
+                        error={errors?.spec?.slug?.message !== undefined}
+                        helperText={errors?.spec?.slug?.message}
+                        disabled={disabledSlugCat}
+                        {...field}
+                        {...register('spec.slug')}
+                      />
+                    </>
+                  )}
                 />
-              </Box>
-            </form>
-          </Box>
-          {!allSpecLoading && (
-            <TableContainer
-              component={Paper}
+                <FormControl
+                  component="fieldset"
+                  sx={{
+                    gridRow: '1/3',
+                    gridColumn: '2/3',
+                  }}>
+                  <Controller
+                    control={control}
+                    name="spec.type"
+                    render={({ field }) => (
+                      <>
+                        <RadioGroup
+                          defaultValue="string"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e.target.value);
+                            setIsNumber(e.target.value === 'number');
+                          }}>
+                          <FormControlLabel
+                            value="string"
+                            control={<Radio />}
+                            label="Строка"
+                          />
+                          <FormControlLabel
+                            value="number"
+                            control={<Radio />}
+                            label="Число"
+                          />
+                        </RadioGroup>
+                      </>
+                    )}
+                  />
+                </FormControl>
+                <Box
+                  sx={{
+                    gridColumn: '1/3',
+                    gridRow: '3/4',
+                  }}>
+                  <SubTableModal
+                    title={'Новая опция'}
+                    isNumber={isNumber}
+                    parent={'specOption'}
+                    firstChild={'name'}
+                    secondChild={'slug'}
+                    fieldArray={specOptionFieldArray}
+                    setValue={setValue}
+                    activeSpec={activeSpec}
+                    errorForm={{
+                      trigger: trigger,
+                      clearErrors: clearErrors,
+                      watch: watch,
+                      errors: errors,
+                      setError: setError,
+                    }}
+                  />
+                </Box>
+              </form>
+            </Box>
+            {!allSpecLoading && (
+              <TableContainer
+                component={Paper}
+                sx={{
+                  gridColumn: '2/3',
+                  gridRow: '1/3',
+                  mt: '40px',
+                  [theme.breakpoints.down('sm')]: {
+                    gridRow: '3/4',
+                    gridColumn: '1/3',
+                    mt: '10px',
+                  },
+                }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="left">Название</TableCell>
+                      <TableCell align="right">Слаг</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {allSpecData.getAllSpec.map((spec) => (
+                      <TableRow
+                        onClick={(event) => handleTableRowClick(event, spec)}
+                        selected={spec._id === activeSpec?._id}
+                        key={spec._id}
+                        sx={{
+                          '&:last-child td, &:last-child th': { border: 0 },
+                        }}>
+                        <TableCell component="th" scope="row">
+                          {spec.name}
+                        </TableCell>
+                        <TableCell align="right">{spec.slug}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+
+            <Button
+              onClick={handleSubmit(onSubmit)}
+              variant={'contained'}
+              disabled={!isValid}
               sx={{
-                gridColumn: '2/3',
-                gridRow: '1/3',
-                mt: '40px',
+                gridColumn: '1/3',
+                gridRow: '3/4',
+
                 [theme.breakpoints.down('sm')]: {
-                  gridRow: '3/4',
-                  gridColumn: '1/3',
-                  mt: '10px',
+                  gridRow: '4/5',
                 },
               }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="left">Название</TableCell>
-                    <TableCell align="right">Слаг</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {allSpecData.getAllSpec.map((spec) => (
-                    <TableRow
-                      onClick={(event) => handleTableRowClick(event, spec)}
-                      selected={spec._id === activeSpec?._id}
-                      key={spec._id}
-                      sx={{
-                        '&:last-child td, &:last-child th': { border: 0 },
-                      }}>
-                      <TableCell component="th" scope="row">
-                        {spec.name}
-                      </TableCell>
-                      <TableCell align="right">{spec.slug}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-
-          <Button
-            onClick={handleSubmit(onSubmit)}
-            variant={'contained'}
-            disabled={!isValid}
-            sx={{
-              gridColumn: '1/3',
-              gridRow: '3/4',
-
-              [theme.breakpoints.down('sm')]: {
-                gridRow: '4/5',
-              },
-            }}>
-            {activeSpec ? 'Сохранить' : 'Добавить'}
-          </Button>
-          {openDelete ? (
-            <AlertDelete
-              open={openDelete}
-              handleClose={handleToggleDelete}
-              title={'Характеристика будет удалена'}
-              text={'Будет удалена характеристика и все связанные опции'}
-              handleDelete={handleDeleteSpecClick}
+              {activeSpec ? 'Сохранить' : 'Добавить'}
+            </Button>
+            {openDelete ? (
+              <AlertDelete
+                open={openDelete}
+                handleClose={handleToggleDelete}
+                title={'Характеристика будет удалена'}
+                text={'Будет удалена характеристика и все связанные опции'}
+                handleDelete={handleDeleteSpecClick}
+              />
+            ) : null}
+          </ModalBox>
+          {visibleOverlay && (
+            <Overlay
+              sx={{ height: '100vh !important', position: 'fixed !important' }}
             />
-          ) : null}
-          {visibleOverlay && <Overlay />}
-        </ModalBox>
+          )}
+        </>
       </Modal>
     </>
   );

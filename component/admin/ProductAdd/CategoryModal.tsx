@@ -126,6 +126,12 @@ const CategoryModal: React.FC<Props> = ({
 
   //HOOKS
   useEffect(() => {
+    allSpecRefetch();
+    allCategoryRefetch();
+    allAttributeRefetch();
+  }, []);
+
+  useEffect(() => {
     if (!activeCategory) reset();
   }, [activeCategory]);
 
@@ -155,6 +161,7 @@ const CategoryModal: React.FC<Props> = ({
   // FUNCTIONS
   const handleTableRowClick = (event, category) => {
     if (category._id !== activeCategory?._id) {
+      setVisibleOverlay(true);
       setActiveCategory(category);
       getCategory({
         variables: {
@@ -164,6 +171,7 @@ const CategoryModal: React.FC<Props> = ({
         },
       })
         .then((resault) => {
+          setVisibleOverlay(false);
           const data = resault.data.getCategory;
 
           if (data.attributes) {
@@ -283,293 +291,302 @@ const CategoryModal: React.FC<Props> = ({
   return (
     <>
       <Modal open={open} onClose={handleClose}>
-        <ModalBox
-          sx={{
-            overflowY: 'scroll',
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr ',
-            gridTemplateRows: 'auto',
-            gridGap: '20px',
-            [theme.breakpoints.down('sm')]: {
-              gridTemplateColumns: '1fr ',
-              gridTemplateRows: 'auto minmax(min-content, 1fr)',
-            },
-          }}>
-          <IconButton
-            sx={{ p: 0, position: 'absolute', top: 15, right: 15 }}
-            onClick={handleClose}>
-            <Close sx={{ fontSize: '30px' }} />
-          </IconButton>
-          <Box>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                mb: 3,
-                [theme.breakpoints.down('sm')]: {
-                  alignItems: 'flex-end',
-                },
-              }}>
-              <Typography variant="h6" component="h2" sx={{ display: 'block' }}>
-                {activeCategory !== null
-                  ? `Изменить категорию '${activeCategory.name}'`
-                  : 'Добавить категорию'}
-              </Typography>
-              {activeCategory !== null ? (
-                <>
-                  <IconButton
-                    sx={{ p: 0, ml: 1 }}
-                    onClick={() => {
-                      setActiveCategory(null);
-                    }}>
-                    <Close />
-                  </IconButton>
-                  <IconButton
-                    sx={{ p: 0, ml: 1, color: theme.palette.error.main }}
-                    onClick={handleToggleDelete}>
-                    <Delete />
-                  </IconButton>
-                </>
-              ) : (
-                ''
-              )}
-            </Box>
-
-            <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+        <>
+          <ModalBox
+            sx={{
+              overflowY: 'scroll',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr ',
+              gridTemplateRows: 'auto',
+              gridGap: '20px',
+              [theme.breakpoints.down('sm')]: {
+                gridTemplateColumns: '1fr ',
+                gridTemplateRows: 'auto minmax(min-content, 1fr)',
+              },
+            }}>
+            <IconButton
+              sx={{ p: 0, position: 'absolute', top: 15, right: 15 }}
+              onClick={handleClose}>
+              <Close sx={{ fontSize: '30px' }} />
+            </IconButton>
+            <Box>
               <Box
                 sx={{
-                  display: 'grid',
-                  rowGap: '20px',
-                  columnGap: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  mb: 3,
+                  [theme.breakpoints.down('sm')]: {
+                    alignItems: 'flex-end',
+                  },
                 }}>
-                <Controller
-                  control={control}
-                  name="name"
-                  rules={{
-                    required: { value: true, message: 'Обязательное поле' },
-                  }}
-                  render={({ field }) => (
-                    <>
-                      <TextField
-                        sx={{
-                          gridColumn: '1/2',
-                        }}
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        label="Название"
-                        error={errors?.name?.message !== undefined}
-                        helperText={errors?.name?.message}
-                        {...field}
-                        {...register('name')}
-                        onChange={(e) => {
-                          setTypingNameCat(e.target.value);
-                          setDisabledSlugCat(true);
-                          field.onChange(e.target.value);
-                        }}
-                      />
-                    </>
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name="slug"
-                  rules={{
-                    required: { value: true, message: 'Обязательное поле' },
-                  }}
-                  render={({ field }) => (
-                    <>
-                      <TextField
-                        sx={{
-                          gridColumn: '2/3',
-                        }}
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        label="Псевдоним"
-                        error={errors?.slug?.message !== undefined}
-                        helperText={errors?.slug?.message}
-                        disabled={disabledSlugCat}
-                        {...field}
-                        {...register('slug')}
-                      />
-                    </>
-                  )}
-                />
-                {!allAttributeLoading && (
-                  <Controller
-                    control={control}
-                    name="Attributes"
-                    render={({ field }) => (
-                      <FormControl
-                        fullWidth
-                        sx={{
-                          gridColumn: '1/3',
-                        }}>
-                        <Autocomplete
-                          {...register('Attributes')}
-                          value={autocompleteAttr}
-                          multiple
-                          options={allAttributeData.getAllAttribute}
-                          disableCloseOnSelect
-                          getOptionLabel={(option) => option.name}
-                          {...field}
-                          isOptionEqualToValue={(option, value) =>
-                            option._id == value._id
-                          }
-                          onChange={(e, data, reason, detail) => {
-                            const attrIds = data.map((attr) => ({
-                              _id: attr._id,
-                              name: attr.name,
-                            }));
-                            setAutocompleteAttr(attrIds);
-                            setValue('Attributes', attrIds);
-                          }}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox
-                                icon={icon}
-                                checkedIcon={checkedIcon}
-                                style={{ marginRight: 8 }}
-                                checked={selected}
-                              />
-                              {option.name}
-                            </li>
-                          )}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Аттрибуты по умолчанию"
-                              InputLabelProps={{
-                                shrink: true,
-                              }}
-                              error={errors?.Attributes?.message !== undefined}
-                              helperText={errors?.Attributes?.message}
-                            />
-                          )}
-                        />
-                      </FormControl>
-                    )}
-                    onChange={([, data]) => data}
-                  />
-                )}
-
-                {!allSpecLoading && (
-                  <Controller
-                    control={control}
-                    name="Specs"
-                    render={({ field }) => (
-                      <FormControl
-                        fullWidth
-                        sx={{
-                          gridColumn: '1/3',
-                        }}>
-                        <Autocomplete
-                          {...register('Specs')}
-                          value={autocompleteSpec}
-                          multiple
-                          options={allSpecData.getAllSpec}
-                          disableCloseOnSelect
-                          getOptionLabel={(option) => option.name}
-                          {...field}
-                          isOptionEqualToValue={(option, value) =>
-                            option._id == value._id
-                          }
-                          onChange={(e, data) => {
-                            const specIds = data.map((spec) => ({
-                              _id: spec._id,
-                              name: spec.name,
-                            }));
-                            setAutocompleteSpec(specIds);
-                            setValue('Specs', specIds);
-                          }}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox
-                                icon={icon}
-                                checkedIcon={checkedIcon}
-                                style={{ marginRight: 8 }}
-                                checked={selected}
-                              />
-                              {option.name}
-                            </li>
-                          )}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Характеристики по умолчанию"
-                              InputLabelProps={{
-                                shrink: true,
-                              }}
-                              error={errors?.Specs?.message !== undefined}
-                              helperText={errors?.Specs?.message}
-                            />
-                          )}
-                        />
-                      </FormControl>
-                    )}
-                    onChange={([, data]) => data}
-                  />
-                )}
-
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={!isValid}
-                  sx={{
-                    gridColumn: '1/3',
-                  }}>
-                  {activeCategory ? 'Сохранить' : 'Добавить'}
-                </Button>
-              </Box>
-            </form>
-          </Box>
-          {!allCategoryLoading && (
-            <TableContainer
-              component={Paper}
-              sx={{
-                mt: '40px',
-                [theme.breakpoints.down('sm')]: {
-                  mt: 0,
-                },
-              }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="left">Название</TableCell>
-                    <TableCell align="right">Слаг</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {allCategoryData?.getAllCategory?.map((category) => (
-                    <TableRow
-                      onClick={(event) => handleTableRowClick(event, category)}
-                      selected={category._id === activeCategory?._id}
-                      key={category._id}
-                      sx={{
-                        '&:last-child td, &:last-child th': { border: 0 },
+                <Typography
+                  variant="h6"
+                  component="h2"
+                  sx={{ display: 'block' }}>
+                  {activeCategory !== null
+                    ? `Изменить категорию '${activeCategory.name}'`
+                    : 'Добавить категорию'}
+                </Typography>
+                {activeCategory !== null ? (
+                  <>
+                    <IconButton
+                      sx={{ p: 0, ml: 1 }}
+                      onClick={() => {
+                        setActiveCategory(null);
                       }}>
-                      <TableCell component="th" scope="row">
-                        {category.name}
-                      </TableCell>
-                      <TableCell align="right">{category.slug}</TableCell>
+                      <Close />
+                    </IconButton>
+                    <IconButton
+                      sx={{ p: 0, ml: 1, color: theme.palette.error.main }}
+                      onClick={handleToggleDelete}>
+                      <Delete />
+                    </IconButton>
+                  </>
+                ) : (
+                  ''
+                )}
+              </Box>
+
+              <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+                <Box
+                  sx={{
+                    display: 'grid',
+                    rowGap: '20px',
+                    columnGap: '10px',
+                  }}>
+                  <Controller
+                    control={control}
+                    name="name"
+                    rules={{
+                      required: { value: true, message: 'Обязательное поле' },
+                    }}
+                    render={({ field }) => (
+                      <>
+                        <TextField
+                          sx={{
+                            gridColumn: '1/2',
+                          }}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          label="Название"
+                          error={errors?.name?.message !== undefined}
+                          helperText={errors?.name?.message}
+                          {...field}
+                          {...register('name')}
+                          onChange={(e) => {
+                            setTypingNameCat(e.target.value);
+                            setDisabledSlugCat(true);
+                            field.onChange(e.target.value);
+                          }}
+                        />
+                      </>
+                    )}
+                  />
+                  <Controller
+                    control={control}
+                    name="slug"
+                    rules={{
+                      required: { value: true, message: 'Обязательное поле' },
+                    }}
+                    render={({ field }) => (
+                      <>
+                        <TextField
+                          sx={{
+                            gridColumn: '2/3',
+                          }}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          label="Псевдоним"
+                          error={errors?.slug?.message !== undefined}
+                          helperText={errors?.slug?.message}
+                          disabled={disabledSlugCat}
+                          {...field}
+                          {...register('slug')}
+                        />
+                      </>
+                    )}
+                  />
+                  {!allAttributeLoading && (
+                    <Controller
+                      control={control}
+                      name="Attributes"
+                      render={({ field }) => (
+                        <FormControl
+                          fullWidth
+                          sx={{
+                            gridColumn: '1/3',
+                          }}>
+                          <Autocomplete
+                            {...register('Attributes')}
+                            value={autocompleteAttr}
+                            multiple
+                            options={allAttributeData.getAllAttribute}
+                            disableCloseOnSelect
+                            getOptionLabel={(option) => option.name}
+                            {...field}
+                            isOptionEqualToValue={(option, value) =>
+                              option._id == value._id
+                            }
+                            onChange={(e, data, reason, detail) => {
+                              const attrIds = data.map((attr) => ({
+                                _id: attr._id,
+                                name: attr.name,
+                              }));
+                              setAutocompleteAttr(attrIds);
+                              setValue('Attributes', attrIds);
+                            }}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox
+                                  icon={icon}
+                                  checkedIcon={checkedIcon}
+                                  style={{ marginRight: 8 }}
+                                  checked={selected}
+                                />
+                                {option.name}
+                              </li>
+                            )}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Аттрибуты по умолчанию"
+                                InputLabelProps={{
+                                  shrink: true,
+                                }}
+                                error={
+                                  errors?.Attributes?.message !== undefined
+                                }
+                                helperText={errors?.Attributes?.message}
+                              />
+                            )}
+                          />
+                        </FormControl>
+                      )}
+                      onChange={([, data]) => data}
+                    />
+                  )}
+
+                  {!allSpecLoading && (
+                    <Controller
+                      control={control}
+                      name="Specs"
+                      render={({ field }) => (
+                        <FormControl
+                          fullWidth
+                          sx={{
+                            gridColumn: '1/3',
+                          }}>
+                          <Autocomplete
+                            {...register('Specs')}
+                            value={autocompleteSpec}
+                            multiple
+                            options={allSpecData.getAllSpec}
+                            disableCloseOnSelect
+                            getOptionLabel={(option) => option.name}
+                            {...field}
+                            isOptionEqualToValue={(option, value) =>
+                              option._id == value._id
+                            }
+                            onChange={(e, data) => {
+                              const specIds = data.map((spec) => ({
+                                _id: spec._id,
+                                name: spec.name,
+                              }));
+                              setAutocompleteSpec(specIds);
+                              setValue('Specs', specIds);
+                            }}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox
+                                  icon={icon}
+                                  checkedIcon={checkedIcon}
+                                  style={{ marginRight: 8 }}
+                                  checked={selected}
+                                />
+                                {option.name}
+                              </li>
+                            )}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Характеристики по умолчанию"
+                                InputLabelProps={{
+                                  shrink: true,
+                                }}
+                                error={errors?.Specs?.message !== undefined}
+                                helperText={errors?.Specs?.message}
+                              />
+                            )}
+                          />
+                        </FormControl>
+                      )}
+                      onChange={([, data]) => data}
+                    />
+                  )}
+
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    disabled={!isValid}
+                    sx={{
+                      gridColumn: '1/3',
+                    }}>
+                    {activeCategory ? 'Сохранить' : 'Добавить'}
+                  </Button>
+                </Box>
+              </form>
+            </Box>
+            {!allCategoryLoading && (
+              <TableContainer
+                component={Paper}
+                sx={{
+                  mt: '40px',
+                  [theme.breakpoints.down('sm')]: {
+                    mt: 0,
+                  },
+                }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="left">Название</TableCell>
+                      <TableCell align="right">Слаг</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-          {openDelete ? (
-            <AlertDelete
-              open={openDelete}
-              handleClose={handleToggleDelete}
-              title={'Категория будет удалена'}
-              text={'Будет удалена категория и все товары связанные с ней'}
-              handleDelete={handleDeleteCategoryClick}
-            />
-          ) : null}
+                  </TableHead>
+                  <TableBody>
+                    {allCategoryData?.getAllCategory?.map((category) => (
+                      <TableRow
+                        onClick={(event) =>
+                          handleTableRowClick(event, category)
+                        }
+                        selected={category._id === activeCategory?._id}
+                        key={category._id}
+                        sx={{
+                          '&:last-child td, &:last-child th': { border: 0 },
+                        }}>
+                        <TableCell component="th" scope="row">
+                          {category.name}
+                        </TableCell>
+                        <TableCell align="right">{category.slug}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+            {openDelete ? (
+              <AlertDelete
+                open={openDelete}
+                handleClose={handleToggleDelete}
+                title={'Категория будет удалена'}
+                text={'Будет удалена категория и все товары связанные с ней'}
+                handleDelete={handleDeleteCategoryClick}
+              />
+            ) : null}
+          </ModalBox>
           {visibleOverlay && <Overlay />}
-        </ModalBox>
+        </>
       </Modal>
     </>
   );

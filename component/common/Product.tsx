@@ -79,8 +79,6 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
       },
     })
       .then((dataDefault) => {
-        console.log(dataDefault);
-
         let total: number = price;
         let attributes = [];
         dataDefault.data.getDefaultProductAttributes.map(
@@ -137,7 +135,7 @@ const Product: React.FC<Props> = ({ data, snackbarShowMessage, inCart }) => {
           src={
             data.images?.length !== 0
               ? `/static/products/${data.images[data.images.length - 1]?.name}`
-              : '/static/preview-product.jpg'
+              : '/static/common/preview-product.jpg'
           }
           // width={'256px'}
         />

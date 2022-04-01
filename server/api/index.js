@@ -24,7 +24,7 @@ const http = require('http');
 
 const jsonServer = (path) => `http://localhost:4000${path && path}`;
 const dbString =
-  'mongodb+srv://daniil:xK&AMb9E8CmzWM037F@cluster0.t9qys.mongodb.net/kugooStoreDb?retryWrites=true&w=majority';
+  'mongodb+srv://daniil:xK&AMb9E8CmzWM037F@cluster0.t9qys.mongodb.net/kugooStoreDbCopy?retryWrites=true&w=majority';
 
 const corsOptions = {
   origin: '*',
@@ -78,6 +78,8 @@ async function start(app, httpServer) {
 const app = express();
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(express.static('static'));
+app.use('/static', express.static('static'));
 
 const httpServer = http.createServer(app);
 

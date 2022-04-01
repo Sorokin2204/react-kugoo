@@ -22,6 +22,9 @@ const mutationSchema = `
       updateSpec(updSpec, : SpecInput, newOpts: [SpecOptionInput], updOpts: [SpecOptionInput], deleteIdOpts: [String]): String
 ### ORDER
     createOrder(orderInfo: OrderInput, productsInfo: [ProductsFromCartInput]): String
-    }`;
+### DATABASE
+    resetDatabase: String
+
+}`;
 
 module.exports = { mutationSchema };

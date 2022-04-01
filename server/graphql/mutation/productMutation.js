@@ -105,8 +105,8 @@ const saveFile = async (img) => {
   const newFileName = ObjectId() + '-' + getValidFileName(img.name);
   const stream = createReadStream();
   const pathName = path.join(
-    appDir,
-    '../public/static/products',
+    __dirname,
+    '../../static/products',
     `/${newFileName}`,
   );
   await stream.pipe(fs.createWriteStream(pathName));
@@ -115,8 +115,8 @@ const saveFile = async (img) => {
 
 const deleteFile = async (filename) => {
   const pathFile = path.join(
-    appDir,
-    '../public/static/products',
+    __dirname,
+    '../../static/products',
     `/${filename}`,
   );
   try {
@@ -139,6 +139,7 @@ const deleteImages = async (product) => {
           (imgNew) => imgNew._id === imgOld._id.toString(),
         ) == -1,
     );
+
     if (deleteImages.length !== 0) {
       for (deleteImg of deleteImages) {
         await deleteFile(deleteImg.name);
@@ -160,6 +161,7 @@ const addImages = async (images) => {
         });
       } else {
         newImages.push({
+          _id: img._id,
           name: img.name,
           order: index,
         });

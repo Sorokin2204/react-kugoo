@@ -361,7 +361,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
                       maxHeight: '300px',
                     },
                   }}>
-                  <img style={{}} src="/static/preview-product.jpg" />
+                  <img style={{}} src="/static/common/preview-product.jpg" />
                 </Box>
               )}
 
@@ -420,7 +420,7 @@ const ProductPage: React.FC<Props> = ({ snackbarShowMessage }) => {
                       },
                     }}>
                     <InstallmentImage
-                      src="/static/cart.png"
+                      src="/static/common/cart.png"
                       width="24"
                       height="24"
                     />

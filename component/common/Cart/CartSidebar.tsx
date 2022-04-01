@@ -6,6 +6,7 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { CREATE_ORDER } from '../../../graphql/mutation/order';
 import useAppConfig from '../../../hooks/useAppConfig';
 import { currencyFormat } from '../../../utils/currencyFormat';
+import Overlay from '../../admin/Overlay';
 import FilterCheckbox from '../FilterCheckbox';
 
 type Props = {
@@ -61,6 +62,7 @@ const CartSidebar: React.FC<Props> = ({
   const { cartProducts, resetCart } = useAppConfig();
   const [totalPrice, setTotalPrice] = useState<number | null>();
   const [confirm, setConfirm] = useState(false);
+  const [visibleOverlay, setVisibleOverlay] = useState<boolean>(false);
   const [newOrder] = useMutation(CREATE_ORDER);
   useEffect(() => {
     let total = _.sumBy(cartProducts, (item) => item.totalPrice * item.pieces);
@@ -79,7 +81,7 @@ const CartSidebar: React.FC<Props> = ({
       },
     })
       .then(() => {
-        resetCart();
+        setVisibleOverlay(true);
         router.push('/thanks');
       })
       .catch((err) => console.log(JSON.stringify(err, 2, null)));
@@ -141,6 +143,14 @@ const CartSidebar: React.FC<Props> = ({
           ]}
         />
       </Total>
+      {visibleOverlay && (
+        <Overlay
+          sx={{
+            zIndex: 1000,
+            '& .MuiCircularProgress-root': { position: 'absolute' },
+          }}
+        />
+      )}
     </CartSidebarBox>
   );
 };

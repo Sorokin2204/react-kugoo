@@ -18,7 +18,7 @@ const BannerBox = styled(Box)(({ theme }) => ({
   },
   borderRadius: '10px',
   overflow: 'hidden',
-  background: `url(/static/young-scooter.png) no-repeat -100% 0/ cover`,
+  background: `url(/static/common/young-scooter.png) no-repeat -100% 0/ cover`,
   [theme.breakpoints.down('md')]: {
     paddingTop: theme.spacing(27),
     paddingBottom: theme.spacing(27),

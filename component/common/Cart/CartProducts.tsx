@@ -333,7 +333,7 @@ const CartProducts: React.FC<Props> = ({ snackbarShowMessage }) => {
                             src={
                               product?.images.length !== 0
                                 ? `/static/products/${product?.images[0].name}`
-                                : '/static/preview-product.jpg'
+                                : '/static/common/preview-product.jpg'
                             }
                           />
                           <CartItemContent>

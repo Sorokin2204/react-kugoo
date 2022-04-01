@@ -1,7 +1,8 @@
-import { Add } from '@mui/icons-material';
+import { useMutation } from '@apollo/client';
+import { Add, Restore } from '@mui/icons-material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Link as LinkMUI } from '@mui/material';
+import { Container, Link as LinkMUI } from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -19,31 +20,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { adminMobileNavData } from '../../data/adminMobileNavData';
+import { RESET_DATABASE } from '../../graphql/mutation/db';
+import { withSnackbar } from '../../hooks/useAlert';
 import useAppConfig from '../../hooks/useAppConfig';
+import Overlay from './Overlay';
 import AttributeModal from './ProductAdd/AttributeModal';
 import CategoryModal from './ProductAdd/CategoryModal';
 import SpecModal from './ProductAdd/SpecModal';
 
-const drawerWidth = 240;
-
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
-}>(({ theme, open }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  transition: theme.transitions.create('margin', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  marginLeft: `-${drawerWidth}px`,
-  ...(open && {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  }),
-}));
+}>(({ theme, open }) => ({}));
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
@@ -51,20 +38,7 @@ interface AppBarProps extends MuiAppBarProps {
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({ theme, open }) => ({
-  transition: theme.transitions.create(['margin', 'width'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
+})<AppBarProps>(({ theme, open }) => ({}));
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -77,14 +51,16 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 type Props = {};
 
-const MainWrapper: React.FC<Props> = ({ children }) => {
+const MainWrapper: React.FC<Props> = ({ children, snackbarShowMessage }) => {
   const router = useRouter();
   const theme = useTheme();
+  const [resetDatabase] = useMutation(RESET_DATABASE);
   const [open, setOpen] = React.useState(false);
   const [openCategory, setOpenCategory] = useState<boolean>(false);
   const [openAttribute, setOpenAttribute] = useState<boolean>(false);
   const [openSpec, setOpenSpec] = useState<boolean>(false);
   const { adminHeaderTitle } = useAppConfig();
+  const [visibleOverlay, setVisibleOverlay] = useState<boolean>(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -98,7 +74,7 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
   const handleSwithAttribute = () => setOpenAttribute(!openAttribute);
   const handleSwithSpec = () => setOpenSpec(!openSpec);
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', position: 'relative' }}>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar>
@@ -143,17 +119,10 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
         </Toolbar>
       </AppBar>
       <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-          },
-        }}
-        variant="persistent"
         anchor="left"
-        open={open}>
+        open={open}
+        onClose={handleDrawerClose}
+        sx={{ '& .MuiPaper-root': { maxWidth: '250px' } }}>
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
             <ChevronLeftIcon />
@@ -192,7 +161,32 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
               </ListItem>
             </>
           ))}
+          <ListItem
+            button
+            key={'reset-db'}
+            onClick={() => {
+              setVisibleOverlay(true);
+              resetDatabase()
+                .then(() => {
+                  setVisibleOverlay(false);
+                  snackbarShowMessage('База данных сброшена успешно');
+                })
+                .catch(() => {
+                  setVisibleOverlay(false);
+                  snackbarShowMessage('Что-то пошло не так', 'error');
+                });
+            }}>
+            <ListItemIcon>
+              <Restore />
+            </ListItemIcon>
+            <ListItemText primary={'Сброс базы данных'} />
+          </ListItem>
         </List>
+        <Typography variant="caption" sx={{ px: '16px' }}>
+          *Данные доступны для удаления и редактирования. Чтобы откатить назад к
+          демо-данным нажмите на "Сброс базы данных"
+        </Typography>
+
         {openCategory ? (
           <CategoryModal
             open={openCategory}
@@ -209,12 +203,19 @@ const MainWrapper: React.FC<Props> = ({ children }) => {
           <SpecModal open={openSpec} handleClose={handleSwithSpec} />
         ) : null}
       </Drawer>
-      <Main open={open}>
+      <Main open={open} sx={{ width: '100%' }}>
         <DrawerHeader />
-        <Box> {children}</Box>
+        <Container
+          sx={{
+            py: '20px',
+          }}>
+          {' '}
+          {children}
+        </Container>
       </Main>
+      {visibleOverlay && <Overlay />}
     </Box>
   );
 };
 
-export default MainWrapper;
+export default withSnackbar(MainWrapper);

@@ -134,7 +134,7 @@ const ImageTest = styled(Box)(({ theme }) => ({
   '&::before': {
     content: '""',
     display: 'block',
-    background: `url(/static/lightning.png) no-repeat 0 0/contain`,
+    background: `url(/static/common/lightning.png) no-repeat 0 0/contain`,
     width: '22px',
     height: '22px',
     marginRight: '10px',
@@ -241,9 +241,12 @@ const Banner: React.FC<Props> = ({}) => {
 
         <BannerImageBox>
           {matches ? (
-            <BannerImage src="/static/banner-home-no-text.png" />
+            <BannerImage
+              layout="fill"
+              src={'/static/common/banner-home-no-text.png'}
+            />
           ) : (
-            <BannerImage src="/static/banner-home.png" />
+            <BannerImage layout="fill" src={'/static/common/banner-home.png'} />
           )}
           <ImageFragment>
             <ImageTest

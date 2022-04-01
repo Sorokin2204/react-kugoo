@@ -12,7 +12,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
+  Typography
 } from '@mui/material';
 import React, { useEffect } from 'react';
 import { GET_ORDER } from '../../../graphql/query/order';
@@ -56,6 +56,9 @@ const OrderProductAttr = styled(Box)(({ theme }) => ({
 const OrderInfo = styled(Box)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
+  [theme.breakpoints.down('sm')]: {
+    gridTemplateColumns: '1fr',
+  },
 }));
 
 const OrderClient = styled(Box)(({ theme }) => ({}));
@@ -73,6 +76,7 @@ const ClientTitle = styled(Typography)(({ theme }) => ({
 }));
 const ClientLabel = styled(Box)(({ theme }) => ({
   color: theme.palette.grey[500],
+  paddingRight: '20px',
 }));
 const ClientData = styled(Box)(({ theme }) => ({}));
 
@@ -95,7 +99,7 @@ const OrderModal: React.FC<Props> = ({ open, handleClose, orderId }) => {
           orderId: orderId,
         },
       })
-        .then((dt) => console.log('order data ', dt))
+       
         .catch((err) => console.log(JSON.stringify(err, null, 2)));
     }
   }, [orderId]);
@@ -172,7 +176,7 @@ const OrderModal: React.FC<Props> = ({ open, handleClose, orderId }) => {
                             src={
                               order?.Product?.images?.length !== 0
                                 ? `/static/products/${order?.Product?.images[0]?.name}`
-                                : '/static/preview-product.jpg'
+                                : '/static/common/preview-product.jpg'
                             }
                           />
                           <OrderProductTitle>

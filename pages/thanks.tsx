@@ -1,6 +1,7 @@
 import { Box, Button, Container, styled, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useEffect } from 'react';
+import useAppConfig from '../hooks/useAppConfig';
 
 type Props = {};
 
@@ -72,6 +73,11 @@ const ThanksInner = styled(Box)(({ theme }) => ({
 
 const ThanksPage: React.FC<Props> = ({}) => {
   const router = useRouter();
+  const { resetCart } = useAppConfig();
+  useEffect(() => {
+    resetCart();
+  }, []);
+
   return (
     <>
       <ThanksWrapper>
@@ -94,7 +100,7 @@ const ThanksPage: React.FC<Props> = ({}) => {
               </ThanksBody>
               <ThanksBoxImage>
                 <ThanksImage
-                  src="/static/thanks-img.png"
+                  src="/static/common/thanks-img.png"
                   width={'270'}
                   height={'557'}
                 />

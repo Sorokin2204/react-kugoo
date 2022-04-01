@@ -70,7 +70,7 @@ const CartPage: React.FC<Props> = ({}) => {
   });
 
   return (
-    <Container>
+    <Container sx={{ position: 'relative' }}>
       {cartProducts.length === 0 ? (
         <Typography
           variant="h2"

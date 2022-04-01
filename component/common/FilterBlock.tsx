@@ -54,8 +54,6 @@ const FilterBlock: React.FC<Props> = ({ sx, onChangeFilter, categorySlug }) => {
   );
   useEffect(() => {
     if (!loading) {
-      console.log(categorySlug);
-
       console.log(JSON.stringify(error, null, 2));
 
       setFilterData(

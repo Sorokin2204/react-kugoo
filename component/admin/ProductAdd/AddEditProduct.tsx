@@ -122,17 +122,25 @@ const AddEditProduct: React.FC<Props> = ({ product, snackbarShowMessage }) => {
         .catch((err) => {
           setVisibleOverlay(false);
           console.log(err);
+          if (err.graphQLErrors.length !== 0) {
+            if (err.graphQLErrors[0].extensions.argumentName === 'slug') {
+              snackbarShowMessage(
+                `Товар с таким слагом уже существует`,
+                'error',
+              );
+            } else if (
+              err.graphQLErrors[0].extensions.argumentName === 'name'
+            ) {
+              snackbarShowMessage(
+                `Товар с таким названием уже существует`,
+                'error',
+              );
+            } else {
+              console.log(JSON.stringify(err, null, 2));
 
-          if (err.graphQLErrors[0].extensions.argumentName === 'slug') {
-            snackbarShowMessage(`Товар с таким слагом уже существует`, 'error');
-          } else if (err.graphQLErrors[0].extensions.argumentName === 'name') {
-            snackbarShowMessage(
-              `Товар с таким названием уже существует`,
-              'error',
-            );
+              snackbarShowMessage(`Произошла непредвиденная ошибка`, 'error');
+            }
           } else {
-            console.log(JSON.stringify(err, null, 2));
-
             snackbarShowMessage(`Произошла непредвиденная ошибка`, 'error');
           }
         });

@@ -7,9 +7,6 @@ const {
 
 const attributeQuery = {
   getDefaultProductAttributes: async (parent, { productId }) => {
-    // const productAttrs = await Product_AttributeOption.find({
-    //   Product: productId,
-    // }).select('AttributeOption  -_id');
     const defaultAttrs = await Product_AttributeOption.aggregate([
       { $match: { Product: ObjectId(productId) } },
       {
@@ -39,30 +36,6 @@ const attributeQuery = {
       },
     ]);
 
-    // const defaultAttrs = await AttributeOption.aggregate([
-    //   {
-    //     $match: {
-    //       _id: { $in: productAttrs.map((prod) => prod.AttributeOption) },
-    //     },
-    //   },
-
-    //   {
-    //     $group: {
-    //       _id: '$Attribute',
-    //       defaultAttrOpt: { $first: '$$ROOT' },
-    //     },
-    //   },
-    // ]);
-    // console.log(
-    //   defaultAttrs.map((attrOpt) => ({
-    //     customPrice: attrOpt?.customPrice,
-    //     customSublabel: attrOpt?.customSublabel,
-    //     node: {
-    //       ...attrOpt.AttributeOption,
-    //       Attribute: { _id: attrOpt.AttributeOption.Attribute },
-    //     },
-    //   })),
-    // );
     return defaultAttrs.map((attrOpt) => ({
       customPrice: attrOpt?.customPrice,
       customSublabel: attrOpt?.customSublabel,

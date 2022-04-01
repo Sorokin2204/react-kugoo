@@ -102,7 +102,7 @@ const SearchPopover: React.FC<Props> = ({ data, clearSearch, handleClose }) => {
                     ? `/static/products/${
                         product.images[product.images.length - 1]?.name
                       }`
-                    : '/static/preview-product.jpg'
+                    : '/static/common/preview-product.jpg'
                 }
               />
               <SearchTitle variant="t2bb">{product.name}</SearchTitle>

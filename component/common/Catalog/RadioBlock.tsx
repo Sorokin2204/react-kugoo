@@ -205,9 +205,7 @@ const RadioBlock: React.FC<Props> = ({
 
         <FormControl
           sx={{
-            [theme.breakpoints.down('smd')]: {
-              width: '100%',
-            },
+            width: '100%',
           }}>
           <RadioList withContent={!withContent}>
             {radioList.map((el, i) => {
