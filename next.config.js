@@ -9,11 +9,11 @@ const nextConfig = {
       fallback: [
         {
           source: '/static/:path*',
-          destination: `https://react-kugoo-server-n7kmd7ns8-sorokin2204.vercel.app/static/:path*`,
+          destination: `https://react-kugoo.herokuapp.com/static/:path*`,
         },
         {
           source: '/static',
-          destination: `https://react-kugoo-server-n7kmd7ns8-sorokin2204.vercel.app/static`,
+          destination: `https://react-kugoo.herokuapp.com/static`,
         },
       ],
     };

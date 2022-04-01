@@ -15,7 +15,7 @@ const client = new ApolloClient({
   ssrMode: true,
   connectToDevTools: true,
   link: createUploadLink({
-    uri: 'https://react-kugoo-server-n7kmd7ns8-sorokin2204.vercel.app/graphql',
+    uri: 'https://react-kugoo.herokuapp.com/graphql',
     credentials: 'same-origin',
   }),
   cache: cache,

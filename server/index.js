@@ -1,25 +1,25 @@
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const cors = require('cors');
-const schema = require('../schema/schema');
+const schema = require('./schema/schema');
 const fetch = require('node-fetch');
 var ObjectID = require('bson-objectid');
 const { TypeComposer, schemaComposer } = require('graphql-compose');
 const { graphqlUploadExpress } = require('graphql-upload');
 const GraphQLUpload = require('graphql-upload/public/GraphQLUpload.js');
 const mongoose = require('mongoose');
-const { rootMutation } = require('../graphql/rootMutation');
-const { rootQuery } = require('../graphql/rootQuery');
-const { Category } = require('../model');
+const { rootMutation } = require('./graphql/rootMutation');
+const { rootQuery } = require('./graphql/rootQuery');
+const { Category } = require('./model');
 const { ApolloServer, gql } = require('apollo-server-express');
-const { scrappingProduct } = require('../utils/scrapingProduct');
+const { scrappingProduct } = require('./utils/scrapingProduct');
 const bodyParser = require('body-parser');
 const {
   ApolloServerPluginDrainHttpServer,
   ApolloServerPluginLandingPageProductionDefault,
   ApolloServerPluginLandingPageLocalDefault,
 } = require('apollo-server-core');
-require('../model');
+require('./model');
 const http = require('http');
 
 const jsonServer = (path) => `http://localhost:4000${path && path}`;
